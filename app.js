@@ -1,11 +1,14 @@
 const API_KEY = '[REDACTED_NEWSAPI_KEY]';
-const NEWS_URL = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`;
 
 async function getNews() {
     const grid = document.getElementById('news-grid');
     
     try {
-        const response = await fetch(NEWS_URL);
+        const url = new URL('https://newsapi.org/v2/top-headlines');
+        url.searchParams.append('country', 'us');
+        url.searchParams.append('apiKey', API_KEY);
+
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch news');
         
         const data = await response.json();

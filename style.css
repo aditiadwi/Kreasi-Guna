@@ -78,3 +78,13 @@
 .btn-read:hover {
     text-decoration: underline;
 }
+
+.error {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: #721c24;
+    background-color: #f8d7da;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+}
