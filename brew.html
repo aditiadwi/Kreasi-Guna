@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew & News | KG — Smart Drip Coffee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <span>KG</span>
+                <div class="logo-subtitle">Kreasi Guna</div>
+            </div>
+            <button class="mobile-menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="history.html">History</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="brew.html">Brew</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="track.html" class="nav-special">Track</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="stand-announcement" class="stand-announcement hidden" style="background: var(--gold-accent); color: var(--coffee-dark); font-weight: 700;">
+        <div class="container" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            <span class="announce-tag" style="background: var(--coffee-dark);">LIVE EVENT</span>
+            <p id="announce-text" style="margin: 0;">We're at <strong>BINUS University</strong> today! Come visit our stand.</p>
+            <div id="announce-items" class="announce-items"></div>
+        </div>
+    </div>
+
+    <main>
+        <section class="brew-guide-section container" style="padding-top: 100px;">
+            <h2 class="section-header">Langkah Penyeduhan</h2>
+            <div class="brew-steps-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 60px;">
+                <div class="brew-step-card" style="background: var(--white); padding: 30px; border-radius: 15px; box-shadow: var(--shadow-soft); text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 15px;">☕</div>
+                    <h3>1. Prepare</h3>
+                    <p>Gunakan cangkir 150–200ml. Panaskan air hingga <strong>91–96°C</strong>.</p>
+                </div>
+                <div class="brew-step-card" style="background: var(--white); padding: 30px; border-radius: 15px; box-shadow: var(--shadow-soft); text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 15px;">✂️</div>
+                    <h3>2. Tear</h3>
+                    <p>Buka kemasan luar dan sobek bagian atas filter sesuai garis perforasi.</p>
+                </div>
+                <div class="brew-step-card" style="background: var(--white); padding: 30px; border-radius: 15px; box-shadow: var(--shadow-soft); text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 15px;">⚓</div>
+                    <h3>3. Hook</h3>
+                    <p>Rentangkan sayap filter dan gantungkan pada bibir cangkir.</p>
+                </div>
+                <div class="brew-step-card" style="background: var(--white); padding: 30px; border-radius: 15px; box-shadow: var(--shadow-soft); text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 15px;">🌸</div>
+                    <h3>4. Bloom</h3>
+                    <p>Tuangkan 20–30ml air, tunggu <strong>30–45 detik</strong> untuk degassing.</p>
+                </div>
+                <div class="brew-step-card" style="background: var(--white); padding: 30px; border-radius: 15px; box-shadow: var(--shadow-soft); text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 15px;">⏳</div>
+                    <h3>5. Pour</h3>
+                    <p>Tuang sisa air perlahan secara melingkar. Total waktu: <strong>3–4 menit</strong>.</p>
+                </div>
+                <div class="brew-step-card" style="background: var(--white); padding: 30px; border-radius: 15px; box-shadow: var(--shadow-soft); text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 15px;">✨</div>
+                    <h3>6. Enjoy</h3>
+                    <p>Angkat filter, aduk sebentar, dan nikmati kopi Anda!</p>
+                </div>
+            </div>
+
+            <div class="hacks-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-bottom: 100px;">
+                <div class="hack-card" style="background: #e8f4fd; padding: 40px; border-radius: 15px; border-left: 5px solid #3498db;">
+                    <h3>💡 Pro Tips</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;">• Gunakan air mineral/filter (hindari air keran).</li>
+                        <li style="margin-bottom: 10px;">• Brewing terlalu lama akan membuat kopi pahit.</li>
+                        <li style="margin-bottom: 10px;">• Seduh langsung di atas es untuk <strong>Iced Coffee</strong>.</li>
+                    </ul>
+                </div>
+                <div class="hack-card" style="background: #fdf2f2; padding: 40px; border-radius: 15px; border-left: 5px solid #e74c3c;">
+                    <h3>⚠️ Hindari Ini</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;">• Jangan gunakan air mendidih (100°C) karena akan merusak aroma.</li>
+                        <li style="margin-bottom: 10px;">• Jangan melewatkan tahap <strong>Bloom</strong>.</li>
+                        <li style="margin-bottom: 10px;">• Jangan simpan di tempat lembap atau terkena cahaya langsung.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="news" class="news-section">
+            <div class="container">
+                <h2 class="section-header">Latest Coffee News & Tips</h2>
+                <div id="news-grid" class="news-grid">
+                    <div class="loading-state">Fetching the latest brew news...</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="feedback" class="feedback-section container">
+            <h2 class="section-header">Share Your Experience</h2>
+            <div class="feedback-card">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="direct-review-name" placeholder="Your name or 'Anonymous'">
+                </div>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating direct-stars">
+                        <span class="star-d" data-value="5">&#9733;</span>
+                        <span class="star-d" data-value="4">&#9733;</span>
+                        <span class="star-d" data-value="3">&#9733;</span>
+                        <span class="star-d" data-value="2">&#9733;</span>
+                        <span class="star-d" data-value="1">&#9733;</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Your Feedback</label>
+                    <textarea id="direct-review-text" placeholder="What did you think?"></textarea>
+                </div>
+                <button onclick="submitDirectReview()" class="btn-primary">Post Review</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-socials">
+                <a href="https://instagram.com/kreasiguna" target="_blank" class="social-icon">Instagram</a>
+                <a href="https://wa.me/6281219092900" target="_blank" class="social-icon">WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved. | <a href="javascript:void(0)" onclick="loginAdmin()">Admin Login</a></p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/6281219092900" class="whatsapp-float" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24">
+            <path fill="#fff" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/>
+            <path fill="#25d366" d="M12.004 3.105c4.896 0 8.878 3.987 8.878 8.888 0 4.896-3.987 8.878-8.878 8.878-1.578 0-3.095-.414-4.428-1.201l-.317-.189-3.295.843.864-3.15-.208-.332A8.826 8.826 0 0 1 3.12 12c0-4.896 3.982-8.895 8.884-8.895zm4.847 9.873c-.26-.13-1.536-.757-1.772-.843-.236-.086-.41-.13-.58.13-.17.26-.66.827-.81 1-.15.171-.3.193-.56.064-1.22-.618-2.14-1.096-2.984-2.54-.223-.377.223-.35.635-1.18.068-.137.034-.257-.017-.36-.051-.103-.456-1.097-.624-1.504-.163-.398-.33-.341-.45-.347-.116-.006-.25-.006-.384-.006-.134 0-.353.051-.536.253-.183.201-.7.683-.7 1.667 0 .983.714 1.93 1.157 2.52 2.012 2.76 4.38 3.376 6.51 3.424.57 0 1.09-.03 1.5-.09.457-.068 1.4-.537 1.6-.1.2.437.2.823.14.909-.05.086-.184.13-.443.26z"/>
+        </svg>
+    </a>
+
+    <script src="app.js"></script>
+</body>
+</html>

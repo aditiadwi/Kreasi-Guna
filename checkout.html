@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | KG — Smart Drip Coffee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init({
+              publicKey: "[REDACTED_EMAILJS_PUBLIC_KEY]",
+            });
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <span>KG</span>
+                <div class="logo-subtitle">Kreasi Guna</div>
+            </div>
+            <button class="mobile-menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="brew.html">Brew</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="checkout" class="checkout-section container">
+            <div class="checkout-container">
+                <div class="cart-details">
+                    <h2 class="section-header">Complete Your Order</h2>
+                    <div id="cart-items" class="cart-items">
+                        <p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>
+                    </div>
+                    
+                    <!-- Quick Add More Products -->
+                    <div class="quick-add-section" style="margin: 25px 0; border-top: 1px dashed var(--border-light); border-bottom: 1px dashed var(--border-light); padding: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;">☕ Tambah Produk Lain</h3>
+                            <a href="products.html" style="font-size: 0.78rem; font-weight: 600; color: var(--wood-warm); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--coffee-dark)'" onmouseout="this.style.color='var(--wood-warm)'">Lihat Semua &rarr;</a>
+                        </div>
+                        <div id="checkout-products-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
+                            <!-- Ditempel oleh app.js -->
+                        </div>
+                    </div>
+                    
+                    <form id="checkout-form">
+                        <h3>Shipping Destination</h3>
+                        <div id="autofill-banner" class="hidden" style="background: rgba(224, 192, 151, 0.12); border: 1px dashed var(--latte-accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 0.3s ease;">
+                            <div style="font-size: 0.85rem; color: var(--wood-warm); font-weight: 600;">
+                                💡 Gunakan alamat pengiriman terakhir Anda?
+                            </div>
+                            <button type="button" onclick="autofillShippingProfile()" style="background: var(--latte-accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+                                Isi Otomatis
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="customer-name" placeholder="John Doe" required minlength="3">
+                            <div class="error-message">Please enter your full name (min. 3 characters).</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="customer-phone" placeholder="081234567890" required pattern="[0-9]{10,15}">
+                            <div class="error-message">Please enter a valid phone number (10-15 digits).</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="customer-email" placeholder="john@example.com" required>
+                            <div class="error-message">Please enter a valid email address.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>City/Area</label>
+                            <select id="shipping-city" required>
+                                <option value="" selected disabled>Select your city</option>
+                                <option value="jakarta">Jakarta</option>
+                                <option value="bandung">Bandung</option>
+                                <option value="surabaya">Surabaya</option>
+                                <option value="medan">Medan</option>
+                                <option value="bali">Bali</option>
+                            </select>
+                            <div class="error-message">Please select a city.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Delivery Service</label>
+                            <select id="delivery-service" required>
+                                <option value="reg" selected>Regular (J&T / JNE)</option>
+                                <option value="sameday">GoSend Same Day</option>
+                                <option value="instant">GoSend Instant</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                                <label style="margin: 0; padding: 0;">Complete Address</label>
+                                <div style="display: flex; gap: 6px;">
+                                    <button type="button" id="btn-detect-location" onclick="detectUserLocationDirect()" 
+                                        style="background: transparent; border: 1px solid var(--latte-accent); padding: 6px 10px; border-radius: 8px; color: var(--wood-warm); font-weight: 600; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease; outline: none;"
+                                        onmouseover="this.style.backgroundColor='var(--latte-accent)'; this.style.color='white';"
+                                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--wood-warm)';">
+                                        📍 Lokasi Terkini
+                                    </button>
+                                    <button type="button" id="btn-open-map" onclick="detectUserLocationMap()" 
+                                        style="background: transparent; border: 1px solid var(--latte-accent); padding: 6px 10px; border-radius: 8px; color: var(--wood-warm); font-weight: 600; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease; outline: none;"
+                                        onmouseover="this.style.backgroundColor='var(--latte-accent)'; this.style.color='white';"
+                                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--wood-warm)';">
+                                        🗺️ Pilih di Peta
+                                    </button>
+                                </div>
+                            </div>
+                            <textarea id="customer-address" placeholder="Nama jalan, perumahan, gang..." required minlength="10"></textarea>
+                            <p id="address-helper-note" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
+                                💡 <span id="address-helper-text">Catatan: Silakan tambahkan nomor rumah/blok/RT/RW secara lengkap.</span>
+                            </p>
+                            <div class="error-message">Please enter a complete address (min. 10 characters).</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Note for Seller (Optional)</label>
+                            <textarea id="order-note" placeholder="Example: Extra bubble wrap..."></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Final Summary</h3>
+                    <div class="summary-line">
+                        <span>Subtotal</span>
+                        <span id="subtotal">Rp 0</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Shipping Fee</span>
+                        <span id="shipping-fee">Rp 0</span>
+                    </div>
+                    <div class="summary-line total">
+                        <span>Total</span>
+                        <span id="grand-total">Rp 0</span>
+                    </div>
+
+                    <div id="payment-area" class="payment-area hidden">
+                        <div class="merchant-header">
+                            <span class="merchant-label">Merchant:</span>
+                            <span class="merchant-name">Gojek - KG Smart Drip Coffee</span>
+                        </div>
+                        <div class="payment-amount-display">
+                            <h4>Total Amount to Pay</h4>
+                            <div id="payment-grand-total" class="amount">Rp 0</div>
+                        </div>
+                        <div id="qrcode-container" class="qrcode-container">
+                            <div id="qrcode"></div>
+                        </div>
+                        <p class="payment-instruction">Scan with your Gojek / GoPay app.</p>
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <select id="payment-method">
+                                <option value="gopay">GoPay</option>
+                                <option value="qris">QRIS</option>
+                                <option value="transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload Payment Proof</label>
+                            <input type="file" id="payment-receipt" accept="image/*">
+                        </div>
+                        <button id="btn-place-order" class="btn-primary w-100" onclick="handlePlaceOrder()">Submit Payment & Order</button>
+                    </div>
+                    <button id="btn-checkout" class="btn-primary w-100" onclick="handleProceedToPayment()">Proceed to Payment</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/6281219092900" class="whatsapp-float" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24">
+            <path fill="#fff" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/>
+            <path fill="#25d366" d="M12.004 3.105c4.896 0 8.878 3.987 8.878 8.888 0 4.896-3.987 8.878-8.878 8.878-1.578 0-3.095-.414-4.428-1.201l-.317-.189-3.295.843.864-3.15-.208-.332A8.826 8.826 0 0 1 3.12 12c0-4.896 3.982-8.895 8.884-8.895zm4.847 9.873c-.26-.13-1.536-.757-1.772-.843-.236-.086-.41-.13-.58.13-.17.26-.66.827-.81 1-.15.171-.3.193-.56.064-1.22-.618-2.14-1.096-2.984-2.54-.223-.377.223-.35.635-1.18.068-.137.034-.257-.017-.36-.051-.103-.456-1.097-.624-1.504-.163-.398-.33-.341-.45-.347-.116-.006-.25-.006-.384-.006-.134 0-.353.051-.536.253-.183.201-.7.683-.7 1.667 0 .983.714 1.93 1.157 2.52 2.012 2.76 4.38 3.376 6.51 3.424.57 0 1.09-.03 1.5-.09.457-.068 1.4-.537 1.6-.1.2.437.2.823.14.909-.05.086-.184.13-.443.26z"/>
+        </svg>
+    </a>
+    <div id="map-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 15px;">
+        <div style="background: white; width: 100%; max-width: 600px; border-radius: 16px; padding: 20px; box-shadow: var(--shadow-bold); position: relative; display: flex; flex-direction: column; gap: 15px;">
+            <button type="button" id="btn-close-map" style="position: absolute; top: 15px; right: 15px; background: #eee; border: none; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 10;">&times;</button>
+            <h3 style="margin-top: 0; font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); display: flex; align-items: center; gap: 8px;">
+                📍 Geser Pin ke Rumah Anda
+            </h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+                Geser peta atau seret pin merah tepat ke lokasi rumah Anda agar alamat kurir akurat.
+            </p>
+            
+            <!-- Pencarian Alamat ala Gojek -->
+            <div style="display: flex; flex-direction: column; gap: 6px; position: relative; z-index: 1000;">
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="map-search-input" placeholder="Cari nama jalan, perumahan, atau gedung..." 
+                           style="flex-grow: 1; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem; outline: none; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='var(--wood-warm)'"
+                           onblur="this.style.borderColor='var(--border-light)'">
+                    <button type="button" id="btn-map-search" style="padding: 10px 16px; border-radius: 8px; border: none; background: var(--wood-warm); color: white; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; white-space: nowrap;">
+                        🔍 Cari
+                    </button>
+                </div>
+                <div id="map-search-results" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: white; border: 1px solid var(--border-light); border-radius: 8px; box-shadow: var(--shadow-bold); z-index: 1010; margin-top: 4px;"></div>
+            </div>
+
+            <div id="map-container" style="width: 100%; height: 280px; border-radius: 12px; border: 1px solid var(--border-light); z-index: 1;"></div>
+            
+            <!-- Detail Rumah / Blok ala Gojek -->
+            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: -5px;">
+                <label style="font-size: 0.78rem; font-weight: 600; color: var(--coffee-dark);">Detail Nomor Rumah / Blok / RT-RW (Opsional):</label>
+                <input type="text" id="map-detail-input" placeholder="Contoh: Blok H3 No. 22, RT 02/RW 05" 
+                       style="padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem; outline: none; transition: border-color 0.2s;"
+                       onfocus="this.style.borderColor='var(--wood-warm)'"
+                       onblur="this.style.borderColor='var(--border-light)'">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" id="btn-cancel-map" style="padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer; font-weight: 600; font-size: 0.9rem;">Batal</button>
+                <button type="button" id="btn-confirm-map" style="padding: 10px 20px; border-radius: 8px; border: none; background: var(--wood-warm); color: white; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;">Gunakan Lokasi Ini</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

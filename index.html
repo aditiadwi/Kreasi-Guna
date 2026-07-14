@@ -3,73 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Perfect Brew | Traditional Coffee House</title>
+    <title>Smart Drip Coffee | KG — Kreasi Guna</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript">
+        (function() {
+            // NOTE: The user will need to replace this with their actual Public Key from EmailJS
+            emailjs.init({
+              publicKey: "[REDACTED_EMAILJS_PUBLIC_KEY]",
+            });
+        })();
+    </script>
 </head>
 <body>
     <header>
         <nav class="container">
-            <div class="logo">The Perfect Brew</div>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#news">News & Tips</a></li>
-                <li><a href="#contact">Contact</a></li>
+            <div class="logo">
+                <span>KG</span>
+                <div class="logo-subtitle">Kreasi Guna</div>
+            </div>
+            <button class="mobile-menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="history.html">History</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="brew.html">Brew</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="track.html" class="nav-special">Track</a></li>
             </ul>
         </nav>
     </header>
 
+    <div id="stand-announcement" class="stand-announcement hidden" style="background: var(--gold-premium); color: var(--coffee-black); font-weight: 700;">
+        <div class="container" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            <span class="announce-tag" style="background: var(--coffee-black);">LIVE EVENT</span>
+            <p id="announce-text" style="margin: 0;">We're at <strong>BINUS University</strong> today! Come visit our stand.</p>
+            <div id="announce-items" class="announce-items"></div>
+        </div>
+    </div>
+
     <main>
         <section id="home" class="hero">
             <div class="hero-content container">
-                <h1>Perfect Brew for <br><span>Perfect Moments</span></h1>
-                <p>Experience the rich heritage and comforting aroma of artisanal coffee crafted with passion.</p>
-                <a href="#news" class="btn-primary">Explore Our World</a>
-            </div>
-        </section>
-
-        <section id="about" class="about-section container">
-            <div class="about-content">
-                <h2 class="section-header">Our Story</h2>
-                <p>Since 1992, we've been dedicated to the art of coffee. We source the finest beans from sustainable farms across the globe, roasting them in small batches to preserve their unique character and depth of flavor.</p>
-                <p>Our traditional methods meet modern precision to bring you a cup that isn't just coffee—it's an experience.</p>
-            </div>
-        </section>
-
-        <section id="news" class="news-section">
-            <div class="container">
-                <h2 class="section-header">Latest Coffee News & Brewing Tips</h2>
-                <div id="news-grid" class="news-grid">
-                    <div class="loading-state">Grinding the latest updates...</div>
+                <h1>Smart Drip <br><span>Coffee</span></h1>
+                <p>Brew smart, drink better. Experience premium Indonesian coffee in the most practical way.</p>
+                <p style="font-size: 1.1rem; font-style: italic; margin-top: -30px; margin-bottom: 50px; opacity: 0.8;">"The best flavors from the Nusantara mountains, directly in your cup."</p>
+                <div class="hero-btns">
+                    <a href="products.html" class="btn-primary">Explore Products</a>
+                    <a href="about.html" class="btn-secondary">Our Story</a>
                 </div>
+            </div>
+        </section>
+
+        <section class="advantage-section container">
+            <div style="text-align: center; margin-bottom: 80px;">
+                <h2 class="section-header">Kenapa Harus Drip Bag?</h2>
+                <p style="max-width: 700px; margin: 0 auto; color: var(--text-muted); font-size: 1.2rem;">Bridging the gap between the speed of instant coffee and the uncompromising quality of professional café brewing.</p>
+            </div>
+            <div class="advantage-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px;">
+                <div class="advantage-card">
+                    <div style="font-size: 3rem; margin-bottom: 25px;">⚡</div>
+                    <h3 style="margin-bottom: 20px; font-size: 1.8rem;">3-Minute Brew</h3>
+                    <p style="color: var(--text-muted);">Real specialty coffee, ready in the time it takes to boil water. No machines required.</p>
+                </div>
+                <div class="advantage-card">
+                    <div style="font-size: 3rem; margin-bottom: 25px;">🏆</div>
+                    <h3 style="margin-bottom: 20px; font-size: 1.8rem;">Specialty Grade</h3>
+                    <p style="color: var(--text-muted);">Freshly roasted Single Origin beans from Indonesia's most iconic coffee regions.</p>
+                </div>
+                <div class="advantage-card">
+                    <div style="font-size: 3rem; margin-bottom: 25px;">✨</div>
+                    <h3 style="margin-bottom: 20px; font-size: 1.8rem;">Zero Mess</h3>
+                    <p style="color: var(--text-muted);">Self-contained filters. Simply drip, toss, and enjoy. No cleanup, no hassle.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="journey-section" style="background: #f4ece0; padding: 100px 0;">
+            <div class="container">
+                <h2 class="section-header">From Peak to Pouch</h2>
+                <div class="journey-steps" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 50px; align-items: center;">
+                    <div class="journey-image">
+                        <img src="Images/Gayo-sumatra.webp" style="width: 100%; border-radius: 20px; box-shadow: var(--shadow-bold);">
+                    </div>
+                    <div class="journey-content">
+                        <div class="step-item" style="margin-bottom: 40px;">
+                            <span class="step-number">01. ETHICAL SOURCING</span>
+                            <h3>The Highest Altitudes</h3>
+                            <p>We source directly from small-scale farmers in Gayo and Priangan, ensuring fair prices and the absolute best crop selection.</p>
+                        </div>
+                        <div class="step-item" style="margin-bottom: 40px;">
+                            <span class="step-number">02. PRECISION ROASTING</span>
+                            <h3>Locked-in Freshness</h3>
+                            <p>Our beans are roasted in small batches to precise profiles that highlight the natural character of the Indonesian soil.</p>
+                        </div>
+                        <div class="step-item">
+                            <span class="step-number">03. SMART PACKAGING</span>
+                            <h3>Preserving the Aroma</h3>
+                            <p>Every drip bag is nitrogen-flushed and sealed in food-grade material to keep that "just-roasted" smell until the moment you open it.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="featured-preview shop-section">
+            <div class="container">
+                <h2 class="section-header">Featured Selection</h2>
+                <div id="featured-grid" class="product-grid">
+                    <!-- Loaded via JS -->
+                </div>
+                <div style="text-align: center; margin-top: 60px;">
+                    <a href="products.html" class="btn-secondary">View Complete Shop</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="mission-snippet container" style="padding-bottom: 100px; text-align: center;">
+            <div style="max-width: 800px; margin: 0 auto; background: var(--white); padding: 50px; border-radius: 20px; box-shadow: var(--shadow-soft);">
+                <h3 style="font-size: 2rem; color: var(--coffee-dark); margin-bottom: 20px;">Our Mission</h3>
+                <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.8;">Produced by <strong>Kreasi Guna</strong>, we aim to introduce premium Indonesian coffee flavors to more people in an easy, practical way while maintaining the highest quality.</p>
             </div>
         </section>
     </main>
 
-    <footer id="contact">
+    <footer>
         <div class="container footer-content">
-            <div class="footer-info">
-                <h3>The Perfect Brew</h3>
-                <p>123 Coffee Lane, Barista Town</p>
-                <p>Phone: (555) 123-4567</p>
-                <p>Email: hello@perfectbrew.com</p>
-            </div>
-            <div class="footer-social">
-                <h3>Follow Us</h3>
-                <div class="social-links">
-                    <a href="#">Instagram</a>
-                    <a href="#">Facebook</a>
-                    <a href="#">Twitter</a>
-                </div>
+            <div class="footer-socials">
+                <a href="https://instagram.com/kreasiguna" target="_blank" class="social-icon">Instagram</a>
+                <a href="https://wa.me/6281219092900" target="_blank" class="social-icon">WhatsApp</a>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 The Perfect Brew. All rights reserved.</p>
+            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved. | <a href="javascript:void(0)" onclick="loginAdmin()">Admin Login</a></p>
         </div>
     </footer>
+
+    <a href="https://wa.me/6281219092900" class="whatsapp-float" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24">
+            <path fill="#fff" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/>
+            <path fill="#25d366" d="M12.004 3.105c4.896 0 8.878 3.987 8.878 8.888 0 4.896-3.987 8.878-8.878 8.878-1.578 0-3.095-.414-4.428-1.201l-.317-.189-3.295.843.864-3.15-.208-.332A8.826 8.826 0 0 1 3.12 12c0-4.896 3.982-8.895 8.884-8.895zm4.847 9.873c-.26-.13-1.536-.757-1.772-.843-.236-.086-.41-.13-.58.13-.17.26-.66.827-.81 1-.15.171-.3.193-.56.064-1.22-.618-2.14-1.096-2.984-2.54-.223-.377.223-.35.635-1.18.068-.137.034-.257-.017-.36-.051-.103-.456-1.097-.624-1.504-.163-.398-.33-.341-.45-.347-.116-.006-.25-.006-.384-.006-.134 0-.353.051-.536.253-.183.201-.7.683-.7 1.667 0 .983.714 1.93 1.157 2.52 2.012 2.76 4.38 3.376 6.51 3.424.57 0 1.09-.03 1.5-.09.457-.068 1.4-.537 1.6-.1.2.437.2.823.14.909-.05.086-.184.13-.443.26z"/>
+        </svg>
+    </a>
 
     <script src="app.js"></script>
 </body>

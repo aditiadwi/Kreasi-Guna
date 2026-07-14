@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | KG — Smart Drip Coffee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <span>KG</span>
+                <div class="logo-subtitle">Kreasi Guna</div>
+            </div>
+            <button class="mobile-menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="brew.html">Brew</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="checkout" class="checkout-section container">
+            <div class="checkout-container">
+                <div class="cart-details">
+                    <h2 class="section-header">Complete Your Order</h2>
+                    <div id="cart-items" class="cart-items">
+                        <p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>
+                    </div>
+                    
+                    <div class="shipping-info">
+                        <h3>Shipping Destination</h3>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="customer-name" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="customer-phone" placeholder="081234567890">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="customer-email" placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>City/Area</label>
+                            <select id="shipping-city">
+                                <option value="" selected disabled>Select your city</option>
+                                <option value="jakarta">Jakarta</option>
+                                <option value="bandung">Bandung</option>
+                                <option value="surabaya">Surabaya</option>
+                                <option value="medan">Medan</option>
+                                <option value="bali">Bali</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Delivery Service</label>
+                            <select id="delivery-service">
+                                <option value="reg" selected>Regular (J&T / JNE)</option>
+                                <option value="sameday">GoSend Same Day</option>
+                                <option value="instant">GoSend Instant</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Complete Address</label>
+                            <textarea id="customer-address" placeholder="Street name, house number..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Note for Seller (Optional)</label>
+                            <textarea id="order-note" placeholder="Example: Extra bubble wrap..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Final Summary</h3>
+                    <div class="summary-line">
+                        <span>Subtotal</span>
+                        <span id="subtotal">Rp 0</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Shipping Fee</span>
+                        <span id="shipping-fee">Rp 0</span>
+                    </div>
+                    <div class="summary-line total">
+                        <span>Total</span>
+                        <span id="grand-total">Rp 0</span>
+                    </div>
+
+                    <div id="payment-area" class="payment-area hidden">
+                        <div class="merchant-header">
+                            <span class="merchant-label">Merchant:</span>
+                            <span class="merchant-name">Gojek - KG Smart Drip Coffee</span>
+                        </div>
+                        <div class="payment-amount-display">
+                            <h4>Total Amount to Pay</h4>
+                            <div id="payment-grand-total" class="amount">Rp 0</div>
+                        </div>
+                        <div id="qrcode-container" class="qrcode-container">
+                            <div id="qrcode"></div>
+                        </div>
+                        <p class="payment-instruction">Scan with your Gojek / GoPay app.</p>
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <select id="payment-method">
+                                <option value="gopay">GoPay</option>
+                                <option value="qris">QRIS</option>
+                                <option value="transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload Payment Proof</label>
+                            <input type="file" id="payment-receipt" accept="image/*">
+                        </div>
+                        <button id="btn-place-order" class="btn-primary w-100" onclick="handlePlaceOrder()">Submit Payment & Order</button>
+                    </div>
+                    <button id="btn-checkout" class="btn-primary w-100" onclick="handleProceedToPayment()">Proceed to Payment</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/6281219092900" class="whatsapp-float" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.06 3.973L0 16l4.104-1.076a7.863 7.863 0 0 0 3.888 1.029h.003c4.369 0 7.926-3.559 7.93-7.93a7.897 7.897 0 0 0-2.322-5.697zM7.994 14.527a6.525 6.525 0 0 1-3.309-.902l-.237-.14-2.464.647.658-2.404-.154-.245a6.525 6.525 0 0 1-1.003-3.493c0-3.603 2.94-6.541 6.544-6.541 1.748 0 3.391.681 4.63 1.92s1.919 2.882 1.919 4.63c-.004 3.605-2.943 6.544-6.545 6.544zM11.667 9.856c-.2-.101-1.181-.582-1.364-.649-.183-.067-.317-.101-.45.101-.132.202-.513.649-.629.782-.116.132-.232.148-.432.048-.201-.101-.848-.312-1.615-.997-.597-.533-1-.192-1.157-.35-.157-.158-.016-.244.084-.344.091-.09.201-.233.302-.349.101-.116.134-.194.202-.325.068-.133.034-.251-.016-.352-.05-.101-.45-1.085-.617-1.488-.162-.395-.327-.341-.45-.348-.115-.007-.247-.008-.38-.008-.133 0-.35.05-.533.251-.183.202-.699.683-.699 1.666 0 .983.717 1.933.817 2.067.101.134 1.411 2.153 3.418 3.018.478.206.851.329 1.144.422.48.152.917.13 1.263.078.385-.058 1.181-.482 1.348-.948.167-.466.167-.866.117-.948-.05-.082-.184-.132-.384-.233z"/>
+        </svg>
+    </a>
+
+    <script src="app.js"></script>
+</body>
+</html>
