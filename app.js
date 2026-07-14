@@ -1489,6 +1489,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (page === 'index' || page === '') {
                 if (supabaseClient) renderFeaturedProducts();
             }
+            if (page === 'checkout') {
+                renderCheckoutProductsList();
+                renderCart();
+                window.handleShippingUpdate();
+            }
         });
     }
 
