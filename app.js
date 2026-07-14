@@ -148,7 +148,7 @@ async function initShop() {
         
         return `
             <div class="product-card ${out ? 'out-of-stock' : ''}">
-                <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'">
+                <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
                 <div class="product-rating">${'&#9733;'.repeat(Math.round(avg))} (${avg})</div>
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
@@ -638,6 +638,12 @@ async function renderStandAnnouncement() {
 window.loginAdmin = () => { window.location.href = 'admin.html'; };
 
 async function getCoffeeNews() {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost) {
+        // Direct fallback to avoid console error and API limit waste on Vercel
+        displayNews(MOCK_COFFEE_NEWS.slice(0, 3));
+        return;
+    }
     try {
         const r = await fetch(`https://newsapi.org/v2/everything?q=coffee&pageSize=20&apiKey=${API_KEY}`);
         const d = await r.json();
@@ -671,7 +677,7 @@ async function renderFeaturedProducts() {
 
         return `
             <div class="product-card">
-                <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'">
+                <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
                 <a href="products.html" class="btn-primary w-100">Shop Now</a>
