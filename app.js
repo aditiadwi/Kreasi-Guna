@@ -30,11 +30,15 @@ function saveFormData() {
 function loadFormData() {
     const saved = localStorage.getItem('checkout_form_data');
     if (!saved) return;
-    const data = JSON.parse(saved);
-    FORM_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && data[id]) el.value = data[id];
-    });
+    try {
+        const data = JSON.parse(saved);
+        FORM_FIELDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && data[id]) el.value = data[id];
+        });
+    } catch (e) {
+        console.warn("Gagal membaca checkout_form_data dari localStorage:", e);
+    }
 }
 
 function clearFormData() {
@@ -122,7 +126,14 @@ async function initShop() {
         return;
     }
 
-    const reviews = JSON.parse(localStorage.getItem('coffee_reviews') || '[]');
+    let reviews = [];
+    try {
+        reviews = JSON.parse(localStorage.getItem('coffee_reviews') || '[]');
+        if (!Array.isArray(reviews)) reviews = [];
+    } catch (e) {
+        console.warn("Gagal membaca coffee_reviews dari localStorage:", e);
+        reviews = [];
+    }
     grid.innerHTML = products.map(p => {
         const out = p.stock <= 0;
         const prodReviews = reviews.filter(r => r.items && r.items.includes(p.name));
@@ -1440,7 +1451,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         navLinks.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { menuToggle.classList.remove('active'); navLinks.classList.remove('active'); }); });
     }
 
-    cart = JSON.parse(localStorage.getItem('coffee_cart') || '{}');
+    try {
+        cart = JSON.parse(localStorage.getItem('coffee_cart') || '{}');
+    } catch (e) {
+        console.warn("Gagal membaca coffee_cart dari localStorage:", e);
+        cart = {};
+    }
 
     const path = window.location.pathname;
     const page = path.split("/").pop();
