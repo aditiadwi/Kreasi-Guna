@@ -318,6 +318,9 @@ async function fetchProducts() {
         if (data) {
             console.log("Successfully fetched products:", data.length);
             DYNAMIC_PRODUCTS = data;
+            if (typeof renderCart === 'function') {
+                renderCart();
+            }
             return data;
         }
     } catch (e) {
