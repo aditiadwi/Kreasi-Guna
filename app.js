@@ -8,6 +8,87 @@ if (typeof supabase !== 'undefined') {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
+// USER SESSION & CART STATES (DYNAMIC PER USER ID)
+let cart = {};
+const FORM_FIELDS = ['customer-name', 'customer-phone', 'customer-email', 'shipping-city', 'delivery-service', 'customer-address'];
+
+let currentUserId = null;
+let isFirstAuthCheck = true;
+
+function getCartStorageKey() {
+    return currentUserId ? `coffee_cart_${currentUserId}` : 'coffee_cart';
+}
+
+function getFormStorageKey() {
+    return currentUserId ? `checkout_form_data_${currentUserId}` : 'checkout_form_data';
+}
+
+function getProfileStorageKey() {
+    return currentUserId ? `customer_profile_${currentUserId}` : 'customer_profile';
+}
+
+function getRecentOrdersStorageKey() {
+    return currentUserId ? `recent_orders_${currentUserId}` : 'recent_orders';
+}
+
+function loadUserSpecificState(session) {
+    // 1. Reload the cart
+    try {
+        cart = JSON.parse(localStorage.getItem(getCartStorageKey()) || '{}');
+    } catch (e) {
+        console.warn("Gagal membaca coffee_cart dari localStorage:", e);
+        cart = {};
+    }
+    renderCart();
+
+    // 2. Reload checkout form or track state depending on the page
+    const path = window.location.pathname;
+    let page = path.split("/").pop();
+    if (page.endsWith('.html')) page = page.slice(0, -5);
+    if (page === 'checkout') {
+        const saved = localStorage.getItem(getFormStorageKey());
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                FORM_FIELDS.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = data[id] || '';
+                });
+            } catch (e) {
+                console.warn("Gagal membaca checkout_form_data dari localStorage:", e);
+            }
+        } else {
+            // Clear fields if no saved form data for this user
+            FORM_FIELDS.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }
+
+        // Autofill name and email from active session
+        const nameEl = document.getElementById('customer-name');
+        const emailEl = document.getElementById('customer-email');
+        if (session && session.user) {
+            if (nameEl) nameEl.value = session.user.user_metadata.full_name || '';
+            if (emailEl) emailEl.value = session.user.email || '';
+        } else {
+            if (nameEl) nameEl.value = '';
+            if (emailEl) emailEl.value = '';
+        }
+        
+        // Trigger shipping update since fields changed
+        window.handleShippingUpdate();
+        
+        if (typeof window.checkAutofillProfile === 'function') {
+            window.checkAutofillProfile();
+        }
+    } else if (page === 'track' || page === '') {
+        if (typeof window.renderRecentOrdersTrack === 'function') {
+            window.renderRecentOrdersTrack();
+        }
+    }
+}
+
 // --- GOOGLE OAUTH AUTHENTICATION LOGIC ---
 async function updateAuthUI() {
     const navLinks = document.getElementById('nav-links');
@@ -32,6 +113,20 @@ async function updateAuthUI() {
 
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        // Handle User Session State changes
+        const oldUserId = currentUserId;
+        if (session && session.user) {
+            currentUserId = session.user.id;
+        } else {
+            currentUserId = null;
+        }
+        
+        if (currentUserId !== oldUserId || isFirstAuthCheck) {
+            isFirstAuthCheck = false;
+            loadUserSpecificState(session);
+        }
+
         if (session && session.user) {
             const user = session.user;
             const name = user.user_metadata.full_name || user.email;
@@ -64,8 +159,8 @@ async function updateAuthUI() {
             if (page === 'checkout') {
                 const nameEl = document.getElementById('customer-name');
                 const emailEl = document.getElementById('customer-email');
-                if (nameEl && !nameEl.value) nameEl.value = user.user_metadata.full_name || '';
-                if (emailEl && !emailEl.value) emailEl.value = user.email || '';
+                if (nameEl) nameEl.value = user.user_metadata.full_name || '';
+                if (emailEl) emailEl.value = user.email || '';
             }
         } else {
             authLi.innerHTML = `
@@ -108,6 +203,12 @@ window.handleGoogleLogin = async () => {
 window.handleLogout = async () => {
     if (!supabaseClient) return;
     try {
+        // Hapus data guest di localStorage agar sesi guest berikutnya bersih dan kosong
+        localStorage.removeItem('coffee_cart');
+        localStorage.removeItem('checkout_form_data');
+        localStorage.removeItem('customer_profile');
+        localStorage.removeItem('recent_orders');
+
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
         window.location.reload();
@@ -165,7 +266,6 @@ const EMAILJS_ADMIN_TEMPLATE_ID = 'template_32knsih';
 const EMAILJS_BUYER_TEMPLATE_ID = 'template_vsn07oo';
 
 // --- FORM PERSISTENCE LOGIC ---
-const FORM_FIELDS = ['customer-name', 'customer-phone', 'customer-email', 'shipping-city', 'delivery-service', 'customer-address'];
 
 function saveFormData() {
     const data = {};
@@ -173,11 +273,11 @@ function saveFormData() {
         const el = document.getElementById(id);
         if (el) data[id] = el.value;
     });
-    localStorage.setItem('checkout_form_data', JSON.stringify(data));
+    localStorage.setItem(getFormStorageKey(), JSON.stringify(data));
 }
 
 function loadFormData() {
-    const saved = localStorage.getItem('checkout_form_data');
+    const saved = localStorage.getItem(getFormStorageKey());
     if (!saved) return;
     try {
         const data = JSON.parse(saved);
@@ -191,7 +291,7 @@ function loadFormData() {
 }
 
 function clearFormData() {
-    localStorage.removeItem('checkout_form_data');
+    localStorage.removeItem(getFormStorageKey());
     FORM_FIELDS.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -265,7 +365,6 @@ const SHIPPING_FEES = {
     bali: { reg: 30000, sameday: 55000, instant: 85000 }
 };
 
-let cart = {};
 let currentShippingFee = 0;
 let directSelectedRating = 0;
 let customStandItems = [];
@@ -329,7 +428,7 @@ window.updateQty = (id, delta) => {
 };
 
 function renderCart() {
-    localStorage.setItem('coffee_cart', JSON.stringify(cart));
+    localStorage.setItem(getCartStorageKey(), JSON.stringify(cart));
     const cont = document.getElementById('cart-items');
     if (!cont) return;
     let sub = 0;
@@ -623,18 +722,18 @@ window.handlePlaceOrder = async () => {
             city: document.getElementById('shipping-city').value,
             address: document.getElementById('customer-address').value
         };
-        localStorage.setItem('customer_profile', JSON.stringify(customerProfile));
+        localStorage.setItem(getProfileStorageKey(), JSON.stringify(customerProfile));
 
-        let recentOrders = JSON.parse(localStorage.getItem('recent_orders') || '[]');
+        let recentOrders = JSON.parse(localStorage.getItem(getRecentOrdersStorageKey()) || '[]');
         if (!recentOrders.includes(orderId)) {
             recentOrders.unshift(orderId);
             if (recentOrders.length > 5) recentOrders.pop();
-            localStorage.setItem('recent_orders', JSON.stringify(recentOrders));
+            localStorage.setItem(getRecentOrdersStorageKey(), JSON.stringify(recentOrders));
         }
 
         // SUCCESS: Clear everything
         cart = {}; 
-        localStorage.removeItem('coffee_cart');
+        localStorage.removeItem(getCartStorageKey());
         clearFormData(); 
         renderCart(); 
         
@@ -1622,7 +1721,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateAuthUI();
 
     try {
-        cart = JSON.parse(localStorage.getItem('coffee_cart') || '{}');
+        cart = JSON.parse(localStorage.getItem(getCartStorageKey()) || '{}');
     } catch (e) {
         console.warn("Gagal membaca coffee_cart dari localStorage:", e);
         cart = {};
@@ -1794,7 +1893,7 @@ window.handleEmailClick = () => {
 };
 
 window.checkAutofillProfile = () => {
-    const profileStr = localStorage.getItem('customer_profile');
+    const profileStr = localStorage.getItem(getProfileStorageKey());
     const banner = document.getElementById('autofill-banner');
     if (profileStr && banner) {
         banner.classList.remove('hidden');
@@ -1802,7 +1901,7 @@ window.checkAutofillProfile = () => {
 };
 
 window.autofillShippingProfile = () => {
-    const profileStr = localStorage.getItem('customer_profile');
+    const profileStr = localStorage.getItem(getProfileStorageKey());
     if (!profileStr) return;
     try {
         const p = JSON.parse(profileStr);
@@ -1828,7 +1927,7 @@ window.renderRecentOrdersTrack = () => {
     const list = document.getElementById('recent-orders-list');
     if (!container || !list) return;
 
-    const recentOrders = JSON.parse(localStorage.getItem('recent_orders') || '[]');
+    const recentOrders = JSON.parse(localStorage.getItem(getRecentOrdersStorageKey()) || '[]');
     if (recentOrders.length === 0) {
         container.classList.add('hidden');
         return;
