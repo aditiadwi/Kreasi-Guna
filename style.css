@@ -659,3 +659,37 @@ footer { padding: 60px 0 30px; background: var(--coffee-dark); color: var(--bg-c
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* GOOGLE AUTH NAV STYLES */
+#auth-nav-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.auth-dropdown {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform-origin: top right;
+}
+
+.auth-dropdown.hidden {
+    display: none !important;
+}
+
+.nav-login-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-light);
+    background-color: var(--white);
+    color: var(--coffee-black);
+    cursor: pointer;
+    box-shadow: var(--shadow-subtle);
+    transition: all 0.2s ease;
+}
+
+.nav-login-btn:hover {
+    border-color: var(--gold-premium);
+    background-color: #fffbf2;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
