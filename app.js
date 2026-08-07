@@ -1733,6 +1733,27 @@ window.detectUserLocationMap = () => {
     });
 };
 
+// Smart Link Prefetching for Instant Navigation
+function initLinkPrefetching() {
+    const prefetched = new Set();
+    const prefetchLink = (href) => {
+        if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('http') || prefetched.has(href)) return;
+        prefetched.add(href);
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = href;
+        document.head.appendChild(link);
+    };
+
+    document.querySelectorAll('a[href]').forEach(a => {
+        const href = a.getAttribute('href');
+        if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('http')) {
+            a.addEventListener('mouseenter', () => prefetchLink(href), { passive: true, once: true });
+            a.addEventListener('touchstart', () => prefetchLink(href), { passive: true, once: true });
+        }
+    });
+}
+
 /** INITIALIZE */
 document.addEventListener('DOMContentLoaded', async () => {
     const menuToggle = document.getElementById('menu-toggle');
@@ -1780,6 +1801,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize Auth UI
     updateAuthUI();
+
+    // Smart Link Prefetching for Instant Navigation
+    initLinkPrefetching();
+
 
     try {
         cart = JSON.parse(localStorage.getItem(getCartStorageKey()) || '{}');

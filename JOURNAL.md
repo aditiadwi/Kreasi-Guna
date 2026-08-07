@@ -66,6 +66,7 @@ Membangun platform e-commerce kopi premium (Smart Drip Coffee) yang mengintegras
 | **Checkout Stock Transparency & Real-time Limit** | Pada halaman checkout, fitur *Quick-Add* ("Tambah Produk Lain") dan daftar keranjang tidak menampilkan jumlah stok yang tersedia, sehingga pembeli tidak tahu berapa sisa stok dan bisa bingung jika mencoba menambah barang melebihi stok. | Menambahkan badge info stok real-time (`Stok: X unit` / `Sisa X unit`), menampilkan indikator stok di rincian keranjang, serta menonaktifkan tombol `➕ Tambah` otomatis (menjadi `🚫 Habis`) ketika batas stok maksimal dalam keranjang tercapai. |
 | **Checkout UI Redundancy Cleanup** | Komponen `payment-area` menampilkan blok duplikat `Total Amount to Pay` yang persis sama dengan nilai `Total` di atasnya, membuat sidebar ringkasan belanja terpotong dan terlalu tinggi (*cluttered*). | Menghapus blok duplikat `payment-amount-display` di `checkout.html`, membuat alur dari `Final Summary` langsung menuju pilihan pembayaran & formulir bukti transfer dengan bersih dan intuitif. |
 | **Active Navigation Menu Link Highlight (UX)** | Pengguna tidak dapat mengetahui halaman mana yang sedang mereka buka karena tautan menu di header/navbar (`.nav-links`) tidak memiliki penanda visual aktif (*active indicator*). | Mengimplementasikan pendeteksian otomatis URL halaman aktif di `app.js` yang memberikan class `active`. Menambahkan garis penanda emas (*gold indicator bar*) di desktop dan badge latar belakang *soft gold* pada drawer menu HP. |
+| **Page Navigation Delay (0.5s) & White Flash** | Navigasi antar halaman HTML (Multi-Page App) terasa ada jeda 0.5 detik dan kedipan putih (*white flash*) karena browser memuat ulang seluruh resource dari nol saat link diklik. | Menambahkan **Native View Transitions API** (`@view-transition { navigation: auto; }`) di `style.css` untuk animasi *cross-fade* mulus 0.2s, serta mengimplementasikan **Smart Hover Link Prefetching** di `app.js` untuk memuat HTML di latar belakang saat kursor menyentuh menu. |
 
 ---
 
@@ -73,4 +74,5 @@ Membangun platform e-commerce kopi premium (Smart Drip Coffee) yang mengintegras
 Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap untuk menangani trafik nyata dengan manajemen data yang terpusat dan aman di cloud.
 
 *Update Terakhir: 7 Agustus 2026*
+
 

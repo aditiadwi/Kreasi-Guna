@@ -779,3 +779,18 @@ footer { padding: 60px 0 30px; background: var(--coffee-dark); color: var(--bg-c
     transform: translateY(-2px);
     box-shadow: var(--shadow-soft);
 }
+
+/* NATIVE VIEW TRANSITIONS & PAGE NAVIGATION OPTIMIZATION */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.2s;
+}
+
+a:active {
+    opacity: 0.8;
+}
+
