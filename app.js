@@ -355,13 +355,45 @@ window.autoAdjustContrast = () => {
 };
 
 /** 1. SHOP & CART */
+const DEFAULT_NEWS_IMG = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop";
+
 const MOCK_COFFEE_NEWS = [
-    { title: "The Art of the Perfect Pour-Over", description: "Discover the secrets to mastering the pour-over technique.", urlToImage: "https://images.unsplash.com/photo-1544787210-2211d64b565a?w=600&auto=format", url: "https://www.bluebottlecoffee.com/us/en/brew-guides/pour-over" },
-    { title: "Sustainable Sourcing: From Farm to Cup", description: "Learn how we work with small-scale farmers.", urlToImage: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format", url: "https://www.fairtrade.org.uk/farmers-and-workers/coffee/" },
-    { title: "Understanding Coffee Roast Profiles", description: "Light, medium, or dark? Explore roasting levels.", urlToImage: "https://images.unsplash.com/photo-1498804103079-a6351b050096?w=600&auto=format", url: "https://www.ncausa.org/about-coffee/coffee-roasts-guide" },
-    { title: "Cold Brew vs. Iced Coffee", description: "What's the difference? We break down the brewing methods.", urlToImage: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format", url: "https://www.foodnetwork.com/fn-dish/news/2015/06/cold-brew-vs-iced-coffee" },
-    { title: "The Rise of Oat Milk in Coffee", description: "Why oat milk has become the favorite dairy alternative.", urlToImage: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600&auto=format", url: "https://www.bonappetit.com/story/oat-milk-coffee-shops" },
-    { title: "Coffee Brewing Essentials", description: "The must-have tools for your home coffee station.", urlToImage: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format", url: "https://www.nytimes.com/wirecutter/reviews/best-coffee-maker/" }
+    { 
+        title: "Panduan Menyeduh Pour-Over & Drip Bag Presisi", 
+        description: "Rahasia temperatur air 92°C dan teknik blooming 30 detik untuk mengeluarkan rasa kopi alami yang manis dan seimbang.", 
+        urlToImage: "https://images.unsplash.com/photo-1544787210-2211d64b565a?w=600&auto=format&fit=crop", 
+        url: "https://www.perfectdailygrind.com/2020/09/a-beginners-guide-to-pour-over-coffee/" 
+    },
+    { 
+        title: "Mengenal Tingkat Sangrai (Roast Profile) Kopi", 
+        description: "Light, Medium, atau Dark Roast? Pahami bagaimana karakter rasa kopi berubah dari nuansa fruity ke aroma nutty-caramel.", 
+        urlToImage: "https://images.unsplash.com/photo-1498804103079-a6351b050096?w=600&auto=format&fit=crop", 
+        url: "https://www.ncausa.org/about-coffee/coffee-roasts-guide" 
+    },
+    { 
+        title: "Cold Brew vs. Iced Coffee: Mana Pilihanmu?", 
+        description: "Pelajari perbedaan proses ekstraksi dingin selama 12 jam dengan kopi es instan biasa dari segi keasaman dan kelembutan.", 
+        urlToImage: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop", 
+        url: "https://www.masterclass.com/articles/cold-brew-vs-iced-coffee" 
+    },
+    { 
+        title: "Keistimewaan Biji Kopi Single Origin Nusantara", 
+        description: "Menelusuri keunikan cita rasa kopi dari dataran tinggi Gayo, Priangan, hingga Toraja yang mendunia.", 
+        urlToImage: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop", 
+        url: "https://www.perfectdailygrind.com/2019/08/indonesias-specialty-coffee-regions-gayo-toraja-java/" 
+    },
+    { 
+        title: "Tips Menyimpan Kopi Agar Tetap Segar & Harum", 
+        description: "Hindari udara lembap dan cahaya langsung. Simpan kopi kemasan drip Anda agar rasa dan aroma terjaga maksimal.", 
+        urlToImage: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop", 
+        url: "https://www.ncausa.org/About-Coffee/How-to-Store-Coffee" 
+    },
+    { 
+        title: "Sains di Balik Ekstraksi Kopi yang Sempurna", 
+        description: "Bagaimana rasio kopi dan air 1:15 serta ukuran gilingan memengaruhi tingkat kemanisan dalam cangkir Anda.", 
+        urlToImage: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&auto=format&fit=crop", 
+        url: "https://www.perfectdailygrind.com/2018/11/water-temperature-coffee-flavor-extraction/" 
+    }
 ];
 
 const SHIPPING_FEES = {
@@ -917,19 +949,35 @@ window.loginAdmin = () => { window.location.href = 'admin.html'; };
 async function getCoffeeNews() {
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     if (!isLocalhost) {
-        // Direct fallback to avoid console error and API limit waste on Vercel
         displayNews(MOCK_COFFEE_NEWS.slice(0, 3));
         return;
     }
     try {
         const r = await fetch(`https://newsapi.org/v2/everything?q=coffee&pageSize=20&apiKey=${API_KEY}`);
         const d = await r.json();
-        const articles = d.articles && d.articles.length ? d.articles : MOCK_COFFEE_NEWS;
+        let rawArticles = (d && d.articles && Array.isArray(d.articles)) ? d.articles : [];
+        
+        // Filter out invalid, empty, or removed articles from API response
+        let articles = rawArticles.filter(a => {
+            if (!a || !a.title || !a.url) return false;
+            const title = a.title.trim().toLowerCase();
+            const desc = (a.description || '').trim().toLowerCase();
+            const url = (a.url || '').trim().toLowerCase();
+            if (title.includes('[removed]') || desc.includes('[removed]') || url.includes('removed.com') || title.length < 5) {
+                return false;
+            }
+            return true;
+        });
+
+        if (articles.length < 3) {
+            articles = MOCK_COFFEE_NEWS;
+        }
+
         const day = new Date().getDate();
         const itemsToDisplay = 3;
         const startIndex = (day * itemsToDisplay) % (articles.length <= itemsToDisplay ? 1 : articles.length - itemsToDisplay + 1);
         displayNews(articles.slice(startIndex, startIndex + itemsToDisplay));
-    } catch { 
+    } catch (e) { 
         displayNews(MOCK_COFFEE_NEWS.slice(0, 3)); 
     }
 }
@@ -937,7 +985,24 @@ async function getCoffeeNews() {
 function displayNews(articles) {
     const g = document.getElementById('news-grid');
     if (!g) return;
-    g.innerHTML = articles.map(a => `<article class="news-card"><img src="${a.urlToImage || ''}" class="news-image"><div class="news-body"><h3>${a.title}</h3><p class="news-desc">${a.description || ''}</p><a href="${a.url}" target="_blank">Read More &rarr;</a></div></article>`).join('');
+    const fallbackImg = typeof DEFAULT_NEWS_IMG !== 'undefined' ? DEFAULT_NEWS_IMG : "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop";
+
+    g.innerHTML = articles.map(a => {
+        const imgSrc = (a.urlToImage && a.urlToImage.trim() !== '' && !a.urlToImage.includes('removed.com')) 
+            ? a.urlToImage 
+            : fallbackImg;
+
+        return `
+            <article class="news-card">
+                <img src="${imgSrc}" class="news-image" onerror="this.onerror=null; this.src='${fallbackImg}';" loading="lazy" alt="${a.title}">
+                <div class="news-body">
+                    <h3>${a.title}</h3>
+                    <p class="news-desc">${a.description || ''}</p>
+                    <a href="${a.url}" target="_blank" rel="noopener noreferrer">Read More &rarr;</a>
+                </div>
+            </article>
+        `;
+    }).join('');
 }
 
 async function renderFeaturedProducts() {
