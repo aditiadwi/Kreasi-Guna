@@ -848,23 +848,32 @@ window.submitDirectReview = async () => {
 
 async function renderTestimonials() {
     const cont = document.getElementById('testimonials-grid');
-    if (!cont || !supabaseClient) return;
+    if (!cont) return;
+    const sb = initSupabase();
+    if (!sb) return;
 
-    const { data, error } = await supabaseClient
-        .from('feedback')
-        .select('*')
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false });
+    try {
+        const { data, error } = await sb
+            .from('feedback')
+            .select('*')
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false });
 
-    if (error) return;
+        if (error || !data || data.length === 0) {
+            cont.innerHTML = '<p class="no-reviews" style="text-align:center; grid-column: 1/-1; color: var(--text-muted);">Belum ada ulasan yang disetujui saat ini.</p>';
+            return;
+        }
 
-    cont.innerHTML = data.length ? data.map(r => `
-        <div class="testimonial-card">
-            <div style="color:#f1c40f">${'&#9733;'.repeat(r.rating)}</div>
-            <p class="testimonial-text">"${r.message}"</p>
-            <strong>${r.customer_name}</strong>
-        </div>
-    `).join('') : '<p>No reviews yet.</p>';
+        cont.innerHTML = data.map(r => `
+            <div class="testimonial-card">
+                <div style="color:#f1c40f; margin-bottom: 10px; font-size: 1.2rem;">${'&#9733;'.repeat(r.rating || 5)}</div>
+                <p class="testimonial-text">"${r.message || ''}"</p>
+                <strong style="display: block; margin-top: 15px; color: var(--coffee-black); font-size: 0.95rem;">${r.customer_name || 'Anonymous'}</strong>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.warn("Error rendering testimonials:", e);
+    }
 }
 
 window.deleteTestimonial = (id) => {
@@ -1911,6 +1920,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (page === 'index' || page === '') { 
         renderStandAnnouncement(); 
+        renderTestimonials();
     }
     else if (page === 'track') {
         if (typeof window.renderRecentOrdersTrack === 'function') {

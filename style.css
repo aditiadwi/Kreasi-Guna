@@ -507,6 +507,22 @@ body.menu-open {
 .order-status.pending { background: #fff3cd; color: #856404; }
 .order-status.paid { background: #d4edda; color: #155724; }
 
+/* TESTIMONIALS SECTION */
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.testimonial-card { 
+    background: var(--white); 
+    padding: 30px; 
+    border-radius: 16px; 
+    box-shadow: var(--shadow-soft); 
+    border: 1px solid var(--border-light); 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+.testimonial-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-medium); }
+.testimonial-text { font-style: italic; color: var(--text-main); line-height: 1.7; margin: 12px 0; flex-grow: 1; }
 .testimonial-card .btn-delete { position: absolute; top: 10px; right: 10px; display: none; color: #ff4444; border: none; background: none; font-weight: 800; cursor: pointer; }
 body.admin-active .testimonial-card .btn-delete { display: block; }
 
