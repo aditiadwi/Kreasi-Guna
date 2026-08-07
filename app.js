@@ -866,9 +866,11 @@ async function renderTestimonials() {
 
         cont.innerHTML = data.map(r => `
             <div class="testimonial-card">
-                <div style="color:#f1c40f; margin-bottom: 10px; font-size: 1.2rem;">${'&#9733;'.repeat(r.rating || 5)}</div>
-                <p class="testimonial-text">"${r.message || ''}"</p>
-                <strong style="display: block; margin-top: 15px; color: var(--coffee-black); font-size: 0.95rem;">${r.customer_name || 'Anonymous'}</strong>
+                <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                    <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
+                    <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+                </div>
+                <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
             </div>
         `).join('');
     } catch (e) {
