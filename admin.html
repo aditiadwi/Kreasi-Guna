@@ -262,16 +262,28 @@
                         </div>
                     </div>
 
-                    <!-- Filters -->
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; background: #f8f9fa; padding: 12px 15px; border-radius: 10px; border: 1px solid #eee;">
-                        <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Filter Tampilan:</label>
-                        <select id="fb-filter-rating" onchange="filterFeedback()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
-                            <option value="all">📁 Semua Feedback</option>
-                            <option value="eval">⚠️ Arsip Evaluasi Produk (Rating ≤ 3)</option>
-                            <option value="positive">⭐ Ulasan Positif (Rating 4-5)</option>
-                            <option value="live">✅ Status: Live di Home</option>
-                            <option value="hidden">🔒 Status: Hidden / Internal</option>
-                        </select>
+                    <!-- Filters & Per Page Selector -->
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 12px 15px; border-radius: 10px; border: 1px solid #eee;">
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Filter Tampilan:</label>
+                            <select id="fb-filter-rating" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                                <option value="all">📁 Semua Feedback</option>
+                                <option value="eval">⚠️ Arsip Evaluasi Produk (Rating ≤ 3)</option>
+                                <option value="positive">⭐ Ulasan Positif (Rating 4-5)</option>
+                                <option value="live">✅ Status: Live di Home</option>
+                                <option value="hidden">🔒 Status: Hidden / Internal</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Tampilkan:</label>
+                            <select id="fb-per-page" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                                <option value="10">10 per halaman</option>
+                                <option value="25">25 per halaman</option>
+                                <option value="50">50 per halaman</option>
+                                <option value="100">100 per halaman</option>
+                                <option value="all">Semua</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="table-responsive">
@@ -288,6 +300,14 @@
                             </thead>
                             <tbody id="admin-feedback-table"></tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div id="fb-pagination-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <span id="fb-page-info" style="font-size: 0.88rem; color: #666;">Menampilkan 0 ulasan</span>
+                        <div id="fb-page-buttons" style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
+                            <!-- Dynamic Pagination Buttons -->
+                        </div>
                     </div>
                 </div>
             </section>
@@ -538,6 +558,7 @@
         async function deleteEvent(id) { if(confirm('Delete?')){ await adminSupabase.from('events').delete().eq('id',id); loadEvents(); } }
 
         let allFeedbackData = [];
+        let currentFbPage = 1;
 
         async function loadFeedback() {
             const { data, error } = await adminSupabase.from('feedback').select('*').order('created_at', { ascending: false });
@@ -559,8 +580,14 @@
             filterFeedback();
         }
 
+        function resetFbPageAndFilter() {
+            currentFbPage = 1;
+            filterFeedback();
+        }
+
         function filterFeedback() {
             const filterVal = document.getElementById('fb-filter-rating')?.value || 'all';
+            const perPageVal = document.getElementById('fb-per-page')?.value || '10';
 
             let filtered = [...allFeedbackData];
             if (filterVal === 'eval') {
@@ -574,14 +601,57 @@
             }
 
             const tbody = document.getElementById('admin-feedback-table');
+            const pageInfo = document.getElementById('fb-page-info');
+            const pageBtns = document.getElementById('fb-page-buttons');
             if (!tbody) return;
 
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding: 20px;">Tidak ada feedback sesuai filter.</td></tr>';
+                if (pageInfo) pageInfo.innerText = 'Menampilkan 0 ulasan';
+                if (pageBtns) pageBtns.innerHTML = '';
                 return;
             }
 
-            tbody.innerHTML = filtered.map(f => {
+            // Hitung Pagination
+            const totalItems = filtered.length;
+            let perPage = perPageVal === 'all' ? totalItems : parseInt(perPageVal, 10);
+            if (isNaN(perPage) || perPage <= 0) perPage = 10;
+
+            const totalPages = Math.ceil(totalItems / perPage);
+            if (currentFbPage > totalPages) currentFbPage = totalPages;
+            if (currentFbPage < 1) currentFbPage = 1;
+
+            const startIndex = (currentFbPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + perPage, totalItems);
+            const pageItems = filtered.slice(startIndex, endIndex);
+
+            // Update Info Teks
+            if (pageInfo) {
+                pageInfo.innerText = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${totalItems} ulasan (Halaman ${currentFbPage} dari ${totalPages})`;
+            }
+
+            // Render Tombol Pagination
+            if (pageBtns) {
+                if (totalPages <= 1) {
+                    pageBtns.innerHTML = '';
+                } else {
+                    let btnsHTML = '';
+                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(1)" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>⏮️</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage - 1})" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>◀ Prev</button>`;
+
+                    let startP = Math.max(1, currentFbPage - 2);
+                    let endP = Math.min(totalPages, currentFbPage + 2);
+                    for (let p = startP; p <= endP; p++) {
+                        btnsHTML += `<button class="btn-sm" style="background:${p === currentFbPage ? '#2d3436' : '#e0e0e0'}; color:${p === currentFbPage ? '#fff' : '#333'}; font-weight:${p === currentFbPage ? 'bold' : 'normal'}; cursor:pointer;" onclick="goFbPage(${p})">${p}</button>`;
+                    }
+
+                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage + 1})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>Next ▶</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${totalPages})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>⏭️</button>`;
+                    pageBtns.innerHTML = btnsHTML;
+                }
+            }
+
+            tbody.innerHTML = pageItems.map(f => {
                 const ratingNum = f.rating || 0;
                 const isEval = ratingNum <= 3;
                 const evalBadge = isEval 
@@ -603,6 +673,11 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        function goFbPage(page) {
+            currentFbPage = page;
+            filterFeedback();
         }
 
         async function toggleApproval(id, s) { await adminSupabase.from('feedback').update({is_approved:!s}).eq('id',id); loadFeedback(); }
