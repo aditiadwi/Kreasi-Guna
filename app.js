@@ -4,9 +4,13 @@ const API_KEY = window.ENV?.NEWS_API_KEY || '[REDACTED_NEWSAPI_KEY]';
 const SUPABASE_URL = window.ENV?.SUPABASE_URL || 'https://cdlirubbmeayfwklnnyu.supabase.co';
 const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '[REDACTED_SUPABASE_ANON_KEY]';
 let supabaseClient = null;
-if (typeof supabase !== 'undefined') {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function initSupabase() {
+    if (!supabaseClient && typeof supabase !== 'undefined') {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    return supabaseClient;
 }
+initSupabase();
 
 // USER SESSION & CART STATES (DYNAMIC PER USER ID)
 let cart = {};
@@ -939,12 +943,17 @@ function displayNews(articles) {
 async function renderFeaturedProducts() {
     const grid = document.getElementById('featured-grid');
     if (!grid) return;
+    initSupabase();
     const products = await fetchProducts();
+    if (!products || products.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: var(--text-muted);">Tidak ada produk unggulan saat ini.</p>';
+        return;
+    }
     const featured = products.slice(0, 3);
     grid.innerHTML = featured.map(p => {
         let imgClass = 'img-sachet';
-        if (p.name.includes('BOX')) imgClass = 'img-box';
-        if (p.name.includes('POUCH')) imgClass = 'img-pouch';
+        if (p.name && p.name.includes('BOX')) imgClass = 'img-box';
+        if (p.name && p.name.includes('POUCH')) imgClass = 'img-pouch';
         
         const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
 
@@ -1820,11 +1829,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Only fetch products on pages that actually need them
+    const sb = initSupabase();
     const needsProducts = ['index', '', 'products', 'admin', 'checkout'].includes(page);
-    if (needsProducts && supabaseClient) {
+    if (needsProducts && sb) {
         fetchProducts().then(() => {
             if (page === 'index' || page === '') {
-                if (supabaseClient) renderFeaturedProducts();
+                renderFeaturedProducts();
             }
             if (page === 'checkout') {
                 renderCheckoutProductsList();
