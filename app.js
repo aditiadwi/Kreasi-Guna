@@ -1751,12 +1751,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             }); 
         });
 
-        // Highlight Active Page Link Automatically
-        const rawPath = window.location.pathname.split("/").pop();
-        const currentPage = (!rawPath || rawPath === '' || rawPath === '/') ? 'index.html' : rawPath;
+        // Highlight Active Page Link Automatically (Robust URL & Clean URL matching)
+        const getPageName = (path) => {
+            if (!path) return 'index';
+            let clean = path.split('/').pop().split('?')[0].split('#')[0];
+            if (clean.endsWith('.html')) clean = clean.slice(0, -5);
+            return (!clean || clean === '' || clean === 'index') ? 'index' : clean;
+        };
+
+        const currentName = getPageName(window.location.pathname);
         navLinks.querySelectorAll('a').forEach(link => {
             const href = link.getAttribute('href');
-            if (href === currentPage) {
+            const linkName = getPageName(href);
+            if (linkName === currentName) {
                 link.classList.add('active');
             } else {
                 link.classList.remove('active');
