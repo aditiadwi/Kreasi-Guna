@@ -1750,6 +1750,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.body.classList.remove('menu-open');
             }); 
         });
+
+        // Highlight Active Page Link Automatically
+        const rawPath = window.location.pathname.split("/").pop();
+        const currentPage = (!rawPath || rawPath === '' || rawPath === '/') ? 'index.html' : rawPath;
+        navLinks.querySelectorAll('a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPage) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
     }
 
     // Initialize EmailJS globally if loaded
