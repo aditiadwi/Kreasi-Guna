@@ -244,10 +244,48 @@
             <!-- FEEDBACK SECTION -->
             <section id="sec-feedback" class="admin-section hidden">
                 <div class="admin-card">
-                    <h2>Customer Feedback</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="margin: 0;">Customer Feedback & Evaluasi Produk</h2>
+                            <p style="color: #666; margin: 5px 0 0 0; font-size: 0.9rem;">Kelola ulasan publik & pantau masukan internal untuk pengembangan produk.</p>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <div style="background: #e3f2fd; color: #1565c0; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                                Total: <span id="fb-stat-total">0</span>
+                            </div>
+                            <div style="background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                                Avg Rating: <span id="fb-stat-avg">0.0</span> ★
+                            </div>
+                            <div style="background: #fff3e0; color: #e65100; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                                ⚠️ Arsip Evaluasi (≤3★): <span id="fb-stat-eval">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; background: #f8f9fa; padding: 12px 15px; border-radius: 10px; border: 1px solid #eee;">
+                        <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Filter Tampilan:</label>
+                        <select id="fb-filter-rating" onchange="filterFeedback()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                            <option value="all">📁 Semua Feedback</option>
+                            <option value="eval">⚠️ Arsip Evaluasi Produk (Rating ≤ 3)</option>
+                            <option value="positive">⭐ Ulasan Positif (Rating 4-5)</option>
+                            <option value="live">✅ Status: Live di Home</option>
+                            <option value="hidden">🔒 Status: Hidden / Internal</option>
+                        </select>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table-wide">
-                            <thead><tr><th>Date</th><th>Customer</th><th>Rating</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Rating</th>
+                                    <th>Message</th>
+                                    <th>Kategori / Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
                             <tbody id="admin-feedback-table"></tbody>
                         </table>
                     </div>
@@ -499,18 +537,74 @@
         async function activateEvent(id) { await adminSupabase.from('events').update({is_active:false}).neq('id','00000000'); await adminSupabase.from('events').update({is_active:true}).eq('id',id); loadEvents(); }
         async function deleteEvent(id) { if(confirm('Delete?')){ await adminSupabase.from('events').delete().eq('id',id); loadEvents(); } }
 
+        let allFeedbackData = [];
+
         async function loadFeedback() {
-            const { data } = await adminSupabase.from('feedback').select('*').order('created_at',{ascending:false});
-            if (!data) {
+            const { data, error } = await adminSupabase.from('feedback').select('*').order('created_at', { ascending: false });
+            if (error || !data) {
                 document.getElementById('admin-feedback-table').innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Gagal memuat feedback / Akses ditolak</td></tr>';
                 return;
             }
-            document.getElementById('admin-feedback-table').innerHTML = data.map(f => `
-                <tr><td>${new Date(f.created_at).toLocaleDateString()}</td><td>${f.customer_name}</td><td>${'★'.repeat(f.rating)}</td><td>${f.message}</td>
-                <td><span class="status-badge" style="background:${f.is_approved?'#55efc4':'#ffeaa7'}">${f.is_approved?'LIVE':'HIDDEN'}</span></td>
-                <td><button class="btn-sm btn-edit" onclick="toggleApproval('${f.id}',${f.is_approved})">${f.is_approved?'Hide':'Approve'}</button>
-                <button class="btn-sm btn-delete" onclick="deleteFeedback('${f.id}')">Del</button></td></tr>`).join('');
+            allFeedbackData = data;
+
+            // Hitung statistik
+            const total = allFeedbackData.length;
+            const avg = total > 0 ? (allFeedbackData.reduce((acc, f) => acc + (f.rating || 0), 0) / total).toFixed(1) : '0.0';
+            const evalCount = allFeedbackData.filter(f => (f.rating || 0) <= 3).length;
+
+            if (document.getElementById('fb-stat-total')) document.getElementById('fb-stat-total').innerText = total;
+            if (document.getElementById('fb-stat-avg')) document.getElementById('fb-stat-avg').innerText = avg;
+            if (document.getElementById('fb-stat-eval')) document.getElementById('fb-stat-eval').innerText = evalCount;
+
+            filterFeedback();
         }
+
+        function filterFeedback() {
+            const filterVal = document.getElementById('fb-filter-rating')?.value || 'all';
+
+            let filtered = [...allFeedbackData];
+            if (filterVal === 'eval') {
+                filtered = filtered.filter(f => (f.rating || 0) <= 3);
+            } else if (filterVal === 'positive') {
+                filtered = filtered.filter(f => (f.rating || 0) >= 4);
+            } else if (filterVal === 'live') {
+                filtered = filtered.filter(f => f.is_approved === true);
+            } else if (filterVal === 'hidden') {
+                filtered = filtered.filter(f => f.is_approved === false);
+            }
+
+            const tbody = document.getElementById('admin-feedback-table');
+            if (!tbody) return;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding: 20px;">Tidak ada feedback sesuai filter.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(f => {
+                const ratingNum = f.rating || 0;
+                const isEval = ratingNum <= 3;
+                const evalBadge = isEval 
+                    ? `<span style="background: #fff3e0; color: #d84315; border: 1px solid #ffcc80; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin-right: 5px; display: inline-block; margin-bottom: 3px;">⚠️ Evaluasi Produk</span>` 
+                    : '';
+                const liveBadge = `<span class="status-badge" style="background:${f.is_approved ? '#55efc4' : '#ffeaa7'}">${f.is_approved ? 'LIVE' : 'HIDDEN'}</span>`;
+
+                return `
+                    <tr style="${isEval ? 'background-color: rgba(255, 243, 224, 0.4);' : ''}">
+                        <td>${new Date(f.created_at).toLocaleDateString()}</td>
+                        <td><b>${f.customer_name || 'Anonymous'}</b></td>
+                        <td style="color: #f1c40f; white-space: nowrap;">${'★'.repeat(ratingNum)}${'☆'.repeat(5 - ratingNum)}</td>
+                        <td style="max-width: 320px; word-break: break-word;">${f.message || ''}</td>
+                        <td>${evalBadge}${liveBadge}</td>
+                        <td>
+                            <button class="btn-sm btn-edit" onclick="toggleApproval('${f.id}',${f.is_approved})">${f.is_approved ? 'Hide' : 'Approve'}</button>
+                            <button class="btn-sm btn-delete" onclick="deleteFeedback('${f.id}')">Del</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         async function toggleApproval(id, s) { await adminSupabase.from('feedback').update({is_approved:!s}).eq('id',id); loadFeedback(); }
         async function deleteFeedback(id) { if(confirm('Delete?')){ await adminSupabase.from('feedback').delete().eq('id',id); loadFeedback(); } }
 
