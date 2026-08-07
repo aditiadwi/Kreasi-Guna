@@ -436,13 +436,14 @@ function renderCart() {
     if (!cont) return;
     let sub = 0;
     const ids = Object.keys(cart);
-    if (ids.length === 0) { cont.innerHTML = '<p>Your cart is empty.</p>'; }
+    if (ids.length === 0) { cont.innerHTML = '<p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>'; }
     else {
         cont.innerHTML = ids.map(id => {
             const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
             if (!p) return '';
             sub += p.price * cart[id];
-            return `<div class="cart-item"><div><h4>${p.name}</h4><span>Rp ${parseInt(p.price).toLocaleString('id-ID')} x ${cart[id]}</span></div><div class="quantity-controls"><button class="btn-qty" onclick="updateQty('${id}',-1)">-</button><span>${cart[id]}</span><button class="btn-qty" onclick="updateQty('${id}',1)">+</button></div></div>`;
+            const isMaxStock = cart[id] >= p.stock;
+            return `<div class="cart-item"><div><h4>${p.name}</h4><span>Rp ${parseInt(p.price).toLocaleString('id-ID')} x ${cart[id]} <small style="color: var(--text-muted); font-size: 0.72rem; font-weight: 500;">(Stok: ${p.stock})</small></span></div><div class="quantity-controls"><button class="btn-qty" onclick="updateQty('${id}',-1)">-</button><span>${cart[id]}</span><button class="btn-qty" onclick="updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button></div></div>`;
         }).join('');
     }
     const sEl = document.getElementById('subtotal');
@@ -453,6 +454,11 @@ function renderCart() {
     
     const pgEl = document.getElementById('payment-grand-total');
     if (pgEl) pgEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+
+    const checkoutGrid = document.getElementById('checkout-products-list');
+    if (checkoutGrid) {
+        renderCheckoutProductsList();
+    }
 }
 
 window.addToCartCheckout = (id) => {
@@ -479,21 +485,37 @@ function renderCheckoutProductsList() {
         if (p.name.includes('POUCH')) imgClass = 'img-pouch';
         
         const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
+        const currentQtyInCart = cart[p.id] || 0;
+        const availableStock = Math.max(0, p.stock - currentQtyInCart);
+        const isOutOfStock = p.stock <= 0 || availableStock <= 0;
+        
+        let stockBadgeColor = 'var(--text-muted)';
+        let stockText = `Stok: ${p.stock} unit`;
+        if (p.stock <= 0) {
+            stockBadgeColor = '#e74c3c';
+            stockText = 'Stok Habis';
+        } else if (availableStock === 0) {
+            stockBadgeColor = '#e67e22';
+            stockText = `Max (${p.stock} di keranjang)`;
+        } else if (availableStock <= 2) {
+            stockBadgeColor = '#e67e22';
+            stockText = `Sisa ${availableStock} unit`;
+        }
         
         return `
-            <div style="background: #faf7f5; border: 1px solid var(--border-light); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; gap: 8px; transition: transform 0.2s;"
+            <div style="background: #faf7f5; border: 1px solid var(--border-light); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; gap: 6px; transition: transform 0.2s;"
                  onmouseover="this.style.transform='translateY(-2px)'"
                  onmouseout="this.style.transform='none'">
                 <img src="${imagePath}" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.src='Images/My Product.png'">
                 <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                     <h5 style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 0.75rem; color: var(--coffee-dark); line-height: 1.2;">${p.name}</h5>
                     <span style="font-size: 0.72rem; color: var(--wood-warm); font-weight: 600; margin-top: 3px;">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
+                    <span style="font-size: 0.68rem; color: ${stockBadgeColor}; font-weight: 600; margin-top: 2px;">${stockText}</span>
                 </div>
-                <button type="button" class="btn-qty" onclick="addToCartCheckout('${p.id}')"
-                        style="width: 100%; padding: 6px; border: none; background: var(--wood-warm); color: white; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;"
-                        onmouseover="this.style.backgroundColor='var(--coffee-dark)'"
-                        onmouseout="this.style.backgroundColor='var(--wood-warm)'">
-                    ➕ Tambah
+                <button type="button" class="btn-qty" onclick="addToCartCheckout('${p.id}')" ${isOutOfStock ? 'disabled' : ''}
+                        style="width: 100%; padding: 6px; border: none; background: ${isOutOfStock ? '#ccc' : 'var(--wood-warm)'}; color: white; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: ${isOutOfStock ? 'not-allowed' : 'pointer'}; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;"
+                        ${!isOutOfStock ? `onmouseover="this.style.backgroundColor='var(--coffee-dark)'" onmouseout="this.style.backgroundColor='var(--wood-warm)'"` : ''}>
+                    ${isOutOfStock ? '🚫 Habis' : '➕ Tambah'}
                 </button>
             </div>
         `;
