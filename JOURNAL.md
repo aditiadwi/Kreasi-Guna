@@ -70,6 +70,7 @@ Membangun platform e-commerce kopi premium (Smart Drip Coffee) yang mengintegras
 | **Home Page Featured Selection Products Loading** | Bagian "Featured Selection" di `index.html` tidak menampilkan daftar produk karena tag script Supabase menggunakan atribut `defer`, menyebabkan `typeof supabase` bernilai `undefined` saat `app.js` mengeksekusi inisialisasi awal. | Menghapus atribut `defer` dari tag script Supabase di `index.html` & `about.html`, membuat fungsi inisialisasi `initSupabase()` yang tangguh (*lazy-loaded*) di `app.js`, serta memastikan `renderFeaturedProducts()` selalu dipanggil setelah data produk Supabase berhasil dimuat. |
 | **Coffee News Quality Filtering & Image Fallback** | Beberapa artikel dari NewsAPI menampilkan gambar rusak/hilang, tautan 404, atau artikel terhapus bertuliskan `[Removed]`. | Mengimplementasikan **Article Quality Filter** di `getCoffeeNews()` untuk membuang artikel mati/terhapus, menambahkan **Fallback Image Handler** (`onerror`) dengan foto kopi HD Unsplash di `displayNews()`, serta memperbarui daftar `MOCK_COFFEE_NEWS` dengan artikel kopi terverifikasi dan berbahasa Indonesia yang edukatif. |
 | **Approved Testimonials / Feedback on Home Page** | Ulasan pelanggan yang disetujui Admin sebelumnya hanya muncul di `about.html`, membuat calon pembeli di `index.html` (Home) tidak langsung melihat ulasan positif. | Menambahkan komponen **What Our Brewers Say** di `index.html` di bawah bagian *Our Mission*, menyesuaikan `renderTestimonials()` di `app.js` agar memuat ulasan yang disetujui Admin (*is_approved = true*) secara dinamis pada halaman Home, serta mempercantik tata letak kartu ulasan di `style.css`. |
+| **Feedback Redundancy & Admin Evaluation Archive** | Menampilkan ulasan publik di `about.html` terasa duplikat karena sudah dipindah ke Home (`index.html`). Selain itu, Admin belum memiliki cara mudah untuk memfilter masukan/kritik buruk (rating ≤ 3) sebagai patokan pengembangan produk. | Menghapus komponen `testimonials-section` dari `about.html`. Menambahkan fitur **Quick Stats**, **Dropdown Filter Tampilan** (Semua, Evaluasi ≤3★, Positif 4-5★, Live/Hidden), serta **Highlight Visual** (`⚠️ Evaluasi Produk`) pada tabel Feedback di `admin.html` untuk mempermudah perbaikan kualitas produk internal. |
 
 ---
 
@@ -77,5 +78,6 @@ Membangun platform e-commerce kopi premium (Smart Drip Coffee) yang mengintegras
 Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap untuk menangani trafik nyata dengan manajemen data yang terpusat dan aman di cloud.
 
 *Update Terakhir: 7 Agustus 2026*
+
 
 
