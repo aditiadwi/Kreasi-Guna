@@ -1716,8 +1716,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const menuToggle = document.getElementById('menu-toggle');
     const navLinks = document.getElementById('nav-links');
     if (menuToggle && navLinks) {
-        menuToggle.addEventListener('click', () => { menuToggle.classList.toggle('active'); navLinks.classList.toggle('active'); });
-        navLinks.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { menuToggle.classList.remove('active'); navLinks.classList.remove('active'); }); });
+        menuToggle.addEventListener('click', () => { 
+            const isActive = menuToggle.classList.toggle('active'); 
+            navLinks.classList.toggle('active'); 
+            document.body.classList.toggle('menu-open', isActive);
+        });
+        navLinks.querySelectorAll('a').forEach(link => { 
+            link.addEventListener('click', () => { 
+                menuToggle.classList.remove('active'); 
+                navLinks.classList.remove('active'); 
+                document.body.classList.remove('menu-open');
+            }); 
+        });
+    }
+
+    // Initialize EmailJS globally if loaded
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init({
+            publicKey: window.ENV?.EMAILJS_PUBLIC_KEY || "[REDACTED_EMAILJS_PUBLIC_KEY]"
+        });
     }
 
     // Initialize Auth UI
