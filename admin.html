@@ -613,8 +613,24 @@
                 try {
                     const { data, error } = await adminSupabase.from('events').select('*').order('created_at', {ascending:false});
                     if (!error && data && data.length > 0) {
-                        events = data;
-                        localStorage.setItem('coffee_events_data', JSON.stringify(data));
+                        const mergedMap = new Map();
+                        // 1. Add local events
+                        localEvents.forEach(e => mergedMap.set(e.id, e));
+                        // 2. Merge Supabase events, preserving local updates & base64 images
+                        data.forEach(sbEvent => {
+                            if (!mergedMap.has(sbEvent.id)) {
+                                mergedMap.set(sbEvent.id, sbEvent);
+                            } else {
+                                const existing = mergedMap.get(sbEvent.id);
+                                const merged = { ...sbEvent, ...existing };
+                                if (existing.image_url && existing.image_url.startsWith('data:image')) {
+                                    merged.image_url = existing.image_url;
+                                }
+                                mergedMap.set(sbEvent.id, merged);
+                            }
+                        });
+                        events = Array.from(mergedMap.values());
+                        localStorage.setItem('coffee_events_data', JSON.stringify(events));
                     }
                 } catch (e) {
                     console.warn("Supabase loadEvents error:", e);
@@ -770,13 +786,18 @@
             // Save locally FIRST
             localStorage.setItem('coffee_events_data', JSON.stringify(events));
 
-            // Sync with Supabase if available
+            // Sync with Supabase if available (sanitize large base64 image data to prevent payload limit rejection)
             if (typeof adminSupabase !== 'undefined' && adminSupabase) {
                 try {
+                    let evForSupabase = { ...ev };
+                    if (evForSupabase.image_url && evForSupabase.image_url.startsWith('data:image') && evForSupabase.image_url.length > 50000) {
+                        evForSupabase.image_url = 'Images/binus_stand.jpg';
+                    }
+
                     if (is_active) {
                         await adminSupabase.from('events').update({ is_active: false }).neq('id', '00000000');
                     }
-                    await adminSupabase.from('events').upsert([ev]);
+                    await adminSupabase.from('events').upsert([evForSupabase]);
                 } catch (sbErr) {
                     console.warn("Supabase save event error (using local storage fallback):", sbErr);
                 }
