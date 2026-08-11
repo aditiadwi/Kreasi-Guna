@@ -806,6 +806,7 @@
             closeEventModal();
             loadEvents();
             if (typeof renderStandAnnouncement === 'function') renderStandAnnouncement();
+            if (typeof notifyEventStatusChange === 'function') notifyEventStatusChange();
             alert("Event berhasil disimpan!");
         };
 
@@ -825,6 +826,7 @@
 
             loadEvents();
             if (typeof renderStandAnnouncement === 'function') renderStandAnnouncement();
+            if (typeof notifyEventStatusChange === 'function') notifyEventStatusChange();
         }
 
         async function deactivateEvent(id) {
@@ -843,6 +845,7 @@
 
             loadEvents();
             if (typeof renderStandAnnouncement === 'function') renderStandAnnouncement();
+            if (typeof notifyEventStatusChange === 'function') notifyEventStatusChange();
         }
 
         async function deleteEvent(id) {
@@ -861,6 +864,7 @@
 
                 loadEvents();
                 if (typeof renderStandAnnouncement === 'function') renderStandAnnouncement();
+                if (typeof notifyEventStatusChange === 'function') notifyEventStatusChange();
             }
         }
 

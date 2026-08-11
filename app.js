@@ -992,6 +992,36 @@ async function getActiveEvent() {
     return localActive;
 }
 
+// Realtime Sync Engine for Instant Event Banner Activate / Deactivate
+if (typeof window.eventBroadcastChannel === 'undefined') {
+    try {
+        window.eventBroadcastChannel = new BroadcastChannel('coffee_events_realtime_sync');
+        window.eventBroadcastChannel.onmessage = (msg) => {
+            if (msg.data && msg.data.type === 'EVENT_CHANGED') {
+                if (typeof renderStandAnnouncement === 'function') renderStandAnnouncement();
+                if (typeof loadEvents === 'function') loadEvents();
+            }
+        };
+    } catch (e) {
+        console.warn("BroadcastChannel not supported:", e);
+    }
+}
+
+window.addEventListener('storage', (e) => {
+    if (e.key === 'coffee_events_data') {
+        if (typeof renderStandAnnouncement === 'function') renderStandAnnouncement();
+        if (typeof loadEvents === 'function') loadEvents();
+    }
+});
+
+function notifyEventStatusChange() {
+    if (window.eventBroadcastChannel) {
+        try {
+            window.eventBroadcastChannel.postMessage({ type: 'EVENT_CHANGED', timestamp: Date.now() });
+        } catch (e) {}
+    }
+}
+
 // Render Top Banner
 async function renderStandAnnouncement() {
     const banner = document.getElementById('stand-announcement');
@@ -1015,6 +1045,13 @@ async function renderStandAnnouncement() {
         console.error("Error rendering stand announcement:", e);
         banner.classList.add('hidden');
     }
+}
+
+// Polling fallback to keep banner status fresh
+if (!window.eventBannerPollingInterval) {
+    window.eventBannerPollingInterval = setInterval(() => {
+        if (typeof renderStandAnnouncement === 'function') renderStandAnnouncement();
+    }, 3000);
 }
 
 // Dynamically Inject Modal into DOM if it doesn't exist
