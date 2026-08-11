@@ -939,7 +939,7 @@ const DEFAULT_EVENTS_DATA = [
         image_url: 'Images/binus_stand.jpg',
         description: 'Dapatkan tester kopi gratis & diskon bundling 15% khusus pengunjung stand!',
         items_available: ['Gayo Drip', 'Priangan Drip', 'Starter Pack'],
-        is_active: true,
+        is_active: false,
         created_at: new Date().toISOString()
     }
 ];
@@ -976,8 +976,8 @@ async function getActiveEvent() {
                 .select('*')
                 .eq('is_active', true)
                 .maybeSingle();
-            if (!error && data) {
-                return data;
+            if (!error) {
+                return data || null;
             }
         } catch (e) {
             console.warn("Supabase fetch active event failed, using local storage:", e);

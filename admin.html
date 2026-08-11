@@ -587,13 +587,13 @@
         }
 
         async function loadEvents() {
-            let events = [];
+            let events = null;
             
             // Try Supabase first
             if (typeof adminSupabase !== 'undefined' && adminSupabase) {
                 try {
                     const { data, error } = await adminSupabase.from('events').select('*').order('created_at', {ascending:false});
-                    if (!error && data && data.length > 0) {
+                    if (!error && data) {
                         events = data;
                     }
                 } catch (e) {
@@ -601,8 +601,8 @@
                 }
             }
 
-            // Fallback to local storage if Supabase returned empty/null
-            if (events.length === 0) {
+            // Fallback to local storage if Supabase failed or was not available
+            if (events === null) {
                 events = typeof getLocalEventsData === 'function' ? getLocalEventsData() : JSON.parse(localStorage.getItem('coffee_events_data') || '[]');
             }
 
