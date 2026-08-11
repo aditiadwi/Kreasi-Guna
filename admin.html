@@ -605,23 +605,20 @@
         }
 
         async function loadEvents() {
-            let events = null;
+            let localEvents = typeof getLocalEventsData === 'function' ? getLocalEventsData() : JSON.parse(localStorage.getItem('coffee_events_data') || '[]');
+            let events = localEvents;
             
             // Try Supabase first
             if (typeof adminSupabase !== 'undefined' && adminSupabase) {
                 try {
                     const { data, error } = await adminSupabase.from('events').select('*').order('created_at', {ascending:false});
-                    if (!error && data) {
+                    if (!error && data && data.length > 0) {
                         events = data;
+                        localStorage.setItem('coffee_events_data', JSON.stringify(data));
                     }
                 } catch (e) {
                     console.warn("Supabase loadEvents error:", e);
                 }
-            }
-
-            // Fallback to local storage if Supabase failed or was not available
-            if (events === null) {
-                events = typeof getLocalEventsData === 'function' ? getLocalEventsData() : JSON.parse(localStorage.getItem('coffee_events_data') || '[]');
             }
 
             const tableBody = document.getElementById('admin-events-table');
@@ -770,7 +767,7 @@
                 events.unshift(ev);
             }
 
-            // Save locally
+            // Save locally FIRST
             localStorage.setItem('coffee_events_data', JSON.stringify(events));
 
             // Sync with Supabase if available
@@ -779,11 +776,7 @@
                     if (is_active) {
                         await adminSupabase.from('events').update({ is_active: false }).neq('id', '00000000');
                     }
-                    if (document.getElementById('e-id').value) {
-                        await adminSupabase.from('events').update(ev).eq('id', id);
-                    } else {
-                        await adminSupabase.from('events').insert([ev]);
-                    }
+                    await adminSupabase.from('events').upsert([ev]);
                 } catch (sbErr) {
                     console.warn("Supabase save event error (using local storage fallback):", sbErr);
                 }

@@ -969,6 +969,12 @@ function saveLocalEventsData(events) {
 
 // Get active event (tries Supabase first, falls back to localStorage)
 async function getActiveEvent() {
+    let localActive = null;
+    try {
+        const localEvents = getLocalEventsData();
+        localActive = localEvents.find(ev => ev.is_active) || null;
+    } catch (e) {}
+
     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
         try {
             const { data, error } = await supabaseClient
@@ -976,15 +982,14 @@ async function getActiveEvent() {
                 .select('*')
                 .eq('is_active', true)
                 .maybeSingle();
-            if (!error) {
-                return data || null;
+            if (!error && data) {
+                return data;
             }
         } catch (e) {
             console.warn("Supabase fetch active event failed, using local storage:", e);
         }
     }
-    const localEvents = getLocalEventsData();
-    return localEvents.find(ev => ev.is_active) || null;
+    return localActive;
 }
 
 // Render Top Banner
