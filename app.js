@@ -925,34 +925,230 @@ function renderStandSchedule() {
     c.innerHTML = sch.map(s => `<div class="planned-stand-card ${s.id === aid ? 'active' : ''}"><h4>${s.location}</h4><p>${s.date}</p><div class="planned-stand-actions">${s.id !== aid ? `<button onclick="activateStand('${s.id}')" class="btn-mini btn-set-active">Activate</button>` : ''}<button onclick="deletePlannedStand('${s.id}')" class="btn-mini btn-delete-stand">Delete</button></div></div>`).join('');
 }
 
+/* ==========================================================================
+   EVENT ANNOUNCEMENT TOP BANNER & INTERACTIVE EVENT DETAIL MODAL MODULE
+   ========================================================================== */
+
+const DEFAULT_EVENTS_DATA = [
+    {
+        id: 'EVT-BINUS-01',
+        location: 'BINUS University',
+        location_detail: 'BINUS Anggrek, Booth #12',
+        event_date: '11 - 15 Agustus 2026',
+        operating_hours: '09.00 - 17.00 WIB',
+        image_url: 'Images/binus_stand.jpg',
+        description: 'Dapatkan tester kopi gratis & diskon bundling 15% khusus pengunjung stand!',
+        items_available: ['Gayo Drip', 'Priangan Drip', 'Starter Pack'],
+        is_active: true,
+        created_at: new Date().toISOString()
+    }
+];
+
+window.currentActiveEvent = null;
+
+// Read events from localStorage or initialize with default BINUS event
+function getLocalEventsData() {
+    try {
+        const stored = localStorage.getItem('coffee_events_data');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        }
+    } catch (e) {
+        console.warn("Gagal membaca coffee_events_data dari localStorage:", e);
+    }
+    localStorage.setItem('coffee_events_data', JSON.stringify(DEFAULT_EVENTS_DATA));
+    return DEFAULT_EVENTS_DATA;
+}
+
+function saveLocalEventsData(events) {
+    localStorage.setItem('coffee_events_data', JSON.stringify(events));
+}
+
+// Get active event (tries Supabase first, falls back to localStorage)
+async function getActiveEvent() {
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('events')
+                .select('*')
+                .eq('is_active', true)
+                .maybeSingle();
+            if (!error && data) {
+                return data;
+            }
+        } catch (e) {
+            console.warn("Supabase fetch active event failed, using local storage:", e);
+        }
+    }
+    const localEvents = getLocalEventsData();
+    return localEvents.find(ev => ev.is_active) || null;
+}
+
+// Render Top Banner
 async function renderStandAnnouncement() {
     const banner = document.getElementById('stand-announcement');
-    if (!banner || !supabaseClient) return;
+    if (!banner) return;
 
     try {
-        const { data, error } = await supabaseClient
-            .from('events')
-            .select('*')
-            .eq('is_active', true)
-            .maybeSingle();
-        
-        if (error) {
-            console.error("Error fetching stand announcement:", error);
-            banner.classList.add('hidden');
-            return;
-        }
-
-        if (data) {
+        const activeEvent = await getActiveEvent();
+        if (activeEvent) {
+            window.currentActiveEvent = activeEvent;
             banner.classList.remove('hidden');
-            document.getElementById('announce-text').innerHTML = `We're at <strong>${data.location}</strong> today! Come visit our stand.`;
+
+            const announceMsg = document.getElementById('announce-text');
+            if (announceMsg) {
+                announceMsg.innerHTML = `Kami sedang buka stand di <strong>${activeEvent.location}</strong>!`;
+            }
         } else {
+            window.currentActiveEvent = null;
             banner.classList.add('hidden');
         }
     } catch (e) {
-        console.error("Failed to fetch stand announcement (network block):", e);
+        console.error("Error rendering stand announcement:", e);
         banner.classList.add('hidden');
     }
 }
+
+// Dynamically Inject Modal into DOM if it doesn't exist
+function ensureEventDetailModalInDOM() {
+    if (document.getElementById('event-detail-modal')) return;
+
+    const modalHTML = `
+    <div id="event-detail-modal" class="event-modal-backdrop hidden" onclick="window.handleEventBackdropClick(event)">
+        <div class="event-modal-container">
+            <button class="event-modal-close-btn" onclick="window.closeEventDetailModal()" title="Tutup Modal">&times;</button>
+            
+            <div class="event-modal-header-banner">
+                <div class="modal-live-pill"><span class="pulse-dot"></span> LIVE EVENT</div>
+                <h2 id="modal-event-title">Stand Smart Drip Coffee</h2>
+            </div>
+
+            <div class="event-modal-scrollable">
+                <div class="event-modal-media">
+                    <img id="modal-event-img" src="Images/binus_stand.jpg" alt="Foto Lokasi Stand" onerror="this.src='Images/binus_stand.jpg';">
+                    <div class="media-badge">📸 Stand Fisik & Booth</div>
+                </div>
+
+                <div class="detail-card info-card-location">
+                    <div class="detail-icon">📍</div>
+                    <div class="detail-info">
+                        <div class="detail-label">Lokasi Detail & Jam Operasional</div>
+                        <div class="detail-value" id="modal-event-location">BINUS Anggrek, Booth #12 | 09.00 - 17.00 WIB</div>
+                    </div>
+                </div>
+
+                <div class="detail-card info-card-promo">
+                    <div class="detail-icon">📝</div>
+                    <div class="detail-info">
+                        <div class="detail-label">Deskripsi Promo / Acara</div>
+                        <div class="detail-value" id="modal-event-desc">Dapatkan tester kopi gratis & diskon bundling 15% khusus pengunjung stand!</div>
+                    </div>
+                </div>
+
+                <div class="detail-card info-card-products">
+                    <div class="detail-icon">☕</div>
+                    <div class="detail-info">
+                        <div class="detail-label">Produk yang Dibawa di Stand</div>
+                        <div class="product-badge-list" id="modal-event-products">
+                            <span class="product-chip-item">Gayo Drip</span>
+                            <span class="product-chip-item">Priangan Drip</span>
+                            <span class="product-chip-item">Starter Pack</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-modal-footer">
+                <a id="modal-event-wa-btn" href="https://wa.me/6281219092900" target="_blank" class="btn-modal-wa">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/>
+                    </svg>
+                    Hubungi Stand via WA
+                </a>
+                <button class="btn-modal-close" onclick="window.closeEventDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Open Interactive Event Detail Modal
+window.openEventDetailModal = async (eventId) => {
+    ensureEventDetailModalInDOM();
+
+    let eventData = window.currentActiveEvent;
+    if (eventId) {
+        const events = getLocalEventsData();
+        eventData = events.find(e => e.id === eventId) || eventData;
+    }
+
+    if (!eventData) {
+        eventData = await getActiveEvent() || DEFAULT_EVENTS_DATA[0];
+    }
+
+    const titleEl = document.getElementById('modal-event-title');
+    const imgEl = document.getElementById('modal-event-img');
+    const locEl = document.getElementById('modal-event-location');
+    const descEl = document.getElementById('modal-event-desc');
+    const prodsEl = document.getElementById('modal-event-products');
+    const waBtn = document.getElementById('modal-event-wa-btn');
+
+    if (titleEl) titleEl.innerText = eventData.location || 'Stand Event Live';
+    if (imgEl) imgEl.src = eventData.image_url || 'Images/binus_stand.jpg';
+
+    const locDetail = eventData.location_detail || eventData.location || 'BINUS Anggrek, Booth #12';
+    const hours = eventData.operating_hours || '09.00 - 17.00 WIB';
+    if (locEl) locEl.innerText = `${locDetail} | ${hours}`;
+
+    if (descEl) descEl.innerText = eventData.description || 'Dapatkan tester kopi gratis & diskon bundling 15% khusus pengunjung stand!';
+
+    if (prodsEl) {
+        let items = [];
+        if (Array.isArray(eventData.items_available)) {
+            items = eventData.items_available;
+        } else if (typeof eventData.items_available === 'string') {
+            items = eventData.items_available.split(',').map(s => s.trim()).filter(Boolean);
+        }
+        if (items.length === 0) items = ['Gayo Drip', 'Priangan Drip', 'Starter Pack'];
+
+        prodsEl.innerHTML = items.map(p => `<span class="product-chip-item">☕ ${p}</span>`).join('');
+    }
+
+    if (waBtn) {
+        const message = `Halo Smart Drip Coffee, saya tertarik dengan promo stand di ${eventData.location || 'BINUS University'} dan ingin bertanya info lebih lanjut.`;
+        waBtn.href = `https://wa.me/6281219092900?text=${encodeURIComponent(message)}`;
+    }
+
+    const modal = document.getElementById('event-detail-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeEventDetailModal = () => {
+    const modal = document.getElementById('event-detail-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+};
+
+window.handleEventBackdropClick = (e) => {
+    if (e.target && e.target.id === 'event-detail-modal') {
+        window.closeEventDetailModal();
+    }
+};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        window.closeEventDetailModal();
+    }
+});
 
 /** 3. ADMIN & INVENTORY (Legacy Support) */
 window.loginAdmin = () => { window.location.href = 'admin.html'; };

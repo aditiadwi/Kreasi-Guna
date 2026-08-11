@@ -37,11 +37,11 @@
         </nav>
     </header>
 
-    <div id="stand-announcement" class="stand-announcement hidden" style="background: var(--gold-premium); color: var(--coffee-black); font-weight: 700;">
-        <div class="container" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-            <span class="announce-tag" style="background: var(--coffee-black);">LIVE EVENT</span>
-            <p id="announce-text" style="margin: 0;">We're at <strong>BINUS University</strong> today! Come visit our stand.</p>
-            <div id="announce-items" class="announce-items"></div>
+    <div id="stand-announcement" class="top-event-banner hidden">
+        <div class="container banner-inner">
+            <div class="banner-live-badge"><span class="pulse-dot"></span> LIVE EVENT</div>
+            <p id="announce-text" class="banner-message">Kami sedang buka stand di <strong>BINUS University</strong>!</p>
+            <button class="banner-cta-btn" onclick="openEventDetailModal()">Lihat Detail Stand <span class="arrow-icon">➔</span></button>
         </div>
     </div>
 
