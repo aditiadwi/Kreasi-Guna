@@ -80,6 +80,24 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 
 *Update Terakhir: 7 Agustus 2026*
 
+---
+
+### **6. Recent Updates (12 Agustus 2026)**
+
+| Fitur | Deskripsi Detail | File Terkait |
+| :--- | :--- | :--- |
+| **Product Card Enhancement** | Setiap kartu produk kini menampilkan: gambar produk (fixed 250px height, object-fit: cover agar proporsi konsisten), nama produk, rating bintang (dari review), harga dalam Rupiah, stok tersedia, tombol **"See Description"** (buka modal detail), dan tombol **"Add to Cart"**. Gambar produk diseragamkan ukurannya agar grid rapi. | `app.js`, `style.css`, `products.html` |
+| **Product Detail Modal** | Klik "See Description" membuka modal slide-up dengan: gambar produk besar (350px max), nama produk, harga, status stok (tersedia/habis), deskripsi lengkap (dari field `description` di Supabase, fallback ke "No description available"), dan tombol **"Add to Cart"** yang sekaligus menutup modal dan menambah item ke keranjang. Modal responsif: desktop 2 kolom (gambar kiri, detail kanan), mobile 1 kolom vertikal. | `app.js`, `style.css` |
+| **Dedicated Cart Page (`cart.html`)** | Halaman keranjang baru (`cart.html`) dengan layout 2 kolom: kiri daftar item (gambar 80px, nama, harga, subtotal, kontrol +/- qty, tombol hapus), kanan ringkasan order (subtotal, total, tombol **"Checkout Now →"** ke `checkout.html`, link **"← Continue Shopping"**). Empty state menampilkan ikon keranjang kosong + tombol belanja. | `cart.html`, `app.js`, `style.css` |
+| **Cart Icon in Nav** | Ikon keranjang (SVG) ditambahkan di header navigation (posisi sebelum item "Track") di **semua halaman**. Badge merah di kanan atas menampilkan jumlah total item, update real-time via `localStorage` per user session. Ikon highlight (emas) saat berada di halaman `cart.html`. | `products.html`, `checkout.html`, `index.html`, `about.html`, `history.html`, `brew.html`, `contact.html`, `track.html`, `app.js` |
+| **Removed Cart from Products Page** | Bagian "Your Cart" (daftar item, subtotal, grand total, tombol Proceed to Checkout) dihapus total dari `products.html`. Halaman produk kini fokus murni pada katalog (product grid). Checkout dipindah ke halaman terpisah `cart.html` → `checkout.html`. | `products.html` |
+| **Toast Notification** | Notifikasi toast muncul dari **kanan atas** (slide-in) saat user klik "Add to Cart": teks `"[Nama Produk] added to cart"`, background gelap, teks putih, rounded, shadow. Auto-hilang setelah 2.5 detik dengan animasi slide-out. Menggunakan `cubic-bezier` untuk efek bounce halus. | `app.js`, `style.css` |
+| **Cart Badge Auto-Update** | Fungsi `updateCartBadge()` dipanggil di: `renderCart()` (setiap add/update/remove), `loadUserSpecificState()` (saat login/switch user), dan `DOMContentLoaded` (init halaman). Badge sembunyi (`display: none`) saat keranjang kosong. | `app.js` |
+| **Consistent Image Sizing** | Gambar produk di kartu menggunakan `height: 250px; object-fit: cover; object-position: center` (desktop) dan `height: 160px` (mobile ≤768px). **Dihapus** class padding per-tipe (`img-box`, `img-sachet`, `img-pouch`) dan transform scale hover yang tidak konsisten. Semua gambar kini crop center seragam. | `style.css` |
+| **Button Alignment Fix** | Tombol "See Description" & "Add to Cart" dibungkus `<div class="card-actions">` dengan `margin-top: auto` + `display: flex; flex-direction: column; gap: 10px`. Memastikan kedua tombol selalu **align di bawah kartu** (sticky bottom) meski nama produk beda panjang (1 vs 2 baris) atau rating beda. | `app.js`, `style.css` |
+
+*Update Terakhir: 12 Agustus 2026*
+
 
 
 

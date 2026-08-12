@@ -102,9 +102,9 @@ async function updateAuthUI() {
     if (!authLi) {
         authLi = document.createElement('li');
         authLi.id = 'auth-nav-item';
-        const trackLi = navLinks.querySelector('.nav-special')?.parentElement;
-        if (trackLi) {
-            navLinks.insertBefore(authLi, trackLi);
+        const cartLi = document.getElementById('cart-nav-link')?.parentElement;
+        if (cartLi) {
+            navLinks.insertBefore(authLi, cartLi);
         } else {
             navLinks.appendChild(authLi);
         }
@@ -432,6 +432,7 @@ async function initShop() {
         const avg = prodReviews.length > 0 ? (prodReviews.reduce((a, b) => a + b.rating, 0) / prodReviews.length).toFixed(1) : '0.0';
         const imgClass = p.name.includes('BOX') ? 'img-box' : 'img-sachet';
         const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
+        const desc = p.description || 'No description available for this product.';
         
         return `
             <div class="product-card ${out ? 'out-of-stock' : ''}">
@@ -440,7 +441,10 @@ async function initShop() {
                 <div class="product-rating">${'&#9733;'.repeat(Math.round(avg))} (${avg})</div>
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
                 <div class="product-stock">Stock: ${p.stock} units</div>
-                <button class="btn-primary w-100" onclick="addToCart('${p.id}')" ${out ? 'disabled' : ''}>${out ? 'Sold Out' : 'Add to Cart'}</button>
+                 <div class="card-actions">
+                    <button class="btn-details" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>See Description</button>
+                    <button class="btn-primary w-100" onclick="addToCart('${p.id}')" ${out ? 'disabled' : ''}>${out ? 'Sold Out' : 'Add to Cart'}</button>
+                </div>
             </div>
         `;
     }).join('');
@@ -452,9 +456,25 @@ window.addToCart = (id) => {
     if ((cart[id] || 0) >= p.stock) return alert("Out of stock!");
     cart[id] = (cart[id] || 0) + 1;
     renderCart();
-    const chk = document.getElementById('checkout');
-    if (chk) chk.scrollIntoView({ behavior: 'smooth' });
+    updateCartBadge();
+    showToast(`"${p.name}" added to cart`);
 };
+
+function showToast(message) {
+    const existing = document.getElementById('toast-notification');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.id = 'toast-notification';
+    toast.innerHTML = `<span>${message}</span>`;
+    document.body.appendChild(toast);
+    
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2500);
+}
 
 window.updateQty = (id, delta) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
@@ -466,28 +486,79 @@ window.updateQty = (id, delta) => {
     renderCart();
 };
 
+function updateCartBadge() {
+    const badge = document.getElementById('cart-badge');
+    if (!badge) return;
+    const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
+    badge.innerText = totalItems;
+    badge.style.display = totalItems > 0 ? 'flex' : 'none';
+}
+
 function renderCart() {
     localStorage.setItem(getCartStorageKey(), JSON.stringify(cart));
+    updateCartBadge();
+
     const cont = document.getElementById('cart-items');
     if (!cont) return;
+
     let sub = 0;
     const ids = Object.keys(cart);
-    if (ids.length === 0) { cont.innerHTML = '<p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>'; }
-    else {
+
+    const isCartPage = document.querySelector('.cart-section') !== null;
+
+    if (ids.length === 0) {
+        if (isCartPage) {
+            cont.innerHTML = `<div class="empty-cart"><div class="empty-cart-icon">🛒</div><p>Your cart is empty.</p><a href="products.html" class="btn-primary">Browse Products</a></div>`;
+        } else {
+            cont.innerHTML = '<p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>';
+        }
+    } else {
         cont.innerHTML = ids.map(id => {
             const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
             if (!p) return '';
             sub += p.price * cart[id];
             const isMaxStock = cart[id] >= p.stock;
-            return `<div class="cart-item"><div><h4>${p.name}</h4><span>Rp ${parseInt(p.price).toLocaleString('id-ID')} x ${cart[id]} <small style="color: var(--text-muted); font-size: 0.72rem; font-weight: 500;">(Stok: ${p.stock})</small></span></div><div class="quantity-controls"><button class="btn-qty" onclick="updateQty('${id}',-1)">-</button><span>${cart[id]}</span><button class="btn-qty" onclick="updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button></div></div>`;
+            const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
+
+            if (isCartPage) {
+                return `
+                    <div class="cart-page-item">
+                        <div class="cart-item-image">
+                            <img src="${imagePath}" onerror="this.src='Images/My Product.png'" alt="${p.name}">
+                        </div>
+                        <div class="cart-item-info">
+                            <h4>${p.name}</h4>
+                            <div class="cart-item-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
+                            <div class="cart-item-subtotal">Subtotal: Rp ${(p.price * cart[id]).toLocaleString('id-ID')}</div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <div class="quantity-controls">
+                                <button class="btn-qty" onclick="updateQty('${id}',-1)">-</button>
+                                <span>${cart[id]}</span>
+                                <button class="btn-qty" onclick="updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button>
+                            </div>
+                            <button class="btn-remove-item" onclick="removeFromCart('${id}')">Remove</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `<div class="cart-item"><div><h4>${p.name}</h4><span>Rp ${parseInt(p.price).toLocaleString('id-ID')} x ${cart[id]} <small style="color: var(--text-muted); font-size: 0.72rem; font-weight: 500;">(Stok: ${p.stock})</small></span></div><div class="quantity-controls"><button class="btn-qty" onclick="updateQty('${id}',-1)">-</button><span>${cart[id]}</span><button class="btn-qty" onclick="updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button></div></div>`;
+            }
         }).join('');
     }
+
+    const total = sub > 0 ? sub + currentShippingFee : 0;
+
     const sEl = document.getElementById('subtotal');
     if (sEl) sEl.innerText = `Rp ${sub.toLocaleString('id-ID')}`;
-    const total = sub > 0 ? sub + currentShippingFee : 0;
     const gEl = document.getElementById('grand-total');
     if (gEl) gEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
-    
+
+    const cartSubtotal = document.getElementById('cart-subtotal');
+    if (cartSubtotal) cartSubtotal.innerText = `Rp ${sub.toLocaleString('id-ID')}`;
+    const cartTotalEl = document.getElementById('cart-total');
+    if (cartTotalEl) cartTotalEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+
     const pgEl = document.getElementById('payment-grand-total');
     if (pgEl) pgEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
 
@@ -495,7 +566,17 @@ function renderCart() {
     if (checkoutGrid) {
         renderCheckoutProductsList();
     }
+
+    const proceedBtn = document.getElementById('btn-proceed-checkout');
+    if (proceedBtn) {
+        proceedBtn.style.display = ids.length === 0 ? 'none' : 'block';
+    }
 }
+
+window.removeFromCart = (id) => {
+    delete cart[id];
+    renderCart();
+};
 
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
@@ -1276,7 +1357,10 @@ async function renderFeaturedProducts() {
                 <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
-                <a href="products.html" class="btn-primary w-100">Shop Now</a>
+                 <div class="card-actions">
+                    <button class="btn-details" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>See Description</button>
+                    <a href="products.html" class="btn-primary w-100">Shop Now</a>
+                </div>
             </div>
         `;
     }).join('');
@@ -2128,13 +2212,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Smart Link Prefetching for Instant Navigation
     initLinkPrefetching();
 
-
     try {
         cart = JSON.parse(localStorage.getItem(getCartStorageKey()) || '{}');
     } catch (e) {
         console.warn("Gagal membaca coffee_cart dari localStorage:", e);
         cart = {};
     }
+    updateCartBadge();
 
     const path = window.location.pathname;
     let page = path.split("/").pop();
@@ -2177,6 +2261,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     else if (page === 'products') { initShop(); renderCart(); }
+    else if (page === 'cart') {
+        const needsProducts = true;
+        if (needsProducts && sb) {
+            fetchProducts().then(() => { renderCart(); });
+        } else {
+            renderCart();
+        }
+    }
     else if (page === 'checkout') { 
         renderCheckoutProductsList();
         loadFormData();
@@ -2362,3 +2454,71 @@ window.fillAndTrackOrder = (id) => {
         if (typeof handleTrackOrder === 'function') handleTrackOrder();
     }
 };
+
+window.openProductModal = (product) => {
+    const modal = document.getElementById('product-detail-modal');
+    if (!modal) return;
+    
+    const imagePath = product.image_url && product.image_url.trim() !== '' ? product.image_url : 'Images/My Product.png';
+    const desc = product.description || 'No description available for this product.';
+    const out = product.stock <= 0;
+    
+    document.getElementById('modal-product-img').src = imagePath;
+    document.getElementById('modal-product-img').onerror = function() { this.src = 'Images/My Product.png'; };
+    document.getElementById('modal-product-name').innerText = product.name;
+    document.getElementById('modal-product-price').innerText = 'Rp ' + parseInt(product.price).toLocaleString('id-ID');
+    document.getElementById('modal-product-stock').innerText = out ? 'Sold Out' : 'Stock: ' + product.stock + ' units';
+    document.getElementById('modal-product-desc').innerText = desc;
+    
+    const addToCartBtn = document.getElementById('modal-add-to-cart');
+    if (out) {
+        addToCartBtn.disabled = true;
+        addToCartBtn.innerText = 'Sold Out';
+        addToCartBtn.style.opacity = '0.5';
+        addToCartBtn.style.cursor = 'not-allowed';
+    } else {
+        addToCartBtn.disabled = false;
+        addToCartBtn.innerText = 'Add to Cart';
+        addToCartBtn.style.opacity = '1';
+        addToCartBtn.style.cursor = 'pointer';
+        addToCartBtn.onclick = function() { addToCart(product.id); closeProductModal(); };
+    }
+    
+    modal.classList.remove('hidden');
+    modalOpenTime = Date.now();
+};
+
+window.closeProductModal = () => {
+    const modal = document.getElementById('product-detail-modal');
+    if (modal) modal.classList.add('hidden');
+};
+
+function injectProductModal() {
+    if (document.getElementById('product-detail-modal')) return;
+    
+    const modalHTML = `
+    <div id="product-detail-modal" class="product-modal-backdrop hidden" onclick="if (Date.now() - modalOpenTime > 300 && event.target === this) closeProductModal()">
+        <div class="product-modal-container" onclick="event.stopPropagation()">
+            <button class="product-modal-close-btn" onclick="closeProductModal()" title="Close">&times;</button>
+            <div class="product-modal-content">
+                <div class="product-modal-image">
+                    <img id="modal-product-img" src="" alt="Product Image" onerror="this.src='Images/My Product.png'">
+                </div>
+                <div class="product-modal-details">
+                    <h2 id="modal-product-name"></h2>
+                    <div class="product-modal-price" id="modal-product-price"></div>
+                    <div class="product-modal-stock" id="modal-product-stock"></div>
+                    <div class="product-modal-description">
+                        <h4>Description</h4>
+                        <p id="modal-product-desc"></p>
+                    </div>
+                    <button class="btn-primary w-100" id="modal-add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+document.addEventListener('DOMContentLoaded', injectProductModal);
