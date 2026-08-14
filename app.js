@@ -434,15 +434,14 @@ async function initShop() {
         const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
         const desc = p.description || 'No description available for this product.';
         
-        return `
+return `
             <div class="product-card ${out ? 'out-of-stock' : ''}">
                 <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
                 <div class="product-rating">${'&#9733;'.repeat(Math.round(avg))} (${avg})</div>
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
-                <div class="product-stock">Stock: ${p.stock} units</div>
                  <div class="card-actions">
-                    <button class="btn-details" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>See Description</button>
+                    <button class="btn-details" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "'")})'>See Description</button>
                     <button class="btn-primary w-100" onclick="addToCart('${p.id}')" ${out ? 'disabled' : ''}>${out ? 'Sold Out' : 'Add to Cart'}</button>
                 </div>
             </div>
