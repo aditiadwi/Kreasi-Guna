@@ -102,7 +102,7 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 | **Testimonial Card Modern Header-Layout & Compact Sizing** | Layout kartu ulasan publik sebelumnya menaruh bintang rating di paling atas dan nama pengulas di paling bawah dengan ukuran kartu yang agak terlalu lebar. Jika ulasan hanya ada 1 item, kartu melebarkan ukurannya melintasi seluruh grid (stretching). | `app.js`, `style.css` |
 | **See-More Testimonials Toggle** | Fitur **"Lihat Semua Ulasan"** pada halaman Home (`index.html`). Awalnya hanya menampilkan 6 ulasan terbaru, tombol **"Lihat Semua Ulasan"** akan menampilkan semua ulasan dengan animasi smooth slide-up/Down. Tombol akan berganti menjadi **"Lihat Lebih Sedikit"** ketika semua ulasan terlihat, dan bisa di-klik lagi untuk menyembunyikan ulasan kembali ke 6 ulasan pertama. | `index.html`, `app.js`, `style.css` |
 
-*Update Terakhir: 12 Agustus 2026*
+*Update Terakhir: 19 Agustus 2026*
 
 
 
