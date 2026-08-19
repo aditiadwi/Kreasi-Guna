@@ -944,20 +944,78 @@ async function renderTestimonials() {
             return;
         }
 
-        cont.innerHTML = data.map(r => `
-            <div class="testimonial-card">
-                <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
-                    <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
-                    <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+        const maxVisible = 6;
+        const seeMoreBtn = document.getElementById('see-more-btn');
+
+if (data.length <= maxVisible) {
+            cont.innerHTML = data.map(r => `
+                <div class="testimonial-card">
+                    <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                        <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
+                        <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+                    </div>
+                    <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
                 </div>
-                <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
-            </div>
-        `).join('');
+            `).join('');
+            if (seeMoreBtn) seeMoreBtn.style.display = 'none';
+        } else {
+            // First 6 visible, rest collapsed
+            cont.innerHTML = data.slice(0, maxVisible).map(r => `
+                <div class="testimonial-card">
+                    <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                        <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
+                        <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+                    </div>
+                    <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
+                </div>
+            `).join('');
+
+            // Add collapsed class to remaining cards
+            data.slice(maxVisible).forEach(r => {
+                cont.innerHTML += `
+                    <div class="testimonial-card collapsed">
+                        <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                            <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
+                            <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+                        </div>
+                        <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
+                    </div>
+                `;
+            });
+
+if (seeMoreBtn) {
+                seeMoreBtn.style.display = 'block';
+                seeMoreBtn.dataset.total = data.length;
+                seeMoreBtn.dataset.shown = maxVisible;
+            }
+        }
     } catch (e) {
         console.warn("Error rendering testimonials:", e);
     }
 }
 
+function toggleSeeMore() {
+    const seeMoreBtn = document.getElementById('see-more-btn');
+    const testimonialCards = document.querySelectorAll('.testimonial-card');
+
+    if (parseInt(seeMoreBtn.dataset.shown) >= parseInt(seeMoreBtn.dataset.total)) {
+        // Currently showing all - switch to show 6 only
+        testimonialCards.forEach((card, index) => {
+            if (index >= 6) {
+                card.classList.add('collapsed');
+            }
+        });
+        seeMoreBtn.textContent = 'Lihat Semua Ulasan';
+        seeMoreBtn.dataset.shown = '6';
+    } else {
+        // Currently showing 6 - switch to show all
+        testimonialCards.forEach(card => {
+            card.classList.remove('collapsed');
+        });
+        seeMoreBtn.textContent = 'Lihat Lebih Sedikit';
+        seeMoreBtn.dataset.shown = seeMoreBtn.dataset.total;
+    }
+}
 window.deleteTestimonial = (id) => {
     localStorage.setItem('coffee_reviews', JSON.stringify(JSON.parse(localStorage.getItem('coffee_reviews') || '[]').filter(r => r.id !== id)));
     renderTestimonials(); initShop();
