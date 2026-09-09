@@ -673,6 +673,22 @@ body.menu-open {
     display: flex;
     flex-direction: column;
     height: 100%; /* Ensure all cards in a row have the same height */
+    position: relative;
+}
+.stock-urgency {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: #e67e22;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.4);
+    z-index: 2;
 }
 .product-card:hover { 
     transform: translateY(-10px); 

@@ -428,6 +428,7 @@ async function initShop() {
     }
     grid.innerHTML = products.map(p => {
         const out = p.stock <= 0;
+        const low = !out && p.stock <= 5;
         const prodReviews = reviews.filter(r => r.items && r.items.includes(p.name));
         const avg = prodReviews.length > 0 ? (prodReviews.reduce((a, b) => a + b.rating, 0) / prodReviews.length).toFixed(1) : '0.0';
         const imgClass = p.name.includes('BOX') ? 'img-box' : 'img-sachet';
@@ -436,6 +437,7 @@ async function initShop() {
         
 return `
             <div class="product-card ${out ? 'out-of-stock' : ''}">
+                ${low ? `<div class="stock-urgency">Only ${p.stock} left!</div>` : ''}
                 <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
                 <div class="product-rating">${'&#9733;'.repeat(Math.round(avg))} (${avg})</div>
@@ -1508,9 +1510,11 @@ async function renderFeaturedProducts() {
         if (p.name && p.name.includes('POUCH')) imgClass = 'img-pouch';
         
         const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
+        const low = p.stock > 0 && p.stock <= 5;
 
         return `
             <div class="product-card">
+                ${low ? `<div class="stock-urgency">Only ${p.stock} left!</div>` : ''}
                 <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
