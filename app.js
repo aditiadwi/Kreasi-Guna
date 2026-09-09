@@ -679,6 +679,76 @@ function closeRemoveConfirm(result) {
     }
 }
 
+let _pendingOrderId = null;
+
+function ensureOrderSuccessModal() {
+    if (document.getElementById('order-success-backdrop')) return;
+    const html = `
+    <div id="order-success-backdrop" class="hidden">
+        <div class="order-success-container" onclick="event.stopPropagation()">
+            <div class="order-success-icon">✅</div>
+            <h3>Order Submitted!</h3>
+            <p>Please save your Order ID to track your order on the 'Track' page.</p>
+            <div class="order-id-box">
+                <code id="order-success-id">ORD-000</code>
+                <button class="btn-copy-order" id="btn-copy-order-id" onclick="copyOrderId()">⧉ Copy</button>
+            </div>
+            <div class="order-success-actions">
+                <a href="#" class="btn-track-order" id="btn-goto-track">Track My Order →</a>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    document.getElementById('order-success-backdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'order-success-backdrop') goToTrackPage();
+    });
+}
+
+function showOrderSuccessModal(orderId) {
+    ensureOrderSuccessModal();
+    _pendingOrderId = orderId;
+    document.getElementById('order-success-id').textContent = orderId;
+    const copyBtn = document.getElementById('btn-copy-order-id');
+    if (copyBtn) copyBtn.innerHTML = '⧉ Copy';
+    document.getElementById('btn-goto-track').href = 'track.html?id=' + encodeURIComponent(orderId);
+    document.getElementById('order-success-backdrop').classList.remove('hidden');
+}
+
+function goToTrackPage() {
+    if (_pendingOrderId) {
+        window.location.href = 'track.html?id=' + encodeURIComponent(_pendingOrderId);
+    } else {
+        window.location.href = 'track.html';
+    }
+}
+
+window.copyOrderId = () => {
+    const el = document.getElementById('order-success-id');
+    const text = el ? el.textContent : _pendingOrderId;
+    if (!text) return;
+    const done = () => {
+        const btn = document.getElementById('btn-copy-order-id');
+        if (btn) btn.innerHTML = '✓ Copied!';
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopyOrderId(text, done));
+    } else {
+        fallbackCopyOrderId(text, done);
+    }
+};
+
+function fallbackCopyOrderId(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    if (done) done();
+}
+
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
     if (!p) return;
@@ -980,8 +1050,7 @@ window.handlePlaceOrder = async () => {
         clearFormData(); 
         renderCart(); 
         
-        alert(`Order Submitted Successfully!\n\nYour Order ID: ${orderId}\n\nPlease save this ID to track your order on the 'Track' page.`);
-        window.location.href = 'track.html?id=' + orderId;
+        showOrderSuccessModal(orderId);
 
     } catch (error) {
         console.error(error);
