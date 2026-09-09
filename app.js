@@ -491,6 +491,54 @@ function updateCartBadge() {
     const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
     badge.innerText = totalItems;
     badge.style.display = totalItems > 0 ? 'flex' : 'none';
+    if (typeof renderCartPreview === 'function') renderCartPreview();
+}
+
+function ensureCartHoverPreview() {
+    const cartLink = document.getElementById('cart-nav-link');
+    if (!cartLink) return;
+    const wrapper = cartLink.parentElement;
+    if (!wrapper) return;
+    wrapper.classList.add('cart-nav-wrapper');
+    if (document.getElementById('cart-hover-preview')) return;
+    const preview = document.createElement('div');
+    preview.id = 'cart-hover-preview';
+    preview.innerHTML = '<div class="cart-preview-box" id="cart-preview-box"></div>';
+    wrapper.appendChild(preview);
+    // Lazy-load products on first hover so preview has names/images on all pages
+    wrapper.addEventListener('mouseenter', () => {
+        if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && !wrapper.dataset.fetching) {
+            wrapper.dataset.fetching = '1';
+            if (typeof fetchProducts === 'function') {
+                fetchProducts().then(() => {
+                    delete wrapper.dataset.fetching;
+                    renderCartPreview();
+                });
+            }
+        } else {
+            renderCartPreview();
+        }
+    });
+}
+
+function renderCartPreview() {
+    const box = document.getElementById('cart-preview-box');
+    if (!box) return;
+    const ids = Object.keys(cart || {});
+    if (ids.length === 0) {
+        box.innerHTML = '<div class="cart-preview-title">Your Cart</div><div class="cart-preview-empty">Your cart is empty.</div>';
+        return;
+    }
+    let sub = 0;
+    const itemsHtml = ids.map((id) => {
+        const qty = cart[id];
+        const p = (typeof DYNAMIC_PRODUCTS !== 'undefined') ? DYNAMIC_PRODUCTS.find(prod => prod.id === id) : null;
+        if (!p) return `<div class="cart-preview-item"><div class="cart-preview-info"><h5>Item</h5><span>Qty: ${qty}</span></div></div>`;
+        sub += p.price * qty;
+        const img = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
+        return `<div class="cart-preview-item"><img src="${img}" onerror="this.src='Images/My Product.png'" alt=""><div class="cart-preview-info"><h5>${p.name}</h5><span>${qty} x Rp ${parseInt(p.price).toLocaleString('id-ID')}</span></div></div>`;
+    }).join('');
+    box.innerHTML = `<div class="cart-preview-title">Your Cart (${Object.values(cart).reduce((a, b) => a + b, 0)})</div>${itemsHtml}<div class="cart-preview-footer"><div class="cart-preview-total">Rp ${sub.toLocaleString('id-ID')}</div><a href="cart.html" class="btn-preview-cart">View Cart</a></div>`;
 }
 
 function renderCart() {
@@ -2326,6 +2374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.warn("Gagal membaca coffee_cart dari localStorage:", e);
         cart = {};
     }
+    ensureCartHoverPreview();
     updateCartBadge();
 
     const path = window.location.pathname;

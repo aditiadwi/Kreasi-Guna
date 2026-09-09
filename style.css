@@ -146,6 +146,113 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 .cart-nav-icon.active {
     color: var(--gold-premium) !important;
 }
+.cart-nav-wrapper {
+    position: relative !important;
+}
+#cart-hover-preview {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    padding-top: 12px;
+    display: none;
+    z-index: 2000;
+}
+.cart-nav-wrapper:hover #cart-hover-preview {
+    display: block;
+}
+.cart-preview-box {
+    width: 300px;
+    max-height: 360px;
+    overflow-y: auto;
+    background: var(--white);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: var(--shadow-bold);
+    padding: 16px;
+    animation: modalSlideIn 0.2s ease;
+}
+.cart-preview-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--coffee-dark);
+    margin-bottom: 12px;
+}
+.cart-preview-empty {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 12px 0;
+}
+.cart-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+.cart-preview-item:last-of-type {
+    border-bottom: none;
+}
+.cart-preview-item img {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #fdfdfd;
+}
+.cart-preview-info {
+    flex: 1;
+    min-width: 0;
+}
+.cart-preview-info h5 {
+    font-size: 0.85rem;
+    color: var(--coffee-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+.cart-preview-info span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+.cart-preview-footer {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid var(--gold-accent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.cart-preview-total {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--coffee-dark);
+}
+.btn-preview-cart {
+    background: var(--gold-premium);
+    color: white !important;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    white-space: nowrap;
+}
+.btn-preview-cart:hover {
+    background: var(--wood-warm);
+}
+@media (max-width: 768px) {
+    #cart-hover-preview {
+        display: none !important;
+    }
+}
 .cart-badge {
     position: absolute;
     top: -2px;

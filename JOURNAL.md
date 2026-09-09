@@ -113,6 +113,7 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 | **Toast Position Fix** | Posisi notifikasi toast `#toast-notification` digeser turun dari `top: 30px` ke `top: 90px` agar tidak menutupi ikon keranjang di sticky header saat user klik "Add to Cart". | `style.css` |
 | **Cart Qty Minus Clamp** | Tombol `-` pada keranjang kini berhenti di qty `1` (`if (next < 1) return`) dan tidak lagi menghapus produk secara diam-diam. Penghapusan hanya bisa lewat tombol **Remove**. | `app.js` |
 | **Centered Remove Confirm Modal** | Mengganti browser `confirm()` bawaan dengan modal kustom di tengah layar (`#confirm-modal-backdrop`, z-index 5000, backdrop blur). Pesan: `Are you sure you want to remove "[Nama Produk]" from the cart?` dengan tombol **Cancel** / **Yes, Remove**. Mendukung klik backdrop & tombol Escape untuk batal. | `app.js`, `style.css` |
+| **Cart Hover Preview** | Hover ikon keranjang di navbar kini menampilkan dropdown preview (`#cart-hover-preview`, 300px): thumbnail, nama, qty x harga, subtotal, dan tombol **View Cart**. Di-inject via JS (`ensureCartHoverPreview`) agar jalan di semua halaman tanpa edit HTML. Lazy-load `fetchProducts()` saat hover pertama + auto-refresh via `updateCartBadge()`. Disembunyikan di mobile. | `app.js`, `style.css` |
 
 *Update Terakhir: 9 September 2026*
 
