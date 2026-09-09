@@ -480,8 +480,8 @@ window.updateQty = (id, delta) => {
     if (!p) return;
     const next = (cart[id] || 0) + delta;
     if (next > p.stock) return alert("Stock limit!");
+    if (next < 1) return;
     cart[id] = next;
-    if (cart[id] <= 0) delete cart[id];
     renderCart();
 };
 
@@ -573,6 +573,9 @@ function renderCart() {
 }
 
 window.removeFromCart = (id) => {
+    const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
+    const name = p ? p.name : 'this item';
+    if (!confirm(`Are you sure you want to remove "${name}" from the cart?`)) return;
     delete cart[id];
     renderCart();
 };
