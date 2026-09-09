@@ -1530,7 +1530,7 @@ a:active {
 
 #toast-notification {
     position: fixed;
-    top: 30px;
+    top: 90px;
     right: 30px;
     transform: translateX(100px);
     background: var(--coffee-dark);
