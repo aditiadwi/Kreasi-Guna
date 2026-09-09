@@ -756,6 +756,21 @@ function escReceipt(s) {
     return String(s ?? '-').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// Stored order items look like: "DRIP BAG — ARABICA (x2) [Rp 8.000], BOX ... (x1) [Rp 40.000]"
+function parseTrackItems(raw) {
+    if (!raw) return [{ name: '(see order details)', qty: 1, price: 0, subtotal: 0 }];
+    return String(raw).split(', ').map(chunk => {
+        const m = chunk.match(/^(.*?)\s*\(x(\d+)\)\s*\[Rp\s*([\d.,]+)\]\s*$/);
+        if (m) {
+            const qty = parseInt(m[2], 10);
+            const price = parseInt(m[3].replace(/[^\d]/g, ''), 10) || 0;
+            return { name: m[1].trim(), qty, price, subtotal: price * qty };
+        }
+        const q = chunk.match(/\(x(\d+)\)/);
+        return { name: chunk.replace(/\s*\(x\d+\)\s*/, ' ').trim() || chunk, qty: q ? parseInt(q[1], 10) : 1, price: 0, subtotal: 0 };
+    });
+}
+
 function buildReceiptHTML(r) {
     const rows = (r.items || []).map((it, i) => `
         <tr>
@@ -801,8 +816,7 @@ window.downloadReceipt = () => {
 
 window.printTrackReceipt = () => {
     const txt = (id) => (document.getElementById(id)?.innerText || '-').trim();
-    const itemEls = document.querySelectorAll('#res-items-list > div span');
-    const items = Array.from(itemEls).map(el => ({ name: el.innerText.replace(/^•\s*/, ''), qty: 1, price: 0, subtotal: 0 }));
+    const items = parseTrackItems(window._trackItemsRaw);
     openReceiptWindow(buildReceiptHTML({
         orderId: txt('res-id'),
         date: new Date().toLocaleString('id-ID'),
