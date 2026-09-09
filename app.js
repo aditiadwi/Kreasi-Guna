@@ -575,10 +575,58 @@ function renderCart() {
 window.removeFromCart = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
     const name = p ? p.name : 'this item';
-    if (!confirm(`Are you sure you want to remove "${name}" from the cart?`)) return;
-    delete cart[id];
-    renderCart();
+    showRemoveConfirm(name).then((confirmed) => {
+        if (!confirmed) return;
+        delete cart[id];
+        renderCart();
+    });
 };
+
+let _removeConfirmResolver = null;
+
+function ensureRemoveConfirmModal() {
+    if (document.getElementById('confirm-modal-backdrop')) return;
+    const html = `
+    <div id="confirm-modal-backdrop" class="hidden">
+        <div class="confirm-modal-container" onclick="event.stopPropagation()">
+            <h3>Remove from cart?</h3>
+            <p id="confirm-modal-message">Are you sure?</p>
+            <div class="confirm-modal-actions">
+                <button class="btn-confirm-cancel" id="confirm-modal-cancel">Cancel</button>
+                <button class="btn-confirm-remove" id="confirm-modal-yes">Yes, Remove</button>
+            </div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    document.getElementById('confirm-modal-backdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'confirm-modal-backdrop') closeRemoveConfirm(false);
+    });
+    document.getElementById('confirm-modal-cancel').addEventListener('click', () => closeRemoveConfirm(false));
+    document.getElementById('confirm-modal-yes').addEventListener('click', () => closeRemoveConfirm(true));
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && _removeConfirmResolver) closeRemoveConfirm(false);
+    });
+}
+
+function showRemoveConfirm(productName) {
+    ensureRemoveConfirmModal();
+    const backdrop = document.getElementById('confirm-modal-backdrop');
+    const msg = document.getElementById('confirm-modal-message');
+    msg.textContent = `Are you sure you want to remove "${productName}" from the cart?`;
+    backdrop.classList.remove('hidden');
+    return new Promise((resolve) => {
+        _removeConfirmResolver = resolve;
+    });
+}
+
+function closeRemoveConfirm(result) {
+    const backdrop = document.getElementById('confirm-modal-backdrop');
+    if (backdrop) backdrop.classList.add('hidden');
+    if (_removeConfirmResolver) {
+        _removeConfirmResolver(result);
+        _removeConfirmResolver = null;
+    }
+}
 
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
