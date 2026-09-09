@@ -1880,4 +1880,96 @@ a:active {
     background: var(--wood-warm);
 }
 
+#address-book-section {
+    background: rgba(224, 192, 151, 0.12);
+    border: 1px dashed var(--latte-accent);
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.address-book-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--wood-warm);
+    margin-bottom: 10px;
+}
+.address-book-title small {
+    font-weight: 500;
+    color: var(--text-muted);
+}
+#address-book-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.address-book-empty {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+.address-book-item {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+.address-book-use {
+    flex: 1;
+    text-align: left;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: all 0.2s ease;
+    min-width: 0;
+}
+.address-book-use:hover {
+    border-color: var(--gold-premium);
+    background: #fffbf2;
+}
+.address-book-use strong {
+    font-size: 0.85rem;
+    color: var(--coffee-dark);
+}
+.address-book-use span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.address-book-del {
+    width: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: white;
+    color: #e74c3c;
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+.address-book-del:hover {
+    background: #e74c3c;
+    color: white;
+}
+.btn-save-address {
+    background: transparent;
+    border: 1px solid var(--latte-accent);
+    color: var(--wood-warm);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-save-address:hover {
+    background: var(--latte-accent);
+    color: white;
+}
+
 

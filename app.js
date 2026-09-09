@@ -1036,6 +1036,9 @@ window.handlePlaceOrder = async () => {
             address: document.getElementById('customer-address').value
         };
         localStorage.setItem(getProfileStorageKey(), JSON.stringify(customerProfile));
+        if (typeof saveAddressToBook === 'function') {
+            saveAddressToBook(customerProfile, true);
+        }
 
         let recentOrders = JSON.parse(localStorage.getItem(getRecentOrdersStorageKey()) || '[]');
         if (!recentOrders.includes(orderId)) {
@@ -2507,6 +2510,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof window.checkAutofillProfile === 'function') {
             window.checkAutofillProfile();
         }
+        if (typeof window.renderAddressBook === 'function') {
+            window.renderAddressBook();
+        }
         
         FORM_FIELDS.forEach(id => {
             const el = document.getElementById(id);
@@ -2639,21 +2645,115 @@ window.autofillShippingProfile = () => {
     if (!profileStr) return;
     try {
         const p = JSON.parse(profileStr);
-        if (p.name) document.getElementById('customer-name').value = p.name;
-        if (p.phone) document.getElementById('customer-phone').value = p.phone;
-        if (p.email) document.getElementById('customer-email').value = p.email;
-        if (p.city) {
-            const citySelect = document.getElementById('shipping-city');
-            citySelect.value = p.city;
-            citySelect.dispatchEvent(new Event('change'));
-        }
-        if (p.address) document.getElementById('customer-address').value = p.address;
-        
+        applyAddressToForm(p);
         const banner = document.getElementById('autofill-banner');
         if (banner) banner.classList.add('hidden');
     } catch (e) {
         console.error("Gagal melakukan autofill:", e);
     }
+};
+
+function getAddressBookKey() {
+    return currentUserId ? `address_book_${currentUserId}` : 'address_book';
+}
+
+function getAddressBook() {
+    try {
+        return JSON.parse(localStorage.getItem(getAddressBookKey()) || '[]');
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveAddressToBook(entry, silent) {
+    if (!entry || !entry.name || !entry.address) {
+        if (!silent) alert('Please fill name and address first.');
+        return false;
+    }
+    let book = getAddressBook();
+    book = book.filter(b => !(b.email === entry.email && b.address === entry.address));
+    book.unshift({ name: entry.name, phone: entry.phone || '', email: entry.email || '', city: entry.city || '', address: entry.address });
+    if (book.length > 3) book = book.slice(0, 3);
+    localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
+    if (typeof window.renderAddressBook === 'function') window.renderAddressBook();
+    return true;
+}
+
+function applyAddressToForm(p) {
+    if (!p) return;
+    if (p.name && document.getElementById('customer-name')) document.getElementById('customer-name').value = p.name;
+    if (p.phone && document.getElementById('customer-phone')) document.getElementById('customer-phone').value = p.phone;
+    if (p.email && document.getElementById('customer-email')) document.getElementById('customer-email').value = p.email;
+    if (p.city) {
+        const citySelect = document.getElementById('shipping-city');
+        if (citySelect) {
+            citySelect.value = p.city;
+            citySelect.dispatchEvent(new Event('change'));
+        }
+    }
+    if (p.address && document.getElementById('customer-address')) document.getElementById('customer-address').value = p.address;
+    if (typeof saveFormData === 'function') saveFormData();
+    if (typeof window.handleShippingUpdate === 'function') window.handleShippingUpdate();
+}
+
+window.renderAddressBook = () => {
+    const form = document.getElementById('checkout-form');
+    if (!form) return;
+    let section = document.getElementById('address-book-section');
+    if (!section) {
+        section = document.createElement('div');
+        section.id = 'address-book-section';
+        section.innerHTML = `
+            <div class="address-book-title">📒 Saved Addresses <small>(max 3)</small></div>
+            <div id="address-book-list"></div>
+            <button type="button" class="btn-save-address" id="btn-save-address" onclick="saveCurrentFormAddress()">+ Save current address</button>`;
+        const banner = document.getElementById('autofill-banner');
+        if (banner && banner.parentElement === form) {
+            form.insertBefore(section, banner);
+        } else {
+            form.insertBefore(section, form.firstChild);
+        }
+    }
+    const list = document.getElementById('address-book-list');
+    if (!list) return;
+    const book = getAddressBook();
+    if (book.length === 0) {
+        list.innerHTML = '<div class="address-book-empty">No saved addresses yet. Fill the form and save it for faster checkout next time.</div>';
+        return;
+    }
+    list.innerHTML = book.map((b, i) => `
+        <div class="address-book-item">
+            <button type="button" class="address-book-use" onclick="applyBookAddress(${i})">
+                <strong>${b.name}</strong><span>${b.city ? b.city + ' — ' : ''}${b.address}</span>
+            </button>
+            <button type="button" class="address-book-del" onclick="deleteBookAddress(${i})" title="Delete">×</button>
+        </div>`).join('');
+};
+
+window.saveCurrentFormAddress = () => {
+    const entry = {
+        name: document.getElementById('customer-name')?.value.trim(),
+        phone: document.getElementById('customer-phone')?.value.trim(),
+        email: document.getElementById('customer-email')?.value.trim(),
+        city: document.getElementById('shipping-city')?.value,
+        address: document.getElementById('customer-address')?.value.trim()
+    };
+    if (!entry.name || (entry.name || '').length < 3) return alert('Please enter your full name (min. 3 characters).');
+    if (!entry.address || entry.address.length < 10) return alert('Please enter a complete address (min. 10 characters).');
+    saveAddressToBook(entry);
+};
+
+window.applyBookAddress = (i) => {
+    const book = getAddressBook();
+    if (!book[i]) return;
+    applyAddressToForm(book[i]);
+};
+
+window.deleteBookAddress = (i) => {
+    const book = getAddressBook();
+    book.splice(i, 1);
+    localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
+    window.renderAddressBook();
 };
 
 window.renderRecentOrdersTrack = () => {
