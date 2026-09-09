@@ -697,6 +697,7 @@ function ensureOrderSuccessModal() {
             </div>
             <div class="order-success-actions">
                 <a href="#" class="btn-track-order" id="btn-goto-track">Track My Order →</a>
+                <button type="button" class="btn-download-receipt" onclick="downloadReceipt()">🧾 Download Receipt</button>
             </div>
         </div>
     </div>`;
@@ -750,6 +751,72 @@ function fallbackCopyOrderId(text, done) {
     document.body.removeChild(ta);
     if (done) done();
 }
+
+function escReceipt(s) {
+    return String(s ?? '-').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildReceiptHTML(r) {
+    const rows = (r.items || []).map((it, i) => `
+        <tr>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${i + 1}. ${escReceipt(it.name)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${it.qty}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${parseInt(it.price || 0).toLocaleString('id-ID')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;"><b>Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}</b></td>
+        </tr>`).join('');
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt ${escReceipt(r.orderId)}</title>
+    <style>body{font-family:Arial,Helvetica,sans-serif;color:#222;max-width:640px;margin:0 auto;padding:24px;}h1{font-size:1.3rem;margin:0;}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.9rem;}th{background:#f5f0e6;text-align:left;padding:8px;}th:nth-child(n+2),td:nth-child(n+2){text-align:right;}td:nth-child(2){text-align:center;}.meta p{margin:4px 0;font-size:0.88rem;}.totals{text-align:right;font-size:0.9rem;}.totals p{margin:4px 0;}.grand{font-size:1.15rem;font-weight:800;}.foot{margin-top:24px;font-size:0.8rem;color:#777;text-align:center;border-top:1px dashed #ccc;padding-top:12px;}</style>
+    </head><body onload="window.print()">
+    <h1>KG — Smart Drip Coffee</h1>
+    <p style="font-size:0.85rem;color:#555;margin:4px 0 0;">Kreasi Guna • Order Receipt</p>
+    <div class="meta" style="margin-top:12px;">
+        <p><b>Order ID:</b> ${escReceipt(r.orderId)}</p>
+        <p><b>Date:</b> ${escReceipt(r.date)}</p>
+        <p><b>Name:</b> ${escReceipt(r.customerName)} • ${escReceipt(r.customerPhone)}</p>
+        <p><b>Email:</b> ${escReceipt(r.customerEmail)}</p>
+        <p><b>Address:</b> ${escReceipt(r.location)}</p>
+        <p><b>Delivery:</b> ${escReceipt(r.delivery)} • <b>Payment:</b> ${escReceipt(r.method)}</p>
+        <p><b>Note:</b> ${escReceipt(r.note)}</p>
+    </div>
+    <table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="totals"><p>Subtotal: ${escReceipt(r.subtotal)}</p><p>Shipping: ${escReceipt(r.shipping)}</p><p class="grand">Total: ${escReceipt(r.total)}</p></div>
+    <div class="foot">Thank you for brewing with Smart Drip Coffee!<br>Keep this receipt &amp; your Order ID to track your order.</div>
+    </body></html>`;
+}
+
+function openReceiptWindow(html) {
+    const w = window.open('', '_blank', 'width=700,height=800');
+    if (!w) {
+        alert('Popup blocked! Please allow popups to download the receipt.');
+        return;
+    }
+    w.document.write(html);
+    w.document.close();
+}
+
+window.downloadReceipt = () => {
+    if (!window._lastReceipt) return alert('Receipt data not available.');
+    openReceiptWindow(buildReceiptHTML(window._lastReceipt));
+};
+
+window.printTrackReceipt = () => {
+    const txt = (id) => (document.getElementById(id)?.innerText || '-').trim();
+    const itemEls = document.querySelectorAll('#res-items-list > div span');
+    const items = Array.from(itemEls).map(el => ({ name: el.innerText.replace(/^•\s*/, ''), qty: 1, price: 0, subtotal: 0 }));
+    openReceiptWindow(buildReceiptHTML({
+        orderId: txt('res-id'),
+        date: new Date().toLocaleString('id-ID'),
+        customerName: txt('res-name'),
+        customerPhone: txt('res-phone'),
+        customerEmail: txt('res-email'),
+        location: txt('res-address'),
+        items: items.length ? items : [{ name: '(see order details)', qty: 1, price: 0, subtotal: 0 }],
+        subtotal: '-', shipping: '-',
+        total: txt('res-total'),
+        delivery: txt('res-method'), method: txt('res-method'),
+        note: txt('res-note')
+    }));
+};
 
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
@@ -1000,6 +1067,21 @@ window.handlePlaceOrder = async () => {
                 console.warn("Gagal mengirim email pembeli:", e); 
             }
         }
+
+        // --- SAVE RECEIPT DATA FOR PRINTING (cart is cleared below) ---
+        window._lastReceipt = {
+            orderId,
+            date: new Date().toLocaleString('id-ID'),
+            customerName, customerPhone, customerEmail, location,
+            items: Object.keys(cart).map(id => {
+                const prod = DYNAMIC_PRODUCTS.find(p => p.id === id);
+                const qty = cart[id];
+                const price = prod ? parseInt(prod.price) : 0;
+                return { name: prod ? prod.name : 'Unknown Item', qty, price, subtotal: price * qty };
+            }),
+            subtotal: subtotalStr, shipping: shippingStr, total,
+            delivery, method, note: note || '-'
+        };
 
         const { error: sbError } = await supabaseClient.from('orders').insert([{
             order_id: orderId, 
