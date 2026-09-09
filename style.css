@@ -219,6 +219,38 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     font-size: 0.78rem;
     color: var(--text-muted);
 }
+.preview-qty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.preview-qty span {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--coffee-dark);
+    min-width: 16px;
+    text-align: center;
+}
+.btn-preview-qty {
+    background: #f0f0f0;
+    border: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.9rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.btn-preview-qty:hover:not(:disabled) {
+    background: var(--latte-accent);
+    color: white;
+}
 .cart-preview-footer {
     margin-top: 12px;
     padding-top: 12px;

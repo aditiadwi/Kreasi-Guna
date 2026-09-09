@@ -536,7 +536,8 @@ function renderCartPreview() {
         if (!p) return `<div class="cart-preview-item"><div class="cart-preview-info"><h5>Item</h5><span>Qty: ${qty}</span></div></div>`;
         sub += p.price * qty;
         const img = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
-        return `<div class="cart-preview-item"><img src="${img}" onerror="this.src='Images/My Product.png'" alt=""><div class="cart-preview-info"><h5>${p.name}</h5><span>${qty} x Rp ${parseInt(p.price).toLocaleString('id-ID')}</span></div></div>`;
+        const isMaxStock = qty >= p.stock;
+        return `<div class="cart-preview-item"><img src="${img}" onerror="this.src='Images/My Product.png'" alt=""><div class="cart-preview-info"><h5>${p.name}</h5><span>${qty} x Rp ${parseInt(p.price).toLocaleString('id-ID')}</span></div><div class="preview-qty"><button class="btn-preview-qty" onclick="event.stopPropagation();updateQty('${id}',-1)">-</button><span>${qty}</span><button class="btn-preview-qty" onclick="event.stopPropagation();updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>+</button></div></div>`;
     }).join('');
     box.innerHTML = `<div class="cart-preview-title">Your Cart (${Object.values(cart).reduce((a, b) => a + b, 0)})</div>${itemsHtml}<div class="cart-preview-footer"><div class="cart-preview-total">Rp ${sub.toLocaleString('id-ID')}</div><a href="cart.html" class="btn-preview-cart">View Cart</a></div>`;
 }

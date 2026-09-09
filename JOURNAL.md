@@ -114,6 +114,7 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 | **Cart Qty Minus Clamp** | Tombol `-` pada keranjang kini berhenti di qty `1` (`if (next < 1) return`) dan tidak lagi menghapus produk secara diam-diam. Penghapusan hanya bisa lewat tombol **Remove**. | `app.js` |
 | **Centered Remove Confirm Modal** | Mengganti browser `confirm()` bawaan dengan modal kustom di tengah layar (`#confirm-modal-backdrop`, z-index 5000, backdrop blur). Pesan: `Are you sure you want to remove "[Nama Produk]" from the cart?` dengan tombol **Cancel** / **Yes, Remove**. Mendukung klik backdrop & tombol Escape untuk batal. | `app.js`, `style.css` |
 | **Cart Hover Preview** | Hover ikon keranjang di navbar kini menampilkan dropdown preview (`#cart-hover-preview`, 300px): thumbnail, nama, qty x harga, subtotal, dan tombol **View Cart**. Di-inject via JS (`ensureCartHoverPreview`) agar jalan di semua halaman tanpa edit HTML. Lazy-load `fetchProducts()` saat hover pertama + auto-refresh via `updateCartBadge()`. Disembunyikan di mobile. | `app.js`, `style.css` |
+| **Quick +/- in Hover Preview** | Dropdown preview keranjang kini interaktif: setiap item punya tombol `-` / `+` (`.preview-qty`) yang memanggil `updateQty()` langsung tanpa ke `cart.html`. Minus tetap clamp di `1`, plus nonaktif saat capai stok maksimal. | `app.js`, `style.css` |
 
 *Update Terakhir: 9 September 2026*
 
