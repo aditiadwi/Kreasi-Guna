@@ -508,7 +508,8 @@ function ensureCartHoverPreview() {
         preview.innerHTML = '<div class="cart-preview-box" id="cart-preview-box"></div>';
         wrapper.appendChild(preview);
     }
-    const refreshPreview = () => {
+    // Lazy-load products on first hover so preview has names/images on all pages
+    wrapper.addEventListener('mouseenter', () => {
         if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && !wrapper.dataset.fetching) {
             wrapper.dataset.fetching = '1';
             if (typeof initSupabase === 'function') initSupabase();
@@ -521,69 +522,15 @@ function ensureCartHoverPreview() {
         } else {
             renderCartPreview();
         }
-    };
-    // Lazy-load products on first hover so preview has names/images on all pages
-    wrapper.addEventListener('mouseenter', refreshPreview);
-    // Long-press (touch) to peek: hover doesn't exist on phones.
-    // Normal tap still follows the link to cart.html; holding opens the preview.
-    if (!wrapper.dataset.lpBound) {
-        wrapper.dataset.lpBound = '1';
-        const LONGPRESS_MS = 650;
-        let lpTimer = null;
-        let lpFired = false;
-        const openPreview = () => {
-            lpFired = true;
-            if (wrapper.classList.contains('preview-open')) {
-                wrapper.classList.remove('preview-open');
-            } else {
-                refreshPreview();
-                wrapper.classList.add('preview-open');
-                try { if (navigator.vibrate) navigator.vibrate(15); } catch (e) {}
-            }
-        };
-        cartLink.addEventListener('touchstart', () => {
-            lpFired = false;
-            clearTimeout(lpTimer);
-            lpTimer = setTimeout(openPreview, LONGPRESS_MS);
-        }, { passive: true });
-        ['touchend', 'touchmove', 'touchcancel'].forEach(ev => cartLink.addEventListener(ev, () => clearTimeout(lpTimer), { passive: true }));
-        cartLink.addEventListener('click', (e) => {
-            if (lpFired) {
-                e.preventDefault();
-                e.stopPropagation();
-                lpFired = false;
-            }
-        }, true);
-        // Always kill the browser's own hold-menu ("Open in new tab", etc.) on the cart link,
-        // otherwise it pops up before our preview timer fires.
-        cartLink.addEventListener('contextmenu', (e) => e.preventDefault());
-        wrapper.addEventListener('contextmenu', (e) => {
-            if (wrapper.classList.contains('preview-open')) e.preventDefault();
-        });
-        document.addEventListener('touchstart', (e) => {
-            if (wrapper.classList.contains('preview-open') && !wrapper.contains(e.target)) {
-                wrapper.classList.remove('preview-open');
-            }
-        }, { passive: true });
-        document.addEventListener('click', (e) => {
-            if (wrapper.classList.contains('preview-open') && !wrapper.contains(e.target)) {
-                wrapper.classList.remove('preview-open');
-            }
-        });
-    }
+    });
 }
-
-window.closeCartPreview = () => {
-    const wrapper = document.querySelector('.cart-nav-wrapper.preview-open');
-    if (wrapper) wrapper.classList.remove('preview-open');
-};
 
 function renderCartPreview() {
     const box = document.getElementById('cart-preview-box');
     if (!box) return;
     const ids = Object.keys(cart || {});
     if (ids.length === 0) {
-        box.innerHTML = '<div class="cart-preview-title"><span>Your Cart</span><button type="button" class="cart-preview-close" onclick="closeCartPreview()" aria-label="Close">×</button></div><div class="cart-preview-empty">Your cart is empty.</div>';
+        box.innerHTML = '<div class="cart-preview-title">Your Cart</div><div class="cart-preview-empty">Your cart is empty.</div>';
         return;
     }
     let sub = 0;
@@ -596,7 +543,7 @@ function renderCartPreview() {
         const isMaxStock = qty >= p.stock;
         return `<div class="cart-preview-item"><img src="${img}" onerror="this.src='Images/My Product.png'" alt=""><div class="cart-preview-info"><h5>${p.name}</h5><span>${qty} x Rp ${parseInt(p.price).toLocaleString('id-ID')}</span></div><div class="preview-qty"><button class="btn-preview-qty" onclick="event.stopPropagation();updateQty('${id}',-1)">-</button><span>${qty}</span><button class="btn-preview-qty" onclick="event.stopPropagation();updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>+</button></div></div>`;
     }).join('');
-    box.innerHTML = `<div class="cart-preview-title"><span>Your Cart (${Object.values(cart).reduce((a, b) => a + b, 0)})</span><button type="button" class="cart-preview-close" onclick="closeCartPreview()" aria-label="Close">×</button></div>${itemsHtml}<div class="cart-preview-footer"><div class="cart-preview-total">Rp ${sub.toLocaleString('id-ID')}</div><a href="cart.html" class="btn-preview-cart">View Cart</a></div>`;
+    box.innerHTML = `<div class="cart-preview-title">Your Cart (${Object.values(cart).reduce((a, b) => a + b, 0)})</div>${itemsHtml}<div class="cart-preview-footer"><div class="cart-preview-total">Rp ${sub.toLocaleString('id-ID')}</div><a href="cart.html" class="btn-preview-cart">View Cart</a></div>`;
 }
 
 function renderCart() {
