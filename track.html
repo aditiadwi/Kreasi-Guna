@@ -159,6 +159,8 @@
                 // Render Items as a clean list
                 const itemsList = data.items.split(', ');
                 window._trackItemsRaw = data.items;
+                window._trackSubtotal = data.subtotal;
+                window._trackShipping = data.shipping_fee;
                 document.getElementById('res-items-list').innerHTML = itemsList.map(item => `
                     <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                         <span>• ${item.split(' [')[0]}</span>

@@ -825,7 +825,7 @@ window.printTrackReceipt = () => {
         customerEmail: txt('res-email'),
         location: txt('res-address'),
         items: items.length ? items : [{ name: '(see order details)', qty: 1, price: 0, subtotal: 0 }],
-        subtotal: '-', shipping: '-',
+        subtotal: window._trackSubtotal || '-', shipping: window._trackShipping || '-',
         total: txt('res-total'),
         delivery: txt('res-method'), method: txt('res-method'),
         note: txt('res-note')
