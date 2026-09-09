@@ -511,6 +511,7 @@ function ensureCartHoverPreview() {
     const refreshPreview = () => {
         if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && !wrapper.dataset.fetching) {
             wrapper.dataset.fetching = '1';
+            if (typeof initSupabase === 'function') initSupabase();
             if (typeof fetchProducts === 'function') {
                 fetchProducts().then(() => {
                     delete wrapper.dataset.fetching;
@@ -553,6 +554,9 @@ function ensureCartHoverPreview() {
                 lpFired = false;
             }
         }, true);
+        // Always kill the browser's own hold-menu ("Open in new tab", etc.) on the cart link,
+        // otherwise it pops up before our preview timer fires.
+        cartLink.addEventListener('contextmenu', (e) => e.preventDefault());
         wrapper.addEventListener('contextmenu', (e) => {
             if (wrapper.classList.contains('preview-open')) e.preventDefault();
         });

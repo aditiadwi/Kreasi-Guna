@@ -313,21 +313,70 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     #cart-hover-preview {
         display: none;
         position: fixed;
-        top: 64px;
-        left: 12px;
-        right: 12px;
-        padding-top: 0;
-        z-index: 3000;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0;
+        z-index: 4000;
     }
     .cart-nav-wrapper.preview-open #cart-hover-preview {
         display: block;
     }
     .cart-preview-box {
         width: 100%;
-        max-height: 70vh;
+        max-height: 75vh;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+        animation: previewSlideUp 0.25s ease;
+    }
+    @keyframes previewSlideUp {
+        from { transform: translateY(40px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .cart-preview-title {
+        font-size: 0.95rem;
+    }
+    .cart-preview-item {
+        gap: 14px;
+        padding: 12px 0;
+    }
+    .cart-preview-item img {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+    }
+    .cart-preview-info h5 {
+        font-size: 1rem;
+    }
+    .cart-preview-info span {
+        font-size: 0.88rem;
+    }
+    .preview-qty {
+        gap: 12px;
+    }
+    .btn-preview-qty {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+    .preview-qty span {
+        font-size: 1rem;
+        min-width: 20px;
+    }
+    .cart-preview-total {
+        font-size: 1rem;
+    }
+    .btn-preview-cart {
+        font-size: 0.88rem;
+        padding: 12px 22px;
     }
     .cart-preview-close {
         display: inline-flex;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
     }
 }
 .cart-badge {
