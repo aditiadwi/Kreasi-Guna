@@ -118,6 +118,7 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 | **Low-Stock Urgency Badge** | Kartu produk (`renderShop` + `renderFeaturedProducts`) kini menampilkan badge oranye `Only X left!` (`.stock-urgency`, absolute top-left) saat `0 < stok <= 5`. Threshold 5 agar tidak berisik. `Sold Out` tetap untuk stok 0. | `app.js`, `style.css` |
 | **Order Success Modal + Copy ID** | Mengganti `alert()` murahan setelah checkout dengan modal tengah (`#order-success-backdrop`): ikon sukses, Order ID dalam box dashed + tombol **Copy** (Clipboard API + fallback), dan tombol **Track My Order →**. Klik backdrop ikut redirect ke `track.html?id=...`. | `app.js`, `style.css` |
 | **Saved Address Book (max 3)** | Bagian 📒 di atas form checkout (`#address-book-section`, inject via JS): simpan hingga 3 alamat per user (`address_book_<userId>` di localStorage), klik chip untuk autofill + update ongkir, tombol hapus per item, auto-save diam-diam setelah order sukses. Terisolasi per akun seperti cart. | `app.js`, `style.css` |
+| **Long-Press Cart Peek (mobile)** | Hover preview tidak jalan di HP, jadi ikon keranjang kini mendukung tahan-tekan ~0.65 detik (`touchstart` timer + `navigator.vibrate`): membuka preview sebagai panel fixed top + tombol ✕, tap biasa tetap ke `cart.html`, tap di luar menutup. Long-press kedua menutup lagi. | `app.js`, `style.css` |
 
 *Update Terakhir: 9 September 2026*
 
