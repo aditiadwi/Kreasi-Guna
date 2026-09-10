@@ -169,7 +169,10 @@
 
                 <div class="analytics-grid">
                     <div class="admin-card">
-                        <h3>📈 Sales Trends</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <h3 style="margin: 0;">📈 Sales Trends</h3>
+                            <select id="trend-month" onchange="renderSalesTrend()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.85rem; background: #fff; cursor: pointer;"></select>
+                        </div>
                         <div class="chart-container">
                             <canvas id="salesChart"></canvas>
                         </div>
@@ -455,6 +458,7 @@
         const adminSupabase = supabaseClient;
         let salesChart = null;
         let currentViewingOrderId = null;
+        let _trendOrdersCache = [];
 
         async function handleAdminLogin() {
             const email = document.getElementById('admin-email').value;
@@ -566,24 +570,38 @@
                     <span style="color: #999; font-size: 0.8rem;">${new Date(o.created_at).toLocaleDateString('id-ID')}</span>
                 </div>`).join('');
 
-            renderSalesTrend(valid);
+            _trendOrdersCache = valid;
+            renderSalesTrend();
+        }
 
-            function renderSalesTrend(orders) {
-                const DAY_MS = 86400000;
-                const atMidnight = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
-                const today = atMidnight(new Date());
-                // Fixed 14-day window: always the same shape, no ragged edges.
-                const start = today - 13 * DAY_MS;
-                const perDay = {};
-                orders.forEach(o => {
-                    const t = atMidnight(o.created_at);
-                    if (t >= start && t <= today) perDay[t] = (perDay[t] || 0) + 1;
-                });
-                const labels = [], values = [];
-                for (let t = start; t <= today; t += DAY_MS) {
-                    labels.push(new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
-                    values.push(perDay[t] || 0);
+        window.renderSalesTrend = function() {
+            // Monthly view: one month at a time so months never mix.
+            const sel = document.getElementById('trend-month');
+            const now = new Date();
+            if (sel && sel.options.length === 0) {
+                for (let i = 0; i < 6; i++) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const opt = document.createElement('option');
+                    opt.value = `${d.getFullYear()}-${d.getMonth()}`;
+                    opt.textContent = d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                    sel.appendChild(opt);
                 }
+            }
+            const [y, m] = ((sel && sel.value) || `${now.getFullYear()}-${now.getMonth()}`).split('-').map(Number);
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const monthName = new Date(y, m, 1).toLocaleDateString('id-ID', { month: 'short' });
+            const perDay = {};
+            _trendOrdersCache.forEach(o => {
+                const d = new Date(o.created_at);
+                if (d.getFullYear() === y && d.getMonth() === m) {
+                    perDay[d.getDate()] = (perDay[d.getDate()] || 0) + 1;
+                }
+            });
+            const labels = [], values = [];
+            for (let day = 1; day <= daysInMonth; day++) {
+                labels.push(`${day} ${monthName}`);
+                values.push(perDay[day] || 0);
+            }
                 if (salesChart) salesChart.destroy();
                 const ctx = document.getElementById('salesChart').getContext('2d');
                 salesChart = new Chart(ctx, {
@@ -608,7 +626,7 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
-                            x: { grid: { display: false } }
+                            x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } }
                         },
                         plugins: { legend: { display: false } }
                     }
