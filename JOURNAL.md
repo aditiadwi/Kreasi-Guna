@@ -131,6 +131,7 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 | **Admin Order Search & Filter** | Pencarian + filter status di tabel Orders (`admin.html`): input 🔍 mencocokkan Order ID / nama / telepon / email, dropdown filter PENDING / SHIPPED / COMPLETED / CANCELLED, plus penghitung `Showing X of Y`. Filter client-side dari cache `allOrdersData` tanpa query DB tambahan, baris & aksi (View/Del) tidak berubah. | `admin.html` |
 | **Admin Fuzzy Search** | Aduan "Adi tidak ketemu": pencarian diganti fuzzy subsequence (`fuzzyMatch()`) — huruf yang diketik cukup muncul berurutan, tak harus bersebelahan. `adi` kini menemukan Aditia, Andini, Aldi; `brt` menemukan Budiarto. Berlaku per kolom + gabungan semua kolom. | `admin.html` |
 | **Admin Search Ranking** | Hasil pencarian diurutkan relevansinya (`matchScore()`): persis dulu (`Adi`), lalu awalan (`Adiani`, `Aditia`), lalu substring, terakhir fuzzy (`Andini`, `Aldi`); dalam skor sama tetap terbaru dulu. | `admin.html` |
+| **Admin Search Tightening** | Aduan `Fa` ikut menampilkan Feri/gtgf/Adi: pencocokan gabungan antar-kolom dihapus (huruf `f` di satu kolom tidak boleh berpasangan dengan `a` di kolom lain), dan email/telepon hanya substring persis (tanpa fuzzy) agar `@gmail`/`mail` tidak membocorkan match. Kini `Fa` → Fallen Leaf, Fabi, Fadil (+Rifal yang memang mengandung "fa"). | `admin.html` |
 
 *Update Terakhir: 9 September 2026*
 

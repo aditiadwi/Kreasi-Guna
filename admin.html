@@ -1027,13 +1027,13 @@
             return true;
         }
 
-        function matchScore(value, needle) {
+        function matchScore(value, needle, allowFuzzy = true) {
             value = (value || '').toLowerCase();
             if (!needle) return 0;
             if (value === needle) return 0;
             if (value.startsWith(needle)) return 1;
             if (value.includes(needle)) return 2;
-            if (fuzzyMatch(value, needle)) return 3;
+            if (allowFuzzy && fuzzyMatch(value, needle)) return 3;
             return 4;
         }
 
@@ -1043,12 +1043,15 @@
             const scored = [];
             allOrdersData.forEach((o, idx) => {
                 if (status !== 'all' && o.status !== status) return;
-                const fields = [o.order_id, o.customer_name, o.customer_phone, o.customer_email];
+                const fields = [
+                    { v: o.order_id, fuzzy: true },
+                    { v: o.customer_name, fuzzy: true },
+                    { v: o.customer_phone, fuzzy: false },
+                    { v: o.customer_email, fuzzy: false }
+                ];
                 let best = 4;
                 if (q) {
-                    best = Math.min(...fields.map(v => matchScore(v, q)));
-                    const combined = fields.map(v => v || '').join(' ').toLowerCase();
-                    best = Math.min(best, matchScore(combined, q));
+                    best = Math.min(...fields.map(f => matchScore(f.v, q, f.fuzzy)));
                     if (best > 3) return;
                 }
                 scored.push({ o, best, idx });
