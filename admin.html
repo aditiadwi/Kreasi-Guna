@@ -632,7 +632,6 @@
                     }
                 });
             }
-        }
 
         async function loadProducts() {
             const { data } = await adminSupabase.from('products').select('*').order('created_at', {ascending:false});
