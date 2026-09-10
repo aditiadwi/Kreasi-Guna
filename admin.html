@@ -566,15 +566,28 @@
                     <span style="color: #999; font-size: 0.8rem;">${new Date(o.created_at).toLocaleDateString('id-ID')}</span>
                 </div>`).join('');
 
-            const chartData = {};
-            valid.forEach(o => { const day = new Date(o.created_at).toLocaleDateString('id-ID'); chartData[day] = (chartData[day] || 0) + 1; });
+            // Continuous daily axis (oldest order → today, capped at last 30 days),
+            // zero-filled so empty days don't kink the line.
+            const DAY_MS = 86400000;
+            const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+            const counts = {};
+            valid.forEach(o => { const t = startOfDay(o.created_at); counts[t] = (counts[t] || 0) + 1; });
+            const today = startOfDay(new Date());
+            let minDay = Math.min(today, ...Object.keys(counts).map(Number));
+            if (!isFinite(minDay)) minDay = today;
+            if (today - minDay > 29 * DAY_MS) minDay = today - 29 * DAY_MS;
+            const labels = [], values = [];
+            for (let t = minDay; t <= today; t += DAY_MS) {
+                labels.push(new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+                values.push(counts[t] || 0);
+            }
 
             if (salesChart) salesChart.destroy();
             const ctx = document.getElementById('salesChart').getContext('2d');
             salesChart = new Chart(ctx, {
                 type: 'line',
-                data: { labels: Object.keys(chartData), datasets: [{ label: 'Orders', data: Object.values(chartData), borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', tension: 0.4, fill: true }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
+                data: { labels, datasets: [{ label: 'Orders', data: values, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', tension: 0.4, fill: true }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
             });
         }
 
