@@ -847,6 +847,37 @@ function receiptFileName(r, ext) {
     return `receipt-${String(r.orderId || 'order').replace(/[^\w-]+/g, '_')}.${ext}`;
 }
 
+function receiptLibReady() {
+    return (typeof html2pdf !== 'undefined') && (typeof html2canvas !== 'undefined');
+}
+
+const RECEIPT_LIB_URLS = [
+    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+    'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
+];
+let _receiptLibPromise = null;
+
+function ensureReceiptLib() {
+    if (receiptLibReady()) return Promise.resolve();
+    if (_receiptLibPromise) return _receiptLibPromise;
+    _receiptLibPromise = new Promise((resolve, reject) => {
+        const tryLoad = (i) => {
+            if (i >= RECEIPT_LIB_URLS.length) {
+                _receiptLibPromise = null;
+                reject(new Error('all CDNs failed'));
+                return;
+            }
+            const s = document.createElement('script');
+            s.src = RECEIPT_LIB_URLS[i];
+            s.onload = () => (receiptLibReady() ? resolve() : tryLoad(i + 1));
+            s.onerror = () => tryLoad(i + 1);
+            document.head.appendChild(s);
+        };
+        tryLoad(0);
+    });
+    return _receiptLibPromise;
+}
+
 function receiptExportNode(r) {
     const node = document.createElement('div');
     node.style.cssText = 'position:fixed;left:-9999px;top:0;width:640px;background:#fff;color:#222;font-family:Arial,Helvetica,sans-serif;padding:24px;';
@@ -872,26 +903,28 @@ window.trackReceiptAs = (kind, btn) => {
 };
 
 function exportReceiptFile(kind, data, btn) {
-    if (typeof html2pdf === 'undefined' || typeof html2canvas === 'undefined') {
-        alert('File library still loading — please use Print for now, or try again in a moment.');
-        return;
-    }
-    const node = receiptExportNode(data);
     const original = btn ? btn.innerHTML : '';
     setBusy(btn, true, '⏳...');
-    const done = () => { setBusy(btn, false, original); node.remove(); };
-    if (kind === 'pdf') {
-        html2pdf().set({ margin: 10, filename: receiptFileName(data, 'pdf'), image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } })
-            .from(node).save().then(done).catch(() => { done(); alert('PDF export failed, please use Print instead.'); });
-    } else {
-        html2canvas(node, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
-            const a = document.createElement('a');
-            a.download = receiptFileName(data, 'png');
-            a.href = canvas.toDataURL('image/png');
-            a.click();
-            done();
-        }).catch(() => { done(); alert('PNG export failed, please use Print instead.'); });
-    }
+    const done = () => { setBusy(btn, false, original); };
+    ensureReceiptLib().then(() => {
+        const node = receiptExportNode(data);
+        const finish = () => { done(); node.remove(); };
+        if (kind === 'pdf') {
+            html2pdf().set({ margin: 10, filename: receiptFileName(data, 'pdf'), image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } })
+                .from(node).save().then(finish).catch(() => { finish(); alert('PDF export failed, please use Print instead.'); });
+        } else {
+            html2canvas(node, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+                const a = document.createElement('a');
+                a.download = receiptFileName(data, 'png');
+                a.href = canvas.toDataURL('image/png');
+                a.click();
+                finish();
+            }).catch(() => { finish(); alert('PNG export failed, please use Print instead.'); });
+        }
+    }).catch(() => {
+        done();
+        alert('Could not load the file library (check connection / adblock). Please use Print for now.');
+    });
 }
 
 window.addToCartCheckout = (id) => {
@@ -2644,6 +2677,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof window.renderRecentOrdersTrack === 'function') {
             window.renderRecentOrdersTrack();
         }
+        // Pre-warm receipt PDF/PNG library so first click is instant
+        if (typeof ensureReceiptLib === 'function') {
+            setTimeout(() => ensureReceiptLib().catch(() => {}), 2000);
+        }
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get('id');
         if (idFromUrl) {
@@ -2672,6 +2709,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (typeof window.renderAddressBook === 'function') {
             window.renderAddressBook();
+        }
+        // Pre-warm receipt PDF/PNG library so first click is instant
+        if (typeof ensureReceiptLib === 'function') {
+            setTimeout(() => ensureReceiptLib().catch(() => {}), 2000);
         }
         
         FORM_FIELDS.forEach(id => {
