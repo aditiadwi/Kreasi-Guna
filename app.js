@@ -697,7 +697,11 @@ function ensureOrderSuccessModal() {
             </div>
             <div class="order-success-actions">
                 <a href="#" class="btn-track-order" id="btn-goto-track">Track My Order →</a>
-                <button type="button" class="btn-download-receipt" onclick="downloadReceipt()">🧾 Download Receipt</button>
+                <div class="receipt-file-row">
+                    <button type="button" class="btn-receipt-file" onclick="downloadReceipt()">🖨️ Print</button>
+                    <button type="button" class="btn-receipt-file" onclick="downloadReceiptAs('pdf', this)">📄 PDF</button>
+                    <button type="button" class="btn-receipt-file" onclick="downloadReceiptAs('png', this)">🖼️ PNG</button>
+                </div>
             </div>
         </div>
     </div>`;
@@ -771,7 +775,7 @@ function parseTrackItems(raw) {
     });
 }
 
-function buildReceiptHTML(r) {
+function receiptInnerHTML(r) {
     const rows = (r.items || []).map((it, i) => `
         <tr>
             <td style="padding:8px;border-bottom:1px solid #eee;">${i + 1}. ${escReceipt(it.name)}</td>
@@ -779,24 +783,27 @@ function buildReceiptHTML(r) {
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${parseInt(it.price || 0).toLocaleString('id-ID')}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;"><b>Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}</b></td>
         </tr>`).join('');
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt ${escReceipt(r.orderId)}</title>
-    <style>body{font-family:Arial,Helvetica,sans-serif;color:#222;max-width:640px;margin:0 auto;padding:24px;}h1{font-size:1.3rem;margin:0;}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.9rem;}th{background:#f5f0e6;text-align:left;padding:8px;}th:nth-child(n+2),td:nth-child(n+2){text-align:right;}td:nth-child(2){text-align:center;}.meta p{margin:4px 0;font-size:0.88rem;}.totals{text-align:right;font-size:0.9rem;}.totals p{margin:4px 0;}.grand{font-size:1.15rem;font-weight:800;}.foot{margin-top:24px;font-size:0.8rem;color:#777;text-align:center;border-top:1px dashed #ccc;padding-top:12px;}</style>
-    </head><body onload="window.print()">
-    <h1>KG — Smart Drip Coffee</h1>
+    return `
+    <h1 style="font-size:1.3rem;margin:0;">KG — Smart Drip Coffee</h1>
     <p style="font-size:0.85rem;color:#555;margin:4px 0 0;">Kreasi Guna • Order Receipt</p>
-    <div class="meta" style="margin-top:12px;">
-        <p><b>Order ID:</b> ${escReceipt(r.orderId)}</p>
-        <p><b>Date:</b> ${escReceipt(r.date)}</p>
-        <p><b>Name:</b> ${escReceipt(r.customerName)} • ${escReceipt(r.customerPhone)}</p>
-        <p><b>Email:</b> ${escReceipt(r.customerEmail)}</p>
-        <p><b>Address:</b> ${escReceipt(r.location)}</p>
-        <p><b>Delivery:</b> ${escReceipt(r.delivery)} • <b>Payment:</b> ${escReceipt(r.method)}</p>
-        <p><b>Note:</b> ${escReceipt(r.note)}</p>
+    <div style="margin-top:12px;">
+        <p style="margin:4px 0;font-size:0.88rem;"><b>Order ID:</b> ${escReceipt(r.orderId)}</p>
+        <p style="margin:4px 0;font-size:0.88rem;"><b>Date:</b> ${escReceipt(r.date)}</p>
+        <p style="margin:4px 0;font-size:0.88rem;"><b>Name:</b> ${escReceipt(r.customerName)} • ${escReceipt(r.customerPhone)}</p>
+        <p style="margin:4px 0;font-size:0.88rem;"><b>Email:</b> ${escReceipt(r.customerEmail)}</p>
+        <p style="margin:4px 0;font-size:0.88rem;"><b>Address:</b> ${escReceipt(r.location)}</p>
+        <p style="margin:4px 0;font-size:0.88rem;"><b>Delivery:</b> ${escReceipt(r.delivery)} • <b>Payment:</b> ${escReceipt(r.method)}</p>
+        <p style="margin:4px 0;font-size:0.88rem;"><b>Note:</b> ${escReceipt(r.note)}</p>
     </div>
-    <table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="totals"><p>Subtotal: ${escReceipt(r.subtotal)}</p><p>Shipping: ${escReceipt(r.shipping)}</p><p class="grand">Total: ${escReceipt(r.total)}</p></div>
-    <div class="foot">Thank you for brewing with Smart Drip Coffee!<br>Keep this receipt &amp; your Order ID to track your order.</div>
-    </body></html>`;
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.9rem;"><thead><tr><th style="background:#f5f0e6;text-align:left;padding:8px;">Item</th><th style="background:#f5f0e6;text-align:right;padding:8px;">Qty</th><th style="background:#f5f0e6;text-align:right;padding:8px;">Price</th><th style="background:#f5f0e6;text-align:right;padding:8px;">Subtotal</th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="text-align:right;font-size:0.9rem;"><p style="margin:4px 0;">Subtotal: ${escReceipt(r.subtotal)}</p><p style="margin:4px 0;">Shipping: ${escReceipt(r.shipping)}</p><p style="margin:4px 0;font-size:1.15rem;font-weight:800;">Total: ${escReceipt(r.total)}</p></div>
+    <div style="margin-top:24px;font-size:0.8rem;color:#777;text-align:center;border-top:1px dashed #ccc;padding-top:12px;">Thank you for brewing with Smart Drip Coffee!<br>Keep this receipt &amp; your Order ID to track your order.</div>`;
+}
+
+function buildReceiptHTML(r) {
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receipt ${escReceipt(r.orderId)}</title>
+    <style>body{font-family:Arial,Helvetica,sans-serif;color:#222;max-width:640px;margin:0 auto;padding:24px;}td:nth-child(2){text-align:center;}</style>
+    </head><body onload="window.print()">${receiptInnerHTML(r)}</body></html>`;
 }
 
 function openReceiptWindow(html) {
@@ -814,10 +821,10 @@ window.downloadReceipt = () => {
     openReceiptWindow(buildReceiptHTML(window._lastReceipt));
 };
 
-window.printTrackReceipt = () => {
+function getTrackReceiptData() {
     const txt = (id) => (document.getElementById(id)?.innerText || '-').trim();
     const items = parseTrackItems(window._trackItemsRaw);
-    openReceiptWindow(buildReceiptHTML({
+    return {
         orderId: txt('res-id'),
         date: new Date().toLocaleString('id-ID'),
         customerName: txt('res-name'),
@@ -829,8 +836,63 @@ window.printTrackReceipt = () => {
         total: txt('res-total'),
         delivery: txt('res-method'), method: txt('res-method'),
         note: txt('res-note')
-    }));
+    };
+}
+
+window.printTrackReceipt = () => {
+    openReceiptWindow(buildReceiptHTML(getTrackReceiptData()));
 };
+
+function receiptFileName(r, ext) {
+    return `receipt-${String(r.orderId || 'order').replace(/[^\w-]+/g, '_')}.${ext}`;
+}
+
+function receiptExportNode(r) {
+    const node = document.createElement('div');
+    node.style.cssText = 'position:fixed;left:-9999px;top:0;width:640px;background:#fff;color:#222;font-family:Arial,Helvetica,sans-serif;padding:24px;';
+    node.innerHTML = receiptInnerHTML(r);
+    document.body.appendChild(node);
+    return node;
+}
+
+function setBusy(btn, busy, label) {
+    if (!btn) return;
+    btn.disabled = !!busy;
+    btn.style.opacity = busy ? '0.6' : '1';
+    if (label) btn.innerHTML = label;
+}
+
+window.downloadReceiptAs = (kind, btn) => {
+    if (!window._lastReceipt) return alert('Receipt data not available.');
+    exportReceiptFile(kind, window._lastReceipt, btn);
+};
+
+window.trackReceiptAs = (kind, btn) => {
+    exportReceiptFile(kind, getTrackReceiptData(), btn);
+};
+
+function exportReceiptFile(kind, data, btn) {
+    if (typeof html2pdf === 'undefined' || typeof html2canvas === 'undefined') {
+        alert('File library still loading — please use Print for now, or try again in a moment.');
+        return;
+    }
+    const node = receiptExportNode(data);
+    const original = btn ? btn.innerHTML : '';
+    setBusy(btn, true, '⏳...');
+    const done = () => { setBusy(btn, false, original); node.remove(); };
+    if (kind === 'pdf') {
+        html2pdf().set({ margin: 10, filename: receiptFileName(data, 'pdf'), image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } })
+            .from(node).save().then(done).catch(() => { done(); alert('PDF export failed, please use Print instead.'); });
+    } else {
+        html2canvas(node, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+            const a = document.createElement('a');
+            a.download = receiptFileName(data, 'png');
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+            done();
+        }).catch(() => { done(); alert('PNG export failed, please use Print instead.'); });
+    }
+}
 
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);

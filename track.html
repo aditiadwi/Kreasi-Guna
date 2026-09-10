@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.6">
+    <link rel="stylesheet" href="style.css?v=1.0.7">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <header>
@@ -90,8 +91,10 @@
                     <p id="res-note" style="margin: 0; font-size: 1rem; font-weight: 600; color: #856404;">Your order is being processed by our team.</p>
                 </div>
 
-                <div style="text-align: center; margin-top: 25px;">
-                    <button onclick="printTrackReceipt()" style="padding: 12px 28px; border-radius: 30px; border: 2px solid var(--coffee-dark); background: transparent; color: var(--coffee-dark); font-weight: 800; font-size: 0.9rem; cursor: pointer;">🧾 Print / Save Receipt</button>
+                <div style="text-align: center; margin-top: 25px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="printTrackReceipt()" style="padding: 12px 24px; border-radius: 30px; border: 2px solid var(--coffee-dark); background: transparent; color: var(--coffee-dark); font-weight: 800; font-size: 0.9rem; cursor: pointer;">🖨️ Print</button>
+                    <button onclick="trackReceiptAs('pdf', this)" style="padding: 12px 24px; border-radius: 30px; border: 2px solid var(--coffee-dark); background: transparent; color: var(--coffee-dark); font-weight: 800; font-size: 0.9rem; cursor: pointer;">📄 PDF</button>
+                    <button onclick="trackReceiptAs('png', this)" style="padding: 12px 24px; border-radius: 30px; border: 2px solid var(--coffee-dark); background: transparent; color: var(--coffee-dark); font-weight: 800; font-size: 0.9rem; cursor: pointer;">🖼️ PNG</button>
                 </div>
             </div>
 
@@ -120,7 +123,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.6"></script>
+    <script src="app.js?v=1.0.7"></script>
     <script>
         window.handleTrackOrder = async function() {
             const idInput = document.getElementById('track-id-input');
