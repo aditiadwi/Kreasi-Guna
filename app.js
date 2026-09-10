@@ -697,11 +697,7 @@ function ensureOrderSuccessModal() {
             </div>
             <div class="order-success-actions">
                 <a href="#" class="btn-track-order" id="btn-goto-track">Track My Order →</a>
-                <div class="receipt-file-row">
-                    <button type="button" class="btn-receipt-file" onclick="downloadReceipt()">🖨️ Print</button>
-                    <button type="button" class="btn-receipt-file" onclick="downloadReceiptAs('pdf', this)">📄 PDF</button>
-                    <button type="button" class="btn-receipt-file" onclick="downloadReceiptAs('png', this)">🖼️ PNG</button>
-                </div>
+                <button type="button" class="btn-download-receipt" onclick="downloadReceipt()">🧾 Download Receipt</button>
             </div>
         </div>
     </div>`;
@@ -842,90 +838,6 @@ function getTrackReceiptData() {
 window.printTrackReceipt = () => {
     openReceiptWindow(buildReceiptHTML(getTrackReceiptData()));
 };
-
-function receiptFileName(r, ext) {
-    return `receipt-${String(r.orderId || 'order').replace(/[^\w-]+/g, '_')}.${ext}`;
-}
-
-function receiptLibReady() {
-    return (typeof html2pdf !== 'undefined') && (typeof html2canvas !== 'undefined');
-}
-
-const RECEIPT_LIB_URLS = [
-    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-    'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
-];
-let _receiptLibPromise = null;
-
-function ensureReceiptLib() {
-    if (receiptLibReady()) return Promise.resolve();
-    if (_receiptLibPromise) return _receiptLibPromise;
-    _receiptLibPromise = new Promise((resolve, reject) => {
-        const tryLoad = (i) => {
-            if (i >= RECEIPT_LIB_URLS.length) {
-                _receiptLibPromise = null;
-                reject(new Error('all CDNs failed'));
-                return;
-            }
-            const s = document.createElement('script');
-            s.src = RECEIPT_LIB_URLS[i];
-            s.onload = () => (receiptLibReady() ? resolve() : tryLoad(i + 1));
-            s.onerror = () => tryLoad(i + 1);
-            document.head.appendChild(s);
-        };
-        tryLoad(0);
-    });
-    return _receiptLibPromise;
-}
-
-function receiptExportNode(r) {
-    const node = document.createElement('div');
-    node.style.cssText = 'position:fixed;left:-9999px;top:0;width:640px;background:#fff;color:#222;font-family:Arial,Helvetica,sans-serif;padding:24px;';
-    node.innerHTML = receiptInnerHTML(r);
-    document.body.appendChild(node);
-    return node;
-}
-
-function setBusy(btn, busy, label) {
-    if (!btn) return;
-    btn.disabled = !!busy;
-    btn.style.opacity = busy ? '0.6' : '1';
-    if (label) btn.innerHTML = label;
-}
-
-window.downloadReceiptAs = (kind, btn) => {
-    if (!window._lastReceipt) return alert('Receipt data not available.');
-    exportReceiptFile(kind, window._lastReceipt, btn);
-};
-
-window.trackReceiptAs = (kind, btn) => {
-    exportReceiptFile(kind, getTrackReceiptData(), btn);
-};
-
-function exportReceiptFile(kind, data, btn) {
-    const original = btn ? btn.innerHTML : '';
-    setBusy(btn, true, '⏳...');
-    const done = () => { setBusy(btn, false, original); };
-    ensureReceiptLib().then(() => {
-        const node = receiptExportNode(data);
-        const finish = () => { done(); node.remove(); };
-        if (kind === 'pdf') {
-            html2pdf().set({ margin: 10, filename: receiptFileName(data, 'pdf'), image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } })
-                .from(node).save().then(finish).catch(() => { finish(); alert('PDF export failed, please use Print instead.'); });
-        } else {
-            html2canvas(node, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
-                const a = document.createElement('a');
-                a.download = receiptFileName(data, 'png');
-                a.href = canvas.toDataURL('image/png');
-                a.click();
-                finish();
-            }).catch(() => { finish(); alert('PNG export failed, please use Print instead.'); });
-        }
-    }).catch(() => {
-        done();
-        alert('Could not load the file library (check connection / adblock). Please use Print for now.');
-    });
-}
 
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
@@ -2677,10 +2589,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof window.renderRecentOrdersTrack === 'function') {
             window.renderRecentOrdersTrack();
         }
-        // Pre-warm receipt PDF/PNG library so first click is instant
-        if (typeof ensureReceiptLib === 'function') {
-            setTimeout(() => ensureReceiptLib().catch(() => {}), 2000);
-        }
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get('id');
         if (idFromUrl) {
@@ -2709,10 +2617,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (typeof window.renderAddressBook === 'function') {
             window.renderAddressBook();
-        }
-        // Pre-warm receipt PDF/PNG library so first click is instant
-        if (typeof ensureReceiptLib === 'function') {
-            setTimeout(() => ensureReceiptLib().catch(() => {}), 2000);
         }
         
         FORM_FIELDS.forEach(id => {
