@@ -216,6 +216,17 @@
                             📥 Download Excel (CSV)
                         </button>
                     </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <input type="text" id="order-search" placeholder="🔍 Search Order ID / name / phone..." oninput="renderOrders()" style="flex: 1; min-width: 220px; padding: 9px 14px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; outline: none;">
+                        <select id="order-filter-status" onchange="renderOrders()" style="padding: 9px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                            <option value="all">All statuses</option>
+                            <option value="PENDING">PENDING</option>
+                            <option value="SHIPPED">SHIPPED</option>
+                            <option value="COMPLETED">COMPLETED</option>
+                            <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                    </div>
+                    <p id="order-count" style="font-size: 0.82rem; color: #888; margin: 0 0 10px 0;"></p>
                     <div class="table-responsive">
                         <table class="table-wide">
                             <thead><tr><th>Date</th><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
@@ -994,10 +1005,32 @@
         async function toggleApproval(id, s) { await adminSupabase.from('feedback').update({is_approved:!s}).eq('id',id); loadFeedback(); }
         async function deleteFeedback(id) { if(confirm('Delete?')){ await adminSupabase.from('feedback').delete().eq('id',id); loadFeedback(); } }
 
+        let allOrdersData = [];
+
         async function loadOrders() {
             const { data } = await adminSupabase.from('orders').select('*').order('created_at',{ascending:false});
             if (!data) return;
-            document.getElementById('admin-orders-table').innerHTML = data.map(o => `
+            allOrdersData = data;
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const q = (document.getElementById('order-search')?.value || '').toLowerCase().trim();
+            const status = document.getElementById('order-filter-status')?.value || 'all';
+            const filtered = allOrdersData.filter(o => {
+                if (status !== 'all' && o.status !== status) return false;
+                if (!q) return true;
+                return [o.order_id, o.customer_name, o.customer_phone, o.customer_email]
+                    .some(v => (v || '').toLowerCase().includes(q));
+            });
+            const countEl = document.getElementById('order-count');
+            if (countEl) countEl.innerText = `Showing ${filtered.length} of ${allOrdersData.length} orders`;
+            const tbody = document.getElementById('admin-orders-table');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding: 20px;">No orders match your search.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filtered.map(o => `
                 <tr>
                     <td>${new Date(o.created_at).toLocaleDateString()}</td>
                     <td><small>${o.order_id}</small></td>
