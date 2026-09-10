@@ -566,29 +566,54 @@
                     <span style="color: #999; font-size: 0.8rem;">${new Date(o.created_at).toLocaleDateString('id-ID')}</span>
                 </div>`).join('');
 
-            // Continuous daily axis (oldest order → today, capped at last 30 days),
-            // zero-filled so empty days don't kink the line.
-            const DAY_MS = 86400000;
-            const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
-            const counts = {};
-            valid.forEach(o => { const t = startOfDay(o.created_at); counts[t] = (counts[t] || 0) + 1; });
-            const today = startOfDay(new Date());
-            let minDay = Math.min(today, ...Object.keys(counts).map(Number));
-            if (!isFinite(minDay)) minDay = today;
-            if (today - minDay > 29 * DAY_MS) minDay = today - 29 * DAY_MS;
-            const labels = [], values = [];
-            for (let t = minDay; t <= today; t += DAY_MS) {
-                labels.push(new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
-                values.push(counts[t] || 0);
-            }
+            renderSalesTrend(valid);
 
-            if (salesChart) salesChart.destroy();
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            salesChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets: [{ label: 'Orders', data: values, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', tension: 0.4, fill: true }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
-            });
+            function renderSalesTrend(orders) {
+                const DAY_MS = 86400000;
+                const atMidnight = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+                const today = atMidnight(new Date());
+                // Fixed 14-day window: always the same shape, no ragged edges.
+                const start = today - 13 * DAY_MS;
+                const perDay = {};
+                orders.forEach(o => {
+                    const t = atMidnight(o.created_at);
+                    if (t >= start && t <= today) perDay[t] = (perDay[t] || 0) + 1;
+                });
+                const labels = [], values = [];
+                for (let t = start; t <= today; t += DAY_MS) {
+                    labels.push(new Date(t).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+                    values.push(perDay[t] || 0);
+                }
+                if (salesChart) salesChart.destroy();
+                const ctx = document.getElementById('salesChart').getContext('2d');
+                salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets: [{
+                        label: 'Orders',
+                        data: values,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.12)',
+                        borderWidth: 2.5,
+                        tension: 0.3,
+                        fill: true,
+                        spanGaps: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#3498db',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }] },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                            x: { grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
         }
 
         async function loadProducts() {

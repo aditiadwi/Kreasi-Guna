@@ -133,6 +133,7 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 | **Admin Search Ranking** | Hasil pencarian diurutkan relevansinya (`matchScore()`): persis dulu (`Adi`), lalu awalan (`Adiani`, `Aditia`), lalu substring, terakhir fuzzy (`Andini`, `Aldi`); dalam skor sama tetap terbaru dulu. | `admin.html` |
 | **Admin Search Tightening** | Aduan `Fa` ikut menampilkan Feri/gtgf/Adi: pencocokan gabungan antar-kolom dihapus (huruf `f` di satu kolom tidak boleh berpasangan dengan `a` di kolom lain), dan email/telepon hanya substring persis (tanpa fuzzy) agar `@gmail`/`mail` tidak membocorkan match. Kini `Fa` → Fallen Leaf, Fabi, Fadil (+Rifal yang memang mengandung "fa"). | `admin.html` |
 | **Sales Trend De-Kink** | Aduan garis grafik bengkok: chart memakai label string per hari-berisi-order sehingga hari kosong hilang dan jarak-x tidak proporsional. Kini sumbu harian kontinu (order tertua → hari ini, maks 30 hari) dengan hari kosong diisi 0, label `9 Sep`, grid-x disembunyikan, ticks-y integer. | `admin.html` |
+| **Sales Trend Rewrite** | Chart ditulis ulang dari nol (`renderSalesTrend()`): jendela tetap 14 hari terakhir (bentuk selalu konsisten), hari kosong = 0, order di luar jendela diabaikan, tension 0.3 anti-overshoot, titik harian terlihat (putih-tepi), fill + grid-x mati. | `admin.html` |
 
 *Update Terakhir: 9 September 2026*
 
