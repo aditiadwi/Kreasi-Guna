@@ -1014,15 +1014,48 @@
             renderOrders();
         }
 
+        function fuzzyMatch(haystack, needle) {
+            haystack = (haystack || '').toLowerCase();
+            needle = (needle || '').toLowerCase().replace(/\s+/g, '');
+            if (!needle) return true;
+            let j = 0;
+            for (const ch of needle) {
+                j = haystack.indexOf(ch, j);
+                if (j === -1) return false;
+                j++;
+            }
+            return true;
+        }
+
+        function matchScore(value, needle) {
+            value = (value || '').toLowerCase();
+            if (!needle) return 0;
+            if (value === needle) return 0;
+            if (value.startsWith(needle)) return 1;
+            if (value.includes(needle)) return 2;
+            if (fuzzyMatch(value, needle)) return 3;
+            return 4;
+        }
+
         function renderOrders() {
             const q = (document.getElementById('order-search')?.value || '').toLowerCase().trim();
             const status = document.getElementById('order-filter-status')?.value || 'all';
-            const filtered = allOrdersData.filter(o => {
-                if (status !== 'all' && o.status !== status) return false;
-                if (!q) return true;
-                return [o.order_id, o.customer_name, o.customer_phone, o.customer_email]
-                    .some(v => (v || '').toLowerCase().includes(q));
+            const scored = [];
+            allOrdersData.forEach((o, idx) => {
+                if (status !== 'all' && o.status !== status) return;
+                const fields = [o.order_id, o.customer_name, o.customer_phone, o.customer_email];
+                let best = 4;
+                if (q) {
+                    best = Math.min(...fields.map(v => matchScore(v, q)));
+                    const combined = fields.map(v => v || '').join(' ').toLowerCase();
+                    best = Math.min(best, matchScore(combined, q));
+                    if (best > 3) return;
+                }
+                scored.push({ o, best, idx });
             });
+            // Exact first, then prefix, then substring, then fuzzy; keep newest first within ties
+            scored.sort((a, b) => (a.best - b.best) || (a.idx - b.idx));
+            const filtered = scored.map(s => s.o);
             const countEl = document.getElementById('order-count');
             if (countEl) countEl.innerText = `Showing ${filtered.length} of ${allOrdersData.length} orders`;
             const tbody = document.getElementById('admin-orders-table');
