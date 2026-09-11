@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.9">
+    <link rel="stylesheet" href="style.css?v=1.0.10">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -92,6 +92,7 @@
 
                 <div style="text-align: center; margin-top: 25px;">
                     <button onclick="printTrackReceipt()" style="padding: 12px 28px; border-radius: 30px; border: 2px solid var(--coffee-dark); background: transparent; color: var(--coffee-dark); font-weight: 800; font-size: 0.9rem; cursor: pointer;">🧾 Print / Save Receipt</button>
+                    <button onclick="reorderTrackItems(this)" style="padding: 12px 28px; margin-left: 8px; border-radius: 30px; border: none; background: var(--gold-premium); color: white; font-weight: 800; font-size: 0.9rem; cursor: pointer;">🔁 Buy Again</button>
                 </div>
             </div>
 
@@ -120,7 +121,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.9"></script>
+    <script src="app.js?v=1.0.10"></script>
     <script>
         window.handleTrackOrder = async function() {
             const idInput = document.getElementById('track-id-input');

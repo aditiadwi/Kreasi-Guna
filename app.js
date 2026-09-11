@@ -839,6 +839,37 @@ window.printTrackReceipt = () => {
     openReceiptWindow(buildReceiptHTML(getTrackReceiptData()));
 };
 
+window.reorderTrackItems = async (btn) => {
+    if (!window._trackItemsRaw) return alert('Track an order first.');
+    if (typeof initSupabase === 'function') initSupabase();
+    if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') {
+        if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Loading products...'; }
+        await fetchProducts();
+        if (btn) { btn.disabled = false; btn.innerHTML = '🔁 Buy Again'; }
+    }
+    const byName = {};
+    (DYNAMIC_PRODUCTS || []).forEach(p => { byName[String(p.name).toLowerCase()] = p; });
+    const items = parseTrackItems(window._trackItemsRaw);
+    let added = 0;
+    const skipped = [];
+    items.forEach(it => {
+        const p = byName[String(it.name).toLowerCase()];
+        if (!p || p.stock <= 0) { skipped.push(it.name); return; }
+        const room = p.stock - (cart[p.id] || 0);
+        const qty = Math.min(it.qty, room);
+        if (qty <= 0) { skipped.push(it.name); return; }
+        cart[p.id] = (cart[p.id] || 0) + qty;
+        added += qty;
+    });
+    renderCart();
+    if (!added) return alert('None of these items are available right now (sold out or maxed in cart).');
+    const msg = skipped.length
+        ? `${added} item(s) added back • ${skipped.length} unavailable (${skipped.join(', ')})`
+        : `${added} item(s) added back to your cart`;
+    if (typeof showToast === 'function') showToast(msg);
+    setTimeout(() => { window.location.href = 'cart.html'; }, 1200);
+};
+
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
     if (!p) return;
