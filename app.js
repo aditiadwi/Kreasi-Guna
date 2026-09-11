@@ -837,7 +837,7 @@ function drawReceiptCanvas(r) {
     const SCALE = 2, W = 640, PAD = 40;
     const cv = document.createElement('canvas');
     const cx = cv.getContext('2d');
-    const COL_QTY = 400, COL_PRICE = 505, COL_SUB = 600, ITEM_W = 290;
+    const COL_QTY = 360, COL_PRICE = 470, COL_SUB = 600, ITEM_W = 230;
     const wrap = (text, maxW) => {
         const words = String(text ?? '-').split(/\s+/).filter(Boolean);
         const lines = [];
