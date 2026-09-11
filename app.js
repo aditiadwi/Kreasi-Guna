@@ -690,6 +690,13 @@ function ensureOrderSuccessModal() {
         <div class="order-success-container" onclick="event.stopPropagation()">
             <div class="order-success-icon">✅</div>
             <h3>Order Submitted!</h3>
+            <div class="checkout-steps" style="margin-bottom: 16px;">
+                <div class="step-item done"><span class="step-circle">✓</span><span>Cart</span></div>
+                <div class="step-line done"></div>
+                <div class="step-item done"><span class="step-circle">✓</span><span>Details</span></div>
+                <div class="step-line done"></div>
+                <div class="step-item done"><span class="step-circle">✓</span><span>Pay</span></div>
+            </div>
             <p>Please save your Order ID to track your order on the 'Track' page.</p>
             <div class="order-id-box">
                 <code id="order-success-id">ORD-000</code>
@@ -948,6 +955,21 @@ window.handleShippingUpdate = () => {
     renderCart();
 };
 
+window.setCheckoutStep = (n) => {
+    const wrap = document.getElementById('checkout-steps');
+    if (!wrap) return;
+    wrap.querySelectorAll('.step-item').forEach(el => {
+        const s = parseInt(el.dataset.step, 10);
+        el.classList.toggle('done', s < n);
+        el.classList.toggle('current', s === n);
+        const circle = el.querySelector('.step-circle');
+        if (circle) circle.textContent = s < n ? '✓' : s;
+    });
+    wrap.querySelectorAll('.step-line').forEach(el => {
+        el.classList.toggle('done', parseInt(el.dataset.line, 10) < n);
+    });
+};
+
 window.handleProceedToPayment = () => {
     const name = document.getElementById('customer-name').value;
     const phone = document.getElementById('customer-phone').value;
@@ -963,6 +985,7 @@ window.handleProceedToPayment = () => {
     if (payArea) {
         payArea.classList.remove('hidden');
         document.getElementById('btn-checkout').classList.add('hidden');
+        if (typeof setCheckoutStep === 'function') setCheckoutStep(3);
         const total = document.getElementById('grand-total').innerText;
         document.getElementById('payment-grand-total').innerText = total;
         

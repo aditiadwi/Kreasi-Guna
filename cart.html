@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.10">
+    <link rel="stylesheet" href="style.css?v=1.0.11">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -42,6 +42,13 @@
     <main>
         <section class="cart-section container">
             <h2 class="section-header">Your Cart</h2>
+            <div class="checkout-steps">
+                <div class="step-item current"><span class="step-circle">1</span><span>Cart</span></div>
+                <div class="step-line"></div>
+                <div class="step-item"><span class="step-circle">2</span><span>Details</span></div>
+                <div class="step-line"></div>
+                <div class="step-item"><span class="step-circle">3</span><span>Pay</span></div>
+            </div>
             <div class="cart-page-container">
                 <div class="cart-page-items">
                     <div id="cart-items">
@@ -88,6 +95,6 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.10"></script>
+    <script src="app.js?v=1.0.11"></script>
 </body>
 </html>
