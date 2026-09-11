@@ -783,27 +783,38 @@ function parseTrackItems(raw) {
 }
 
 function receiptInnerHTML(r) {
+    const st = receiptStatus(r);
     const rows = (r.items || []).map((it, i) => `
         <tr>
             <td style="padding:8px;border-bottom:1px solid #eee;">${i + 1}. ${escReceipt(it.name)}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${it.qty}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${parseInt(it.price || 0).toLocaleString('id-ID')}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;"><b>Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}</b></td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp${parseInt(it.price || 0).toLocaleString('id-ID')}</td>
         </tr>`).join('');
+    const field = (label, val) => `
+        <p style="margin:5px 0;font-size:0.9rem;"><b style="display:inline-block;min-width:130px;">${label}</b>: ${escReceipt(val)}</p>`;
     return `
-    <h1 style="font-size:1.3rem;margin:0;">KG — Smart Drip Coffee</h1>
-    <p style="font-size:0.85rem;color:#555;margin:4px 0 0;">Kreasi Guna • Order Receipt</p>
-    <div style="margin-top:12px;">
-        <p style="margin:4px 0;font-size:0.88rem;"><b>Order ID:</b> ${escReceipt(r.orderId)}</p>
-        <p style="margin:4px 0;font-size:0.88rem;"><b>Date:</b> ${escReceipt(r.date)}</p>
-        <p style="margin:4px 0;font-size:0.88rem;"><b>Name:</b> ${escReceipt(r.customerName)} • ${escReceipt(r.customerPhone)}</p>
-        <p style="margin:4px 0;font-size:0.88rem;"><b>Email:</b> ${escReceipt(r.customerEmail)}</p>
-        <p style="margin:4px 0;font-size:0.88rem;"><b>Address:</b> ${escReceipt(r.location)}</p>
-        <p style="margin:4px 0;font-size:0.88rem;"><b>Delivery:</b> ${escReceipt(r.delivery)} • <b>Payment:</b> ${escReceipt(r.method)}</p>
-        <p style="margin:4px 0;font-size:0.88rem;"><b>Note:</b> ${escReceipt(r.note)}</p>
-    </div>
-    <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.9rem;"><thead><tr><th style="background:#f5f0e6;text-align:left;padding:8px;">Item</th><th style="background:#f5f0e6;text-align:right;padding:8px;">Qty</th><th style="background:#f5f0e6;text-align:right;padding:8px;">Price</th><th style="background:#f5f0e6;text-align:right;padding:8px;">Subtotal</th></tr></thead><tbody>${rows}</tbody></table>
-    <div style="text-align:right;font-size:0.9rem;"><p style="margin:4px 0;">Subtotal: ${escReceipt(r.subtotal)}</p><p style="margin:4px 0;">Shipping: ${escReceipt(r.shipping)}</p><p style="margin:4px 0;font-size:1.15rem;font-weight:800;">Total: ${escReceipt(r.total)}</p></div>
+    <h1 style="font-size:1.35rem;margin:0;text-align:center;">KG — SMART DRIP COFFEE</h1>
+    <p style="font-size:0.85rem;color:#555;margin:4px 0 0;text-align:center;">Kreasi Guna</p>
+    <hr style="border:none;border-top:2px solid #d4af37;margin:12px 0;">
+    <h2 style="font-size:1.05rem;margin:0 0 8px;text-align:center;letter-spacing:2px;">ORDER RECEIPT</h2>
+    ${field('Order ID', r.orderId)}
+    ${field('Date', r.date)}
+    <h3 style="font-size:0.8rem;color:#6f4e37;margin:16px 0 4px;letter-spacing:1px;">CUSTOMER INFORMATION</h3>
+    ${field('Name', r.customerName)}
+    ${field('Phone', r.customerPhone)}
+    ${field('Email', r.customerEmail)}
+    ${field('Address', r.location)}
+    <h3 style="font-size:0.8rem;color:#6f4e37;margin:16px 0 4px;letter-spacing:1px;">DELIVERY &amp; PAYMENT</h3>
+    ${field('Delivery', r.delivery)}
+    ${field('Payment Method', r.method)}
+    <div style="text-align:center;margin:14px 0;"><span style="display:inline-block;background:${st.bg};color:${st.fg};font-weight:800;font-size:0.85rem;padding:10px 22px;border-radius:30px;">${st.icon} ${escReceipt(st.text)}</span></div>
+    <table style="width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:0.9rem;"><thead><tr><th style="background:#f5f0e6;text-align:left;padding:8px;">ITEM</th><th style="background:#f5f0e6;text-align:center;padding:8px;">QTY</th><th style="background:#f5f0e6;text-align:right;padding:8px;">PRICE</th></tr></thead><tbody>${rows}</tbody></table>
+    <hr style="border:none;border-top:1px solid #e0d5c5;margin:8px 0;">
+    ${field('Subtotal', r.subtotal)}
+    ${field('Shipping', r.shipping)}
+    <p style="margin:8px 0;font-size:1.2rem;font-weight:800;"><b style="display:inline-block;min-width:130px;">TOTAL</b>: ${escReceipt(r.total)}</p>
+    <h3 style="font-size:0.8rem;color:#6f4e37;margin:16px 0 4px;letter-spacing:1px;">NOTE</h3>
+    <p style="margin:5px 0;font-size:0.9rem;">${escReceipt(r.note)}</p>
     <div style="margin-top:24px;font-size:0.8rem;color:#777;text-align:center;border-top:1px dashed #ccc;padding-top:12px;">Thank you for brewing with Smart Drip Coffee!<br>Keep this receipt &amp; your Order ID to track your order.</div>`;
 }
 
@@ -832,12 +843,21 @@ function receiptFileName(r, ext) {
     return `receipt-${String(r.orderId || 'order').replace(/[^\w-]+/g, '_')}.${ext}`;
 }
 
+function receiptStatus(r) {
+    const s = String(r.status || 'PENDING').toUpperCase();
+    if (s === 'SHIPPED') return { icon: '🚚', text: 'ORDER SHIPPED — ON THE WAY', bg: '#d4edda', fg: '#155724' };
+    if (s === 'COMPLETED') return { icon: '✅', text: 'ORDER COMPLETED', bg: '#d1ecf1', fg: '#0c5460' };
+    if (s === 'CANCELLED') return { icon: '❌', text: 'ORDER CANCELLED', bg: '#f8d7da', fg: '#721c24' };
+    return { icon: '🟡', text: 'WAITING FOR PAYMENT VERIFICATION', bg: '#fff3cd', fg: '#856404' };
+}
+
 // --- Dependency-free receipt files: draw on canvas, no external library ---
 function drawReceiptCanvas(r) {
-    const SCALE = 2, W = 640, PAD = 40;
+    const SCALE = 2, W = 640, PAD = 40, LBL = 175, LH = 28;
+    const COL_QTY = 430, COL_PRICE = 600, ITEM_W = 300;
     const cv = document.createElement('canvas');
     const cx = cv.getContext('2d');
-    const COL_QTY = 360, COL_PRICE = 470, COL_SUB = 600, ITEM_W = 230;
+    cx.font = '19px Arial';
     const wrap = (text, maxW) => {
         const words = String(text ?? '-').split(/\s+/).filter(Boolean);
         const lines = [];
@@ -850,104 +870,165 @@ function drawReceiptCanvas(r) {
         if (line) lines.push(line);
         return lines.length ? lines : ['-'];
     };
-    cx.font = '19px Arial';
-    const metaRows = [
-        `Order ID: ${r.orderId ?? '-'}`,
-        `Date: ${r.date ?? '-'}`,
-        `${r.customerName ?? '-'} • ${r.customerPhone ?? '-'}`,
-        `Email: ${r.customerEmail ?? '-'}`
-    ];
-    const addrLines = wrap(`Address: ${r.location ?? '-'}`, W - PAD * 2);
-    const delLines = wrap(`Delivery: ${r.delivery ?? '-'} • Payment: ${r.method ?? '-'}`, W - PAD * 2);
-    const noteLines = wrap(`Note: ${r.note ?? '-'}`, W - PAD * 2);
+    const addrChunks = wrap(r.location, W - PAD - (PAD + LBL));
+    const delChunks = wrap(r.delivery, W - PAD - (PAD + LBL));
+    const payChunks = wrap(r.method, W - PAD - (PAD + LBL));
+    const noteChunks = wrap(r.note, W - PAD * 2);
     const rowLines = (r.items || []).map(it => wrap(it.name, ITEM_W));
-    const LH = 28;
-    let h = 56 + 30 + 16 + 30;
-    h += (metaRows.length + addrLines.length + delLines.length + noteLines.length) * LH + 12;
-    h += 42;
-    rowLines.forEach(L => { h += L.length * 30 + 8; });
-    h += 16 + 3 * 32 + 16;
-    h += 48 + 40;
+    cx.font = '800 18px Arial';
+    const badge = receiptStatus(r);
+    const badgeText = `${badge.icon}  ${badge.text}`;
+    const badgeW = cx.measureText(badgeText).width + 56;
+    // ---- height ----
+    let h = 56 + 36 + 28 + 24 + 34 + 8;
+    h += 2 * LH;                       // Order ID + Date
+    h += 10 + 26;                      // section CUSTOMER
+    h += 3 * LH + addrChunks.length * LH;
+    h += 10 + 26;                      // section DELIVERY
+    h += (delChunks.length + payChunks.length) * LH;
+    h += 16 + 48 + 24;                 // status pill
+    h += 36 + 12;                      // items header
+    rowLines.forEach(L => { h += L.length * 30 + 10; });
+    h += 12 + 8 + 3 * 34 + 12;         // divider + totals
+    h += 10 + 26 + noteChunks.length * LH; // NOTE section
+    h += 24 + 30 + 30 + 44;            // dashed + thanks + bottom pad
     cv.width = W * SCALE;
     cv.height = Math.ceil(h) * SCALE;
     cx.scale(SCALE, SCALE);
     cx.fillStyle = '#ffffff';
     cx.fillRect(0, 0, W, h);
-    cx.textAlign = 'left';
     let y = 56;
+    cx.textAlign = 'center';
     cx.fillStyle = '#2c1e12';
-    cx.font = '800 28px Arial';
-    cx.fillText('KG — Smart Drip Coffee', PAD, y);
-    y += 30;
+    cx.font = '800 27px Arial';
+    cx.fillText('KG — SMART DRIP COFFEE', W / 2, y);
+    y += 36;
     cx.fillStyle = '#777777';
     cx.font = '18px Arial';
-    cx.fillText('Kreasi Guna • Order Receipt', PAD, y);
-    y += 16;
+    cx.fillText('Kreasi Guna', W / 2, y);
+    y += 28;
     cx.strokeStyle = '#d4af37';
     cx.lineWidth = 2;
     cx.beginPath();
     cx.moveTo(PAD, y);
     cx.lineTo(W - PAD, y);
     cx.stroke();
-    y += 28;
-    cx.fillStyle = '#222222';
-    cx.font = '19px Arial';
-    metaRows.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
-    addrLines.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
-    delLines.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
-    noteLines.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
-    y += 4;
+    y += 24;
+    cx.fillStyle = '#2c1e12';
+    cx.font = '800 20px Arial';
+    cx.fillText('ORDER RECEIPT', W / 2, y);
+    y += 34;
+    cx.textAlign = 'left';
+    const field = (label, chunks) => {
+        cx.font = '800 19px Arial';
+        cx.fillStyle = '#2c1e12';
+        cx.fillText(label, PAD, y);
+        cx.font = '19px Arial';
+        cx.fillStyle = '#222222';
+        cx.fillText(':', PAD + LBL - 12, y);
+        chunks.forEach((c, k) => cx.fillText(c, PAD + LBL, y + k * LH));
+        y += chunks.length * LH;
+    };
+    const section = (t) => {
+        y += 10;
+        cx.fillStyle = '#6f4e37';
+        cx.font = '800 15px Arial';
+        cx.fillText(t, PAD, y);
+        y += 26;
+        cx.font = '19px Arial';
+    };
+    field('Order ID', [String(r.orderId ?? '-')]);
+    field('Date', [String(r.date ?? '-')]);
+    section('CUSTOMER INFORMATION');
+    field('Name', [String(r.customerName ?? '-')]);
+    field('Phone', [String(r.customerPhone ?? '-')]);
+    field('Email', [String(r.customerEmail ?? '-')]);
+    field('Address', addrChunks);
+    section('DELIVERY & PAYMENT');
+    field('Delivery', delChunks);
+    field('Payment Method', payChunks);
+    // status pill
+    y += 16;
+    cx.font = '800 18px Arial';
+    const pw = Math.min(badgeW, W - PAD * 2);
+    const px = (W - pw) / 2;
+    cx.fillStyle = badge.bg;
+    cx.beginPath();
+    const rad = 22;
+    cx.moveTo(px + rad, y);
+    cx.arcTo(px + pw, y, px + pw, y + 48, rad);
+    cx.arcTo(px + pw, y + 48, px, y + 48, rad);
+    cx.arcTo(px, y + 48, px, y, rad);
+    cx.arcTo(px, y, px + pw, y, rad);
+    cx.closePath();
+    cx.fill();
+    cx.fillStyle = badge.fg;
+    cx.textAlign = 'center';
+    cx.fillText(badgeText, W / 2, y + 30);
+    cx.textAlign = 'left';
+    y += 48 + 24;
+    // items header
     cx.fillStyle = '#f5f0e6';
-    cx.fillRect(PAD, y, W - PAD * 2, 34);
+    cx.fillRect(PAD, y, W - PAD * 2, 36);
     cx.fillStyle = '#2c1e12';
     cx.font = '800 19px Arial';
-    cx.fillText('Item', PAD, y + 24);
+    cx.fillText('ITEM', PAD, y + 25);
     cx.textAlign = 'center';
-    cx.fillText('Qty', COL_QTY, y + 24);
+    cx.fillText('QTY', COL_QTY, y + 25);
     cx.textAlign = 'right';
-    cx.fillText('Price', COL_PRICE, y + 24);
-    cx.fillText('Subtotal', COL_SUB, y + 24);
+    cx.fillText('PRICE', COL_PRICE, y + 25);
     cx.textAlign = 'left';
-    y += 42;
+    y += 36 + 12;
     cx.font = '19px Arial';
     (r.items || []).forEach((it, i) => {
         const L = rowLines[i];
         cx.fillStyle = '#222222';
-        cx.fillText(`${i + 1}.`, PAD, y + 22);
-        L.forEach((ln, k) => cx.fillText(k === 0 ? ln : '    ' + ln, PAD + 28, y + 22 + k * 30));
+        L.forEach((ln, k) => cx.fillText(k === 0 ? `${i + 1}.  ${ln}` : `      ${ln}`, PAD, y + 22 + k * 30));
         cx.textAlign = 'center';
         cx.fillText(String(it.qty), COL_QTY, y + 22);
         cx.textAlign = 'right';
-        cx.fillText(`Rp ${parseInt(it.price || 0).toLocaleString('id-ID')}`, COL_PRICE, y + 22);
-        cx.fillStyle = '#2c1e12';
-        cx.font = '800 19px Arial';
-        cx.fillText(`Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}`, COL_SUB, y + 22);
-        cx.font = '19px Arial';
+        cx.fillText(`Rp${parseInt(it.price || 0).toLocaleString('id-ID')}`, COL_PRICE, y + 22);
         cx.textAlign = 'left';
-        y += L.length * 30 + 8;
+        y += L.length * 30 + 10;
     });
-    y += 8;
-    cx.textAlign = 'right';
-    cx.fillStyle = '#222222';
-    cx.fillText(`Subtotal: ${r.subtotal ?? '-'}`, COL_SUB, y); y += 32;
-    cx.fillText(`Shipping: ${r.shipping ?? '-'}`, COL_SUB, y); y += 32;
-    cx.fillStyle = '#2c1e12';
-    cx.font = '800 24px Arial';
-    cx.fillText(`Total: ${r.total ?? '-'}`, COL_SUB, y); y += 16;
-    cx.textAlign = 'left';
-    cx.strokeStyle = '#cccccc';
-    cx.setLineDash([6, 5]);
+    y += 12;
+    cx.strokeStyle = '#e0d5c5';
     cx.lineWidth = 1;
     cx.beginPath();
-    cx.moveTo(PAD, y + 16);
-    cx.lineTo(W - PAD, y + 16);
+    cx.moveTo(PAD, y);
+    cx.lineTo(W - PAD, y);
+    cx.stroke();
+    y += 8;
+    const totalRow = (label, value, big) => {
+        cx.font = big ? '800 24px Arial' : '19px Arial';
+        cx.fillStyle = big ? '#2c1e12' : '#222222';
+        cx.fillText(label, PAD, y);
+        cx.textAlign = 'right';
+        cx.fillText(value, COL_PRICE, y);
+        cx.textAlign = 'left';
+        y += 34;
+    };
+    totalRow('Subtotal', `Rp${parseInt(String(r.subtotal ?? '0').replace(/[^\d]/g, ''), 10).toLocaleString('id-ID')}`);
+    totalRow('Shipping', `Rp${parseInt(String(r.shipping ?? '0').replace(/[^\d]/g, ''), 10).toLocaleString('id-ID')}`);
+    totalRow('TOTAL', String(r.total ?? '-').startsWith('Rp') ? String(r.total) : `Rp${r.total ?? '-'}`, true);
+    y += 12;
+    section('NOTE');
+    cx.fillStyle = '#222222';
+    cx.font = '19px Arial';
+    noteChunks.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
+    y += 24;
+    cx.strokeStyle = '#cccccc';
+    cx.setLineDash([6, 5]);
+    cx.beginPath();
+    cx.moveTo(PAD, y);
+    cx.lineTo(W - PAD, y);
     cx.stroke();
     cx.setLineDash([]);
     cx.fillStyle = '#888888';
     cx.font = '16px Arial';
     cx.textAlign = 'center';
-    cx.fillText('Thank you for brewing with Smart Drip Coffee!', W / 2, y + 44);
-    cx.fillText('Keep this receipt & your Order ID to track your order.', W / 2, y + 68);
+    cx.fillText('Thank you for brewing with Smart Drip Coffee!', W / 2, y + 30);
+    cx.fillText('Keep this receipt & your Order ID to track your order.', W / 2, y + 54);
     cx.textAlign = 'left';
     return cv;
 }
@@ -1064,7 +1145,8 @@ function getTrackReceiptData() {
         subtotal: window._trackSubtotal || '-', shipping: window._trackShipping || '-',
         total: txt('res-total'),
         delivery: txt('res-method'), method: txt('res-method'),
-        note: txt('res-note')
+        status: txt('res-status'),
+        note: window._trackBuyerNote || '-'
     };
 }
 
@@ -1381,7 +1463,7 @@ window.handlePlaceOrder = async () => {
                 return { name: prod ? prod.name : 'Unknown Item', qty, price, subtotal: price * qty };
             }),
             subtotal: subtotalStr, shipping: shippingStr, total,
-            delivery, method, note: note || '-'
+            delivery, method, note: note || '-', status: 'PENDING'
         };
 
         const { error: sbError } = await supabaseClient.from('orders').insert([{
