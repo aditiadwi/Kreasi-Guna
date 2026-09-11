@@ -767,6 +767,13 @@ function escReceipt(s) {
     return String(s ?? '-').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// Exactly one "Rp" + grouped digits, whatever the DB stored ("Rp 15.000", 15000, …)
+function rp(v) {
+    const d = String(v ?? '').replace(/[^\d]/g, '');
+    if (!d) return String(v ?? '-').trim() || '-';
+    return 'Rp' + parseInt(d, 10).toLocaleString('id-ID');
+}
+
 // Stored order items look like: "DRIP BAG — ARABICA (x2) [Rp 8.000], BOX ... (x1) [Rp 40.000]"
 function parseTrackItems(raw) {
     if (!raw) return [{ name: '(see order details)', qty: 1, price: 0, subtotal: 0 }];
@@ -791,7 +798,7 @@ function receiptInnerHTML(r) {
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp${parseInt(it.price || 0).toLocaleString('id-ID')}</td>
         </tr>`).join('');
     const field = (label, val) => `
-        <p style="margin:5px 0;font-size:0.9rem;"><b style="display:inline-block;min-width:130px;">${label}</b>: ${escReceipt(val)}</p>`;
+        <p style="margin:5px 0;font-size:0.9rem;"><b style="display:inline-block;min-width:155px;">${label}</b>: ${escReceipt(val)}</p>`;
     return `
     <h1 style="font-size:1.35rem;margin:0;text-align:center;">KG — SMART DRIP COFFEE</h1>
     <p style="font-size:0.85rem;color:#555;margin:4px 0 0;text-align:center;">Kreasi Guna</p>
@@ -810,9 +817,9 @@ function receiptInnerHTML(r) {
     <div style="text-align:center;margin:14px 0;"><span style="display:inline-block;background:${st.bg};color:${st.fg};font-weight:800;font-size:0.85rem;padding:10px 22px;border-radius:30px;">${st.icon} ${escReceipt(st.text)}</span></div>
     <table style="width:100%;border-collapse:collapse;margin:8px 0 4px;font-size:0.9rem;"><thead><tr><th style="background:#f5f0e6;text-align:left;padding:8px;">ITEM</th><th style="background:#f5f0e6;text-align:center;padding:8px;">QTY</th><th style="background:#f5f0e6;text-align:right;padding:8px;">PRICE</th></tr></thead><tbody>${rows}</tbody></table>
     <hr style="border:none;border-top:1px solid #e0d5c5;margin:8px 0;">
-    ${field('Subtotal', r.subtotal)}
-    ${field('Shipping', r.shipping)}
-    <p style="margin:8px 0;font-size:1.2rem;font-weight:800;"><b style="display:inline-block;min-width:130px;">TOTAL</b>: ${escReceipt(r.total)}</p>
+    ${field('Subtotal', rp(r.subtotal))}
+    ${field('Shipping', rp(r.shipping))}
+    <p style="margin:8px 0;font-size:1.2rem;font-weight:800;"><b style="display:inline-block;min-width:155px;">TOTAL</b>: ${escReceipt(rp(r.total))}</p>
     <h3 style="font-size:0.8rem;color:#6f4e37;margin:16px 0 4px;letter-spacing:1px;">NOTE</h3>
     <p style="margin:5px 0;font-size:0.9rem;">${escReceipt(r.note)}</p>
     <div style="margin-top:24px;font-size:0.8rem;color:#777;text-align:center;border-top:1px dashed #ccc;padding-top:12px;">Thank you for brewing with Smart Drip Coffee!<br>Keep this receipt &amp; your Order ID to track your order.</div>`;
@@ -853,7 +860,7 @@ function receiptStatus(r) {
 
 // --- Dependency-free receipt files: draw on canvas, no external library ---
 function drawReceiptCanvas(r) {
-    const SCALE = 2, W = 640, PAD = 40, LBL = 175, LH = 28;
+    const SCALE = 2, W = 640, PAD = 40, LBL = 200, LH = 28;
     const COL_QTY = 430, COL_PRICE = 600, ITEM_W = 300;
     const cv = document.createElement('canvas');
     const cx = cv.getContext('2d');
@@ -1008,9 +1015,9 @@ function drawReceiptCanvas(r) {
         cx.textAlign = 'left';
         y += 34;
     };
-    totalRow('Subtotal', `Rp${parseInt(String(r.subtotal ?? '0').replace(/[^\d]/g, ''), 10).toLocaleString('id-ID')}`);
-    totalRow('Shipping', `Rp${parseInt(String(r.shipping ?? '0').replace(/[^\d]/g, ''), 10).toLocaleString('id-ID')}`);
-    totalRow('TOTAL', String(r.total ?? '-').startsWith('Rp') ? String(r.total) : `Rp${r.total ?? '-'}`, true);
+    totalRow('Subtotal', rp(r.subtotal));
+    totalRow('Shipping', rp(r.shipping));
+    totalRow('TOTAL', rp(r.total), true);
     y += 12;
     section('NOTE');
     cx.fillStyle = '#222222';
