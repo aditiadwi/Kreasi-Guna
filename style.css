@@ -1884,12 +1884,13 @@ a:active {
 
 /* CHECKOUT STEPS */
 .checkout-steps {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    justify-items: center;
+    column-gap: 10px;
     margin: 0 0 30px;
-    flex-wrap: nowrap;
 }
 .step-item {
     display: flex;
@@ -1945,7 +1946,7 @@ a:active {
 }
 @media (max-width: 480px) {
     .checkout-steps {
-        gap: 6px;
+        column-gap: 6px;
     }
     .step-item {
         font-size: 0.62rem;
