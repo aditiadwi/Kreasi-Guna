@@ -1906,6 +1906,9 @@ a:active {
     white-space: nowrap;
     line-height: 1;
 }
+.checkout-steps .step-item {
+    margin-bottom: 0;
+}
 .step-circle {
     width: 28px;
     height: 28px;
