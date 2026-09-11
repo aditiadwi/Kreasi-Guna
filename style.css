@@ -1984,6 +1984,27 @@ a:active {
     background: var(--coffee-dark);
     color: white;
 }
+.receipt-file-row {
+    display: flex;
+    gap: 8px;
+}
+.btn-receipt-file {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: 30px;
+    border: 2px solid var(--coffee-dark);
+    background: transparent;
+    color: var(--coffee-dark);
+    font-weight: 800;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.btn-receipt-file:hover:not(:disabled) {
+    background: var(--coffee-dark);
+    color: white;
+}
 
 #address-book-section {
     background: rgba(224, 192, 151, 0.12);
