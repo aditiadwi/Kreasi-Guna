@@ -832,43 +832,176 @@ function receiptFileName(r, ext) {
     return `receipt-${String(r.orderId || 'order').replace(/[^\w-]+/g, '_')}.${ext}`;
 }
 
-function receiptLibReady() {
-    return (typeof html2pdf !== 'undefined') && (typeof html2canvas !== 'undefined');
-}
-
-const RECEIPT_LIB_URLS = [
-    'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-    'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js'
-];
-let _receiptLibPromise = null;
-
-function ensureReceiptLib() {
-    if (receiptLibReady()) return Promise.resolve();
-    if (_receiptLibPromise) return _receiptLibPromise;
-    _receiptLibPromise = new Promise((resolve, reject) => {
-        const tryLoad = (i) => {
-            if (i >= RECEIPT_LIB_URLS.length) {
-                _receiptLibPromise = null;
-                reject(new Error('all CDNs failed'));
-                return;
-            }
-            const s = document.createElement('script');
-            s.src = RECEIPT_LIB_URLS[i];
-            s.onload = () => (receiptLibReady() ? resolve() : tryLoad(i + 1));
-            s.onerror = () => tryLoad(i + 1);
-            document.head.appendChild(s);
-        };
-        tryLoad(0);
+// --- Dependency-free receipt files: draw on canvas, no external library ---
+function drawReceiptCanvas(r) {
+    const SCALE = 2, W = 640, PAD = 40;
+    const cv = document.createElement('canvas');
+    const cx = cv.getContext('2d');
+    const COL_QTY = 400, COL_PRICE = 505, COL_SUB = 600, ITEM_W = 290;
+    const wrap = (text, maxW) => {
+        const words = String(text ?? '-').split(/\s+/).filter(Boolean);
+        const lines = [];
+        let line = '';
+        words.forEach(w => {
+            const t = line ? line + ' ' + w : w;
+            if (cx.measureText(t).width > maxW && line) { lines.push(line); line = w; }
+            else line = t;
+        });
+        if (line) lines.push(line);
+        return lines.length ? lines : ['-'];
+    };
+    cx.font = '19px Arial';
+    const metaRows = [
+        `Order ID: ${r.orderId ?? '-'}`,
+        `Date: ${r.date ?? '-'}`,
+        `${r.customerName ?? '-'} • ${r.customerPhone ?? '-'}`,
+        `Email: ${r.customerEmail ?? '-'}`
+    ];
+    const addrLines = wrap(`Address: ${r.location ?? '-'}`, W - PAD * 2);
+    const delLines = wrap(`Delivery: ${r.delivery ?? '-'} • Payment: ${r.method ?? '-'}`, W - PAD * 2);
+    const noteLines = wrap(`Note: ${r.note ?? '-'}`, W - PAD * 2);
+    const rowLines = (r.items || []).map(it => wrap(it.name, ITEM_W));
+    const LH = 28;
+    let h = 56 + 30 + 16 + 30;
+    h += (metaRows.length + addrLines.length + delLines.length + noteLines.length) * LH + 12;
+    h += 42;
+    rowLines.forEach(L => { h += L.length * 30 + 8; });
+    h += 16 + 3 * 32 + 16;
+    h += 48 + 40;
+    cv.width = W * SCALE;
+    cv.height = Math.ceil(h) * SCALE;
+    cx.scale(SCALE, SCALE);
+    cx.fillStyle = '#ffffff';
+    cx.fillRect(0, 0, W, h);
+    cx.textAlign = 'left';
+    let y = 56;
+    cx.fillStyle = '#2c1e12';
+    cx.font = '800 28px Arial';
+    cx.fillText('KG — Smart Drip Coffee', PAD, y);
+    y += 30;
+    cx.fillStyle = '#777777';
+    cx.font = '18px Arial';
+    cx.fillText('Kreasi Guna • Order Receipt', PAD, y);
+    y += 16;
+    cx.strokeStyle = '#d4af37';
+    cx.lineWidth = 2;
+    cx.beginPath();
+    cx.moveTo(PAD, y);
+    cx.lineTo(W - PAD, y);
+    cx.stroke();
+    y += 28;
+    cx.fillStyle = '#222222';
+    cx.font = '19px Arial';
+    metaRows.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
+    addrLines.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
+    delLines.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
+    noteLines.forEach(t => { cx.fillText(t, PAD, y); y += LH; });
+    y += 4;
+    cx.fillStyle = '#f5f0e6';
+    cx.fillRect(PAD, y, W - PAD * 2, 34);
+    cx.fillStyle = '#2c1e12';
+    cx.font = '800 19px Arial';
+    cx.fillText('Item', PAD, y + 24);
+    cx.textAlign = 'center';
+    cx.fillText('Qty', COL_QTY, y + 24);
+    cx.textAlign = 'right';
+    cx.fillText('Price', COL_PRICE, y + 24);
+    cx.fillText('Subtotal', COL_SUB, y + 24);
+    cx.textAlign = 'left';
+    y += 42;
+    cx.font = '19px Arial';
+    (r.items || []).forEach((it, i) => {
+        const L = rowLines[i];
+        cx.fillStyle = '#222222';
+        cx.fillText(`${i + 1}.`, PAD, y + 22);
+        L.forEach((ln, k) => cx.fillText(k === 0 ? ln : '    ' + ln, PAD + 28, y + 22 + k * 30));
+        cx.textAlign = 'center';
+        cx.fillText(String(it.qty), COL_QTY, y + 22);
+        cx.textAlign = 'right';
+        cx.fillText(`Rp ${parseInt(it.price || 0).toLocaleString('id-ID')}`, COL_PRICE, y + 22);
+        cx.fillStyle = '#2c1e12';
+        cx.font = '800 19px Arial';
+        cx.fillText(`Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}`, COL_SUB, y + 22);
+        cx.font = '19px Arial';
+        cx.textAlign = 'left';
+        y += L.length * 30 + 8;
     });
-    return _receiptLibPromise;
+    y += 8;
+    cx.textAlign = 'right';
+    cx.fillStyle = '#222222';
+    cx.fillText(`Subtotal: ${r.subtotal ?? '-'}`, COL_SUB, y); y += 32;
+    cx.fillText(`Shipping: ${r.shipping ?? '-'}`, COL_SUB, y); y += 32;
+    cx.fillStyle = '#2c1e12';
+    cx.font = '800 24px Arial';
+    cx.fillText(`Total: ${r.total ?? '-'}`, COL_SUB, y); y += 16;
+    cx.textAlign = 'left';
+    cx.strokeStyle = '#cccccc';
+    cx.setLineDash([6, 5]);
+    cx.lineWidth = 1;
+    cx.beginPath();
+    cx.moveTo(PAD, y + 16);
+    cx.lineTo(W - PAD, y + 16);
+    cx.stroke();
+    cx.setLineDash([]);
+    cx.fillStyle = '#888888';
+    cx.font = '16px Arial';
+    cx.textAlign = 'center';
+    cx.fillText('Thank you for brewing with Smart Drip Coffee!', W / 2, y + 44);
+    cx.fillText('Keep this receipt & your Order ID to track your order.', W / 2, y + 68);
+    cx.textAlign = 'left';
+    return cv;
 }
 
-function receiptExportNode(r) {
-    const node = document.createElement('div');
-    node.style.cssText = 'position:fixed;left:-9999px;top:0;width:640px;background:#fff;color:#222;font-family:Arial,Helvetica,sans-serif;padding:24px;';
-    node.innerHTML = receiptInnerHTML(r);
-    document.body.appendChild(node);
-    return node;
+function dataURLToBytes(dataURL) {
+    const b64 = dataURL.split(',')[1];
+    const bin = atob(b64);
+    const u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    return u8;
+}
+
+// Minimal PDF with one JPEG page (A4 width, proportional height). No libraries.
+function jpegToPdf(jpegBytes, imgW, imgH) {
+    const enc = (s) => new TextEncoder().encode(s);
+    const concat = (parts) => {
+        let len = 0;
+        parts.forEach(p => { len += p.length; });
+        const out = new Uint8Array(len);
+        let off = 0;
+        parts.forEach(p => { out.set(p, off); off += p.length; });
+        return out;
+    };
+    let pw = 595;
+    let ph = Math.round((imgH * pw) / imgW);
+    if (ph > 842) { ph = 842; pw = Math.round((imgW * ph) / imgH); }
+    const objs = [];
+    objs[1] = enc('<< /Type /Catalog /Pages 2 0 R >>');
+    objs[2] = enc('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    objs[3] = enc(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> /ProcSet [/PDF /ImageC] >> /Contents 5 0 R >>`);
+    const content = enc(`q\n${pw} 0 0 ${ph} 0 0 cm\n/Im0 Do\nQ\n`);
+    objs[4] = concat([enc(`<< /Type /XObject /Subtype /Image /Width ${imgW} /Height ${imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`), jpegBytes, enc('\nendstream')]);
+    objs[5] = concat([enc(`<< /Length ${content.length} >>\nstream\n`), content, enc('\nendstream')]);
+    const header = enc('%PDF-1.4\n');
+    const bodies = [null];
+    for (let n = 1; n <= 5; n++) bodies[n] = concat([enc(`${n} 0 obj\n`), objs[n], enc('\nendobj\n')]);
+    const offsets = [0];
+    let pos = header.length;
+    for (let n = 1; n <= 5; n++) { offsets[n] = pos; pos += bodies[n].length; }
+    let xref = `xref\n0 6\n0000000000 65535 f \n`;
+    for (let n = 1; n <= 5; n++) xref += `${String(offsets[n]).padStart(10, '0')} 00000 n \n`;
+    const trailer = enc(`${xref}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${pos}\n%%EOF`);
+    return concat([header, ...bodies.slice(1), trailer]);
+}
+
+function saveBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 window.downloadReceiptAs = (kind, btn) => {
@@ -884,27 +1017,37 @@ function exportReceiptFile(kind, data, btn) {
     const original = btn ? btn.innerHTML : '';
     if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.innerHTML = '⏳...'; }
     const done = () => { if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = original; } };
-    ensureReceiptLib().then(() => {
-        const node = receiptExportNode(data);
-        const finish = () => { done(); node.remove(); };
+    try {
+        const canvas = drawReceiptCanvas(data);
+        const pngFallback = () => saveBlob(dataURLToBlob(canvas.toDataURL('image/png')), receiptFileName(data, 'png'));
         if (kind === 'pdf') {
-            html2pdf().set({ margin: 10, filename: receiptFileName(data, 'pdf'), image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } })
-                .from(node).save().then(finish).catch(() => { finish(); alert('PDF export failed, please use Print instead.'); });
+            const jpegURL = canvas.toDataURL('image/jpeg', 0.92);
+            const pdfBytes = jpegToPdf(dataURLToBytes(jpegURL), canvas.width, canvas.height);
+            saveBlob(new Blob([pdfBytes], { type: 'application/pdf' }), receiptFileName(data, 'pdf'));
+            done();
+        } else if (canvas.toBlob) {
+            canvas.toBlob((blob) => {
+                if (blob) saveBlob(blob, receiptFileName(data, 'png'));
+                else pngFallback();
+                done();
+            }, 'image/png');
         } else {
-            html2canvas(node, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
-                const a = document.createElement('a');
-                a.download = receiptFileName(data, 'png');
-                a.href = canvas.toDataURL('image/png');
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                finish();
-            }).catch(() => { finish(); alert('PNG export failed, please use Print instead.'); });
+            pngFallback();
+            done();
         }
-    }).catch(() => {
+    } catch (e) {
+        console.error(e);
         done();
-        alert('Could not load the file library (check connection / adblock). Please use Print for now.');
-    });
+        alert('File export failed, please use Print instead.');
+    }
+}
+
+function dataURLToBlob(dataURL) {
+    const [head, b64] = dataURL.split(',');
+    const bin = atob(b64);
+    const u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    return new Blob([u8], { type: head.split(':')[1].split(';')[0] });
 }
 
 function getTrackReceiptData() {
@@ -2726,8 +2869,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof window.renderRecentOrdersTrack === 'function') {
             window.renderRecentOrdersTrack();
         }
-        // Pre-warm receipt PDF/PNG library so first click downloads instantly
-        setTimeout(() => { if (typeof ensureReceiptLib === 'function') ensureReceiptLib().catch(() => {}); }, 2000);
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get('id');
         if (idFromUrl) {
@@ -2757,8 +2898,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof window.renderAddressBook === 'function') {
             window.renderAddressBook();
         }
-        // Pre-warm receipt PDF/PNG library so first click downloads instantly
-        setTimeout(() => { if (typeof ensureReceiptLib === 'function') ensureReceiptLib().catch(() => {}); }, 2000);
         
         FORM_FIELDS.forEach(id => {
             const el = document.getElementById(id);
