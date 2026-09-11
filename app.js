@@ -896,7 +896,7 @@ function drawReceiptCanvas(r) {
     h += 16 + 48 + 24;                 // status pill
     h += 36 + 12;                      // items header
     rowLines.forEach(L => { h += L.length * 30 + 10; });
-    h += 12 + 8 + 3 * 34 + 12;         // divider + totals
+    h += 12 + 30 + 3 * 34 + 12;        // divider + totals
     h += 10 + 26 + noteChunks.length * LH; // NOTE section
     h += 24 + 30 + 30 + 44;            // dashed + thanks + bottom pad
     cv.width = W * SCALE;
@@ -1005,7 +1005,7 @@ function drawReceiptCanvas(r) {
     cx.moveTo(PAD, y);
     cx.lineTo(W - PAD, y);
     cx.stroke();
-    y += 8;
+    y += 30;
     const totalRow = (label, value, big) => {
         cx.font = big ? '800 24px Arial' : '19px Arial';
         cx.fillStyle = big ? '#2c1e12' : '#222222';
