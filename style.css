@@ -926,13 +926,17 @@ body.menu-open {
     }
 }
 
-.checkout-container { display: grid; grid-template-columns: 1fr 400px; gap: 50px; }
+.checkout-container { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 50px; }
+.checkout-container > * { min-width: 0; }
+.checkout-steps { max-width: 100%; overflow-x: auto; }
 .cart-details, .order-summary { 
     background: var(--white); 
     padding: 40px; 
     border-radius: 15px; 
     box-shadow: var(--shadow-soft); 
     border: 1px solid rgba(0,0,0,0.03);
+    min-width: 0;
+    overflow-wrap: break-word;
 }
 .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #f5f5f5; }
 .quantity-controls { display: flex; align-items: center; gap: 20px; }
