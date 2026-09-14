@@ -757,6 +757,19 @@ body.menu-open {
 
 .product-card:hover img { transform: scale(1.05); }
 .product-card h3 { font-size: 1.6rem; margin-bottom: 10px; color: var(--coffee-dark); }
+
+/* Skeleton loading untuk featured-grid home (diganti JS saat produk tiba) */
+.skel-card { pointer-events: none; }
+.skel-img, .skel-line, .skel-btn {
+    background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+    background-size: 200% 100%;
+    animation: skel-shimmer 1.2s infinite linear;
+}
+.skel-img { width: 100%; height: 250px; border-radius: 15px; margin-bottom: 20px; }
+.skel-line { height: 14px; border-radius: 7px; margin: 10px auto; }
+.skel-btn { height: 42px; border-radius: 8px; margin-top: 16px; }
+@keyframes skel-shimmer { to { background-position: -200% 0; } }
+@media (max-width: 768px) { .skel-img { height: 160px; } }
 .product-price { font-weight: 900; color: var(--wood-warm); font-size: 1.4rem; margin-bottom: 8px; }
 .product-stock { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
 .product-rating { color: #f1c40f; font-size: 1rem; margin-bottom: 15px; }

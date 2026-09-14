@@ -153,5 +153,18 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 *Update Terakhir: 9 September 2026*
 
 
+### **7. Recent Updates (14 September 2026)**
+
+| Fitur | Deskripsi Detail | File Terkait |
+| :--- | :--- | :--- |
+| **History Page Revamp** | Vertical timeline (ganti tabel datar) dengan gradien emas, TOC sticky rata tengah + progress bar baca, pull-quote khas, dan CTA akhir "Rasakan Sejarahnya" ke Produk/Brew. Regional cards dikembalikan bersih (emoji + judul + deskripsi tanpa pill flavor). | `history.html`, `style.css` |
+| **Home Journey Section Refresh** | Gambar hero `From Peak to Pouch` diganti `Pohon Gayo.webp` + `object-fit: cover; height: 100%` biar sepanjang kolom teks. Grid journey anti-luber via `minmax(min(300px,100%),1fr)` + guard overflow CSS. Gap `View Complete Shop` → `Our Mission` dirapatkan padding 120→40, margin tombol 60→30. | `index.html`, `style.css` |
+| **Step-Item Checkout Scoping** | Akar masalah teks luber kiri-kanan di home: class `.step-item` checkout (`display:flex` + `white-space:nowrap`) di-scoping ke `.checkout-steps` agar tidak ketimpa halaman lain (home, history, dst). | `style.css` |
+| **Overflow Guard Journey** | Penambah pengaman grid journey: semua anak `min-width:0; max-width:100%`, teks `overflow-wrap:break-word`, gambar `max-width:100%`. Di HP grid paksa 1 kolom. | `style.css` |
+| **Git Commit & Deploy** | Commit `7eb6bbd` ke `main`: 4 file diubah (`history.html`, `index.html`, `style.css`, `Images/Pohon Gayo.webp`). Push ke GitHub, Vercel auto-deploy. Screenshot & folder `Coba Entre 2` tidak ikut commit. | `git`, `Vercel` |
+
+*Update Terakhir: 14 September 2026*
+
+
 
 

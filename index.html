@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=1.0.22">
+    <link rel="preload" as="image" href="Images/Latar Belakang Home 2.png">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script type="text/javascript" src="https://unpkg.com/@emailjs/browser@4/dist/email.min.js" defer></script>
     <style>
@@ -193,7 +194,9 @@
             <div class="container">
                 <h2 class="section-header">Featured Selection</h2>
                 <div id="featured-grid" class="product-grid">
-                    <!-- Loaded via JS -->
+                    <div class="product-card skel-card" aria-hidden="true"><div class="skel-img"></div><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:40%"></div><div class="skel-btn"></div></div>
+                    <div class="product-card skel-card" aria-hidden="true"><div class="skel-img"></div><div class="skel-line" style="width:55%"></div><div class="skel-line" style="width:35%"></div><div class="skel-btn"></div></div>
+                    <div class="product-card skel-card" aria-hidden="true"><div class="skel-img"></div><div class="skel-line" style="width:65%"></div><div class="skel-line" style="width:45%"></div><div class="skel-btn"></div></div>
                 </div>
                 <div style="text-align: center; margin-top: 30px;">
                     <a href="products.html" class="btn-secondary">View Complete Shop</a>
