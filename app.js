@@ -599,7 +599,8 @@ function renderCart() {
         }).join('');
     }
 
-    const total = sub > 0 ? sub + currentShippingFee : 0;
+    const ship = Number(currentShippingFee) || 0;
+    const total = sub > 0 ? sub + ship : 0;
 
     const sEl = document.getElementById('subtotal');
     if (sEl) sEl.innerText = `Rp ${sub.toLocaleString('id-ID')}`;
@@ -1262,7 +1263,8 @@ window.handleShippingUpdate = () => {
     const city = citySelect.value;
     const serv = serviceSelect.value;
     
-    currentShippingFee = (city && SHIPPING_FEES[city]) ? SHIPPING_FEES[city][serv] : 0;
+    const table = (city && SHIPPING_FEES[city]) ? SHIPPING_FEES[city] : null;
+    currentShippingFee = (table && Number.isFinite(table[serv])) ? table[serv] : 0;
     const feeEl = document.getElementById('shipping-fee');
     if (feeEl) feeEl.innerText = `Rp ${currentShippingFee.toLocaleString('id-ID')}`;
     
