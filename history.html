@@ -12,10 +12,40 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         .history-content { max-width: 900px; margin: 0 auto; line-height: 1.8; color: #444; padding: 40px 20px; }
-        .history-content h2 { margin-top: 60px; margin-bottom: 25px; color: var(--coffee-dark); border-bottom: 2px solid var(--gold-premium); display: inline-block; padding-bottom: 5px; font-family: 'Montserrat', sans-serif; }
+        .history-content h2 { margin-top: 60px; margin-bottom: 25px; color: var(--coffee-dark); border-bottom: 2px solid var(--gold-premium); display: inline-block; padding-bottom: 5px; font-family: 'Montserrat', sans-serif; scroll-margin-top: 150px; }
         .history-content p { margin-bottom: 20px; font-size: 1.1rem; }
-        .executive-summary { background: #fef9e7; padding: 40px; border-radius: 20px; border-left: 8px solid var(--gold-premium); margin-bottom: 50px; font-style: italic; }
-        
+        .executive-summary { background: #fef9e7; padding: 40px; border-radius: 20px; border-left: 8px solid var(--gold-premium); margin-bottom: 30px; font-style: italic; }
+
+        /* Reading progress */
+        #read-progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%; background: linear-gradient(90deg, var(--gold-premium), var(--gold-accent)); z-index: 2000; transition: width 0.1s linear; }
+
+        /* Sticky TOC */
+        .toc-bar { position: sticky; top: 82px; z-index: 900; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #eee; padding: 12px 0; }
+        .toc-inner { max-width: 900px; margin: 0 auto; padding: 0 20px; display: flex; gap: 10px; justify-content: center; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .toc-inner::-webkit-scrollbar { display: none; }
+        .toc-inner a { font-size: 0.85rem; font-weight: 600; color: var(--coffee-dark); text-decoration: none; padding: 8px 16px; border-radius: 999px; border: 1px solid #eee; background: #fafafa; flex-shrink: 0; transition: 0.25s; }
+        .toc-inner a:hover, .toc-inner a.active { background: var(--coffee-dark); color: white; border-color: var(--coffee-dark); }
+
+        /* Pull quote */
+        .pull-quote { margin: 30px 0; padding: 25px 30px; background: var(--coffee-dark); color: #f5ecd7; border-radius: 16px; border-left: 6px solid var(--gold-premium); font-size: 1.15rem; font-style: italic; line-height: 1.7; }
+        .pull-quote small { display: block; margin-top: 10px; font-style: normal; font-size: 0.85rem; opacity: 0.7; }
+
+        /* Vertical Timeline — replaces flat table */
+        .v-timeline { position: relative; margin: 30px 0 20px; padding-left: 40px; }
+        .v-timeline::before { content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 3px; background: linear-gradient(var(--gold-premium), var(--wood-warm)); border-radius: 3px; }
+        .v-item { position: relative; background: white; border: 1px solid #eee; border-radius: 16px; padding: 20px 22px; margin-bottom: 18px; box-shadow: var(--shadow-soft); transition: 0.25s; }
+        .v-item:hover { transform: translateX(4px); border-color: var(--gold-premium); }
+        .v-item::before { content: ''; position: absolute; left: -36px; top: 26px; width: 16px; height: 16px; box-sizing: border-box; background: var(--gold-premium); border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 3px var(--gold-premium); }
+        .v-year { display: inline-block; font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; color: white; background: var(--coffee-dark); padding: 4px 14px; border-radius: 999px; margin-bottom: 8px; }
+        .v-item p { margin: 0; font-size: 1rem; }
+        .v-item strong { color: var(--wood-warm); }
+
+        /* Stats band */
+        .stats-band { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin: 35px 0 10px; }
+        .stat-box { background: #fffdf5; border: 1px solid #f0e2b6; border-radius: 16px; padding: 22px 15px; text-align: center; }
+        .stat-box b { display: block; font-family: 'Montserrat', sans-serif; font-size: 1.7rem; color: var(--coffee-dark); }
+        .stat-box span { font-size: 0.85rem; color: #777; }
+
         /* Tables */
         .table-responsive { overflow-x: auto; margin: 30px 0; border-radius: 15px; box-shadow: var(--shadow-soft); }
         .data-table { width: 100%; border-collapse: collapse; background: white; min-width: 600px; }
@@ -24,18 +54,46 @@
         .year-col { width: 140px; font-weight: 800; color: var(--gold-premium); }
 
         /* Grid */
-        .regional-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin: 30px 0 60px; }
-        .region-card { background: #f9f9f9; padding: 30px; border-radius: 20px; border: 1px solid #eee; transition: 0.3s; }
+        .regional-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin: 30px 0 20px; }
+        .region-card { background: #f9f9f9; padding: 30px; border-radius: 20px; border: 1px solid #eee; transition: 0.3s; display: flex; flex-direction: column; }
         .region-card:hover { transform: translateY(-5px); background: white; box-shadow: var(--shadow-soft); border-color: var(--gold-premium); }
         .region-card h4 { color: var(--wood-warm); margin-bottom: 10px; font-size: 1.3rem; margin-top: 15px; }
+        .region-card .flavor { font-size: 0.85rem; background: #fef9e7; border: 1px dashed var(--gold-premium); border-radius: 999px; padding: 5px 12px; display: inline-block; margin: 10px 0 15px; color: var(--coffee-dark); font-weight: 600; }
+        .region-card .card-link { margin-top: auto; font-weight: 700; color: var(--coffee-dark); text-decoration: none; border-top: 1px solid #eee; padding-top: 15px; display: block; }
+        .region-card .card-link:hover { color: var(--gold-premium); }
+        .region-card.featured { background: white; border: 2px solid var(--gold-premium); box-shadow: var(--shadow-soft); }
+        .avail-badge { display: inline-block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; background: #e8f5e9; color: #2e7d32; border-radius: 999px; padding: 4px 12px; margin-bottom: 5px; }
+        .unavailable { margin-top: auto; font-size: 0.85rem; color: #999; border-top: 1px solid #eee; padding-top: 15px; display: block; font-style: italic; }
+
+        /* CTA */
+        .cta-history { margin: 60px 0 20px; background: linear-gradient(rgba(44,30,18,0.92), rgba(44,30,18,0.92)), url('Images/Latar Belakang Home 2.png'); background-size: cover; background-position: center; border-radius: 24px; padding: 50px 30px; text-align: center; color: white; }
+        .cta-history h3 { font-size: 1.8rem; margin-bottom: 12px; color: white; }
+        .cta-history p { opacity: 0.85; margin-bottom: 25px; }
+        .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .btn-gold { background: var(--gold-premium); color: #1a1a1a; padding: 14px 28px; border-radius: 999px; font-weight: 800; text-decoration: none; transition: 0.25s; }
+        .btn-gold:hover { background: white; transform: translateY(-2px); }
+        .btn-ghost { border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 26px; border-radius: 999px; font-weight: 700; text-decoration: none; transition: 0.25s; }
+        .btn-ghost:hover { border-color: white; background: rgba(255,255,255,0.1); }
         
-        .ref-section { margin-top: 80px; padding: 40px; background: #fafafa; border-radius: 20px; font-size: 0.9rem; color: #666; }
+        .ref-section { margin-top: 40px; padding: 40px; background: #fafafa; border-radius: 20px; font-size: 0.9rem; color: #666; }
         
-        /* GSAP Initial State */
-        .reveal { opacity: 0; transform: translateY(30px); }
+        /* Reveal: visible by default (safe if CDN/JS offline).
+           Only hidden when JS confirms GSAP is ready. */
+        .reveal { opacity: 1; transform: none; }
+        html.js-anim .reveal { opacity: 0; transform: translateY(30px); }
+        @media (max-width: 600px) {
+            .executive-summary { padding: 25px 20px; }
+            .toc-bar { top: 76px; }
+            .toc-inner { justify-content: flex-start; }
+            .v-item { padding: 16px 16px; }
+        }
+        @media (max-width: 900px) and (min-width: 601px) {
+            .toc-inner { justify-content: flex-start; }
+        }
     </style>
 </head>
 <body>
+    <div id="read-progress"></div>
     <header>
         <nav class="container">
             <div class="logo">
@@ -61,11 +119,23 @@
         </nav>
     </header>
 
+    <div class="toc-bar">
+        <div class="toc-inner">
+            <a href="#era-ethiopia">1. Ethiopia</a>
+            <a href="#era-yaman">2. Yaman</a>
+            <a href="#era-eropa">3. Eropa</a>
+            <a href="#era-voc">4. VOC</a>
+            <a href="#timeline">Timeline</a>
+            <a href="#regional">Regional</a>
+            <a href="#modern">Modern</a>
+        </div>
+    </div>
+
     <main>
         <section class="hero" style="height: 50vh; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('Images/Latar Belakang Home 2.png'); background-size: cover; background-position: center;">
             <div class="container text-center">
                 <h1 style="font-family: 'Playfair Display', serif; color: white;">Sejarah Kopi</h1>
-                <p style="color: white; opacity: 0.9;">Legenda Ethiopia Hingga Era Modern Nusantara</p>
+                <p style="color: white; opacity: 0.9;">Legenda Ethiopia Hingga Era Modern Nusantara • ±5 menit baca</p>
             </div>
         </section>
 
@@ -74,48 +144,51 @@
                 <p><strong>Ringkasan Eksekutif:</strong> Sejarah kopi bermula di hutan Ethiopia pada abad ke-9 M dan menyebar ke seluruh dunia. Dari budidaya awal di Yaman oleh kaum Sufi, hingga revolusi kedai kopi di Eropa. Di Indonesia, jejak kopi dimulai sejak era VOC tahun 1696, melewati masa Tanam Paksa (Cultuurstelsel), hingga kini menjadi produsen kopi spesialti terbaik dunia.</p>
             </div>
 
-            <section class="reveal">
+            <div class="stats-band reveal">
+                <div class="stat-box"><b>~850 M</b><span>Legenda Kaldi di Ethiopia</span></div>
+                <div class="stat-box"><b>1554</b><span>Kedai kopi pertama Istanbul</span></div>
+                <div class="stat-box"><b>1696</b><span>VOC bawa kopi ke Jawa</span></div>
+                <div class="stat-box"><b>#3 Dunia</b><span>Produsen kopi Indonesia</span></div>
+            </div>
+
+            <section class="reveal" id="era-ethiopia">
                 <h2>1. Awal Mula di Ethiopia</h2>
                 <p>Kisah kopi bermula di wilayah <strong>Kaffa, Ethiopia</strong>. Menurut legenda, seorang gembala bernama <strong>Kaldi</strong> memperhatikan kambingnya yang menjadi sangat lincah setelah memakan buah kopi merah dari pohon liar. Ethiopia hingga kini dianggap sebagai "tempat kelahiran" genetik kopi Arabika dunia.</p>
-                <img src="Images/Gayo-sumatra.webp" style="width: 100%; height: 400px; object-fit: cover; border-radius: 20px; margin: 20px 0;" alt="Hutan Kopi Ethiopia" loading="lazy">
+                <img src="Images/Gayo-sumatra.webp" style="width: 100%; height: 400px; object-fit: cover; border-radius: 20px; margin: 20px 0;" alt="Biji kopi Arabika Gayo Sumatra — ilustrasi warisan genetik kopi Ethiopia" loading="lazy">
             </section>
 
-            <section class="reveal">
+            <section class="reveal" id="era-yaman">
                 <h2>2. Penyebaran ke Dunia Islam</h2>
                 <p>Pada abad ke-15, kopi mulai dibudidayakan di <strong>Yaman</strong> dan diekspor dari pelabuhan legendaris <strong>Mocha</strong>. Para pemuka Sufi memanfaatkan kopi sebagai stimulan untuk menjaga kewaspadaan saat beribadah malam. Menjelang 1554, kedai kopi pertama di dunia dibuka di Istanbul, Turki (Ottoman Empire).</p>
             </section>
 
-            <section class="reveal">
+            <section class="reveal" id="era-eropa">
                 <h2>3. Masuknya Kopi ke Eropa</h2>
-                <p>Abad ke-17 menandai kedatangan kopi di Eropa lewat jalur perdagangan Mediterania. Kedai kopi pertama dibuka di <strong>Venesia (1645)</strong>, disusul London (1652). Tempat-tempat ini dijuluki <em>"Penny Universities"</em> karena orang bisa bertukar ide cerdas hanya seharga secangkir kopi.</p>
+                <p>Abad ke-17 menandai kedatangan kopi di Eropa lewat jalur perdagangan Mediterania. Kedai kopi pertama dibuka di <strong>Venesia (1645)</strong>, disusul London (1652).</p>
+                <div class="pull-quote">"Penny Universities" — seharga satu penny, orang bisa bertukar ide cerdas selama berjam-jam di kedai kopi London.<small>Kedai kopi Eropa, abad 17</small></div>
             </section>
 
-            <section class="reveal">
+            <section class="reveal" id="era-voc">
                 <h2>4. Era Kolonial & Kopi di Indonesia</h2>
-                <p>Belanda (VOC) membawa bibit Arabika ke <strong>Batavia (Jakarta)</strong> pada tahun 1696. Meskipun percobaan pertama gagal, bibit kedua pada 1699 tumbuh subur dan menjadikan Jawa sebagai pengekspor kopi utama. Pada 1830-an, sistem <em>Cultuurstelsel</em> (Tanam Paksa) diterapkan di seluruh Nusantara.</p>
+                <p>Belanda (VOC) membawa bibit Arabika ke <strong>Batavia (Jakarta)</strong> pada tahun 1696. Meskipun percobaan pertama gagal, bibit kedua pada 1699 tumbuh subur dan menjadikan Jawa sebagai pengekspor kopi utama.</p>
+                <div class="pull-quote">"Max Havelaar" — novel Eduard Douwes Dekker (1859) yang membongkar penderitaan petani akibat Cultuurstelsel.<small>Sistem Tanam Paksa, 1830-an</small></div>
             </section>
 
-            <section class="reveal">
+            <section class="reveal" id="timeline">
                 <h2>Garis Waktu (Timeline) Kopi</h2>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Tahun</th><th>Peristiwa Utama</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="year-col">~850 M</td><td>Legenda Kaldi & Kambing di Ethiopia.</td></tr>
-                            <tr><td class="year-col">1400-an</td><td>Budidaya pertama di Yaman (Mocha).</td></tr>
-                            <tr><td class="year-col">1554</td><td>Kedai kopi pertama di Istanbul.</td></tr>
-                            <tr><td class="year-col">1696</td><td>VOC membawa bibit kopi ke Jawa.</td></tr>
-                            <tr><td class="year-col">1711</td><td>Ekspor pertama kopi Jawa ke Eropa.</td></tr>
-                            <tr><td class="year-col">1830</td><td>Dimulainya Sistem Tanam Paksa.</td></tr>
-                            <tr><td class="year-col">1900-an</td><td>Introduksi Robusta ke Indonesia.</td></tr>
-                        </tbody>
-                    </table>
+                <p style="color:#777; font-size:0.95rem;">Scroll ke bawah — versi baru, gampang dibaca di HP:</p>
+                <div class="v-timeline">
+                    <div class="v-item"><span class="v-year">~850 M</span><p><strong>Legenda Kaldi</strong> & kambing lincah di Ethiopia.</p></div>
+                    <div class="v-item"><span class="v-year">1400-an</span><p>Budidaya pertama di <strong>Yaman (Mocha)</strong>.</p></div>
+                    <div class="v-item"><span class="v-year">1554</span><p>Kedai kopi pertama di <strong>Istanbul</strong>.</p></div>
+                    <div class="v-item"><span class="v-year">1696</span><p><strong>VOC</strong> membawa bibit kopi ke Jawa.</p></div>
+                    <div class="v-item"><span class="v-year">1711</span><p><strong>Ekspor pertama</strong> kopi Jawa ke Eropa.</p></div>
+                    <div class="v-item"><span class="v-year">1830</span><p>Dimulainya <strong>Sistem Tanam Paksa</strong>.</p></div>
+                    <div class="v-item"><span class="v-year">1900-an</span><p>Introduksi <strong>Robusta</strong> ke Indonesia.</p></div>
                 </div>
             </section>
 
-            <section class="reveal">
+            <section class="reveal" id="regional">
                 <h2>5. Sejarah Regional Indonesia</h2>
                 <p>Rincian wilayah dan sejarah lokal perkembangan kopi di Nusantara:</p>
                 <div class="regional-grid">
@@ -147,7 +220,7 @@
                 </div>
             </section>
 
-            <section class="reveal">
+            <section class="reveal" id="modern">
                 <h2>6. Gerakan Kopi Modern</h2>
                 <div class="table-responsive">
                     <table class="data-table">
@@ -160,6 +233,15 @@
                             <tr><td>Ketinggian</td><td>1.200 – 2.000 mdpl</td><td>0 – 800 mdpl</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <section class="cta-history reveal">
+                <h3>Rasakan Sejarahnya dalam Secangkir Kopi</h3>
+                <p>Warisan Sumatra yang bisa kamu seduh di rumah — Arabika Sidikalang & Robusta Gayo.</p>
+                <div class="cta-btns">
+                    <a href="products.html" class="btn-gold">Lihat Produk Kopi</a>
+                    <a href="brew.html" class="btn-ghost">Cara Seduh yang Benar</a>
                 </div>
             </section>
 
@@ -192,22 +274,67 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="app.js?v=1.0.22"></script>
     <script>
-        gsap.registerPlugin(ScrollTrigger);
+        // Reading progress bar
+        const prog = document.getElementById('read-progress');
+        function updateProgress() {
+            const h = document.documentElement;
+            const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+            if (prog) prog.style.width = pct + '%';
+        }
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        updateProgress();
 
-        // Individual section reveals for 100% reliability
-        document.querySelectorAll('.reveal').forEach((el) => {
-            gsap.to(el, {
-                scrollTrigger: {
-                    trigger: el,
-                    start: "top 90%",
-                    toggleActions: "play none none none"
-                },
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: "power2.out"
+        // TOC active state on scroll
+        const tocLinks = document.querySelectorAll('.toc-inner a');
+        const sections = [...tocLinks].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+        function updateTOC() {
+            let current = '';
+            sections.forEach(sec => {
+                const rect = sec.getBoundingClientRect();
+                if (rect.top <= 180) current = '#' + sec.id;
             });
-        });
+            tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === current));
+        }
+        window.addEventListener('scroll', updateTOC, { passive: true });
+
+        // Keep TOC exactly below sticky header (prevents being covered on scroll)
+        function fitTOC() {
+            const header = document.querySelector('header');
+            const toc = document.querySelector('.toc-bar');
+            if (header && toc) toc.style.top = header.offsetHeight + 'px';
+        }
+        window.addEventListener('load', fitTOC);
+        window.addEventListener('resize', fitTOC);
+        fitTOC();
+
+        if (window.gsap && window.ScrollTrigger) {
+            document.documentElement.classList.add('js-anim');
+            gsap.registerPlugin(ScrollTrigger);
+            // Individual section reveals for 100% reliability
+            document.querySelectorAll('.reveal').forEach((el) => {
+                gsap.to(el, {
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 90%",
+                        toggleActions: "play none none none"
+                    },
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power2.out"
+                });
+            });
+            // Stagger timeline items
+            gsap.utils.toArray('.v-item').forEach((el, i) => {
+                gsap.from(el, {
+                    scrollTrigger: { trigger: el, start: "top 92%" },
+                    x: -20, opacity: 0, duration: 0.5, delay: (i % 3) * 0.05
+                });
+            });
+        } else {
+            // Fallback: show all if GSAP fails to load
+            document.querySelectorAll('.reveal').forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
+        }
     </script>
 </body>
 </html>
