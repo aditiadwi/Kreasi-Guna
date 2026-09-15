@@ -1594,54 +1594,92 @@ async function renderTestimonials() {
             return;
         }
 
-        const maxVisible = 6;
+        const cardHtml = r => `
+                <div class="testimonial-card">
+                    <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
+                        <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
+                        <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+                    </div>
+                    <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
+                </div>
+            `;
+
+        // Marquee loop: satu baris mengalir kanan→kiri + bisa digeser manual
+        const setHtml = data.map(cardHtml).join('');
+        const copies = data.length <= 2 ? 8 : 4; // genap agar wrap mulus
         const seeMoreBtn = document.getElementById('see-more-btn');
-
-if (data.length <= maxVisible) {
-            cont.innerHTML = data.map(r => `
-                <div class="testimonial-card">
-                    <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
-                        <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
-                        <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
-                    </div>
-                    <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
-                </div>
-            `).join('');
-            if (seeMoreBtn) seeMoreBtn.style.display = 'none';
-        } else {
-            // First 6 visible, rest collapsed
-            cont.innerHTML = data.slice(0, maxVisible).map(r => `
-                <div class="testimonial-card">
-                    <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
-                        <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
-                        <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
-                    </div>
-                    <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
-                </div>
-            `).join('');
-
-            // Add collapsed class to remaining cards
-            data.slice(maxVisible).forEach(r => {
-                cont.innerHTML += `
-                    <div class="testimonial-card collapsed">
-                        <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
-                            <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
-                            <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
-                        </div>
-                        <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>
-                    </div>
-                `;
-            });
-
-if (seeMoreBtn) {
-                seeMoreBtn.style.display = 'block';
-                seeMoreBtn.dataset.total = data.length;
-                seeMoreBtn.dataset.shown = maxVisible;
-            }
-        }
+        cont.className = 'testimonials-marquee';
+        cont.innerHTML = `<div class="marquee-track">${setHtml.repeat(copies)}</div>`;
+        if (seeMoreBtn) seeMoreBtn.style.display = 'none';
+        initTestimonialMarquee();
     } catch (e) {
         console.warn("Error rendering testimonials:", e);
     }
+}
+
+function initTestimonialMarquee() {
+    const cont = document.getElementById('testimonials-grid');
+    if (!cont || cont.dataset.marqueeInit) return;
+    cont.dataset.marqueeInit = '1';
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let paused = reduceMotion, dragging = false, downX = 0, startScroll = 0, moved = false, resumeTimer = null;
+
+    // Setelah user menggeser manual: diam 3 detik baru jalan otomatis lagi
+    const scheduleResume = () => {
+        if (reduceMotion) return;
+        if (resumeTimer) clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(() => { paused = false; resumeTimer = null; }, 3000);
+    };
+
+    cont.addEventListener('mouseenter', () => {
+        paused = true;
+        if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+    });
+    cont.addEventListener('mouseleave', () => {
+        if (dragging) return;
+        if (moved) { moved = false; scheduleResume(); } // habis digeser: jeda 3 detik
+        else if (!reduceMotion) paused = false; // cuma hover lewat: langsung lanjut
+    });
+    cont.addEventListener('touchstart', () => {
+        paused = true;
+        if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+    }, { passive: true });
+    cont.addEventListener('touchend', () => { scheduleResume(); });
+
+    // Geser manual dengan mouse
+    cont.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        dragging = true; moved = false; downX = e.clientX; startScroll = cont.scrollLeft;
+        cont.classList.add('dragging');
+        if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+    });
+    window.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - downX;
+        if (Math.abs(dx) > 4) moved = true;
+        cont.scrollLeft = startScroll - dx;
+    });
+    window.addEventListener('pointerup', () => {
+        if (!dragging) return;
+        dragging = false;
+        cont.classList.remove('dragging');
+        if (moved) { moved = false; paused = true; scheduleResume(); } // diam 3 detik
+    });
+
+    const step = () => {
+        if (!document.body.contains(cont)) return;
+        const half = cont.scrollWidth / 2;
+        if (!paused && !dragging && half > cont.clientWidth) {
+            cont.scrollLeft += 0.6;
+        }
+        // Normalisasi ke paruh pertama: konten periodik sehingga lompatan tak terlihat
+        if (half > 0) {
+            if (cont.scrollLeft >= half) cont.scrollLeft -= half;
+            else if (cont.scrollLeft < 0) cont.scrollLeft += half;
+        }
+        requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
 }
 
 function toggleSeeMore() {
