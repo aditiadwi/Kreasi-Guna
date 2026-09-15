@@ -166,5 +166,23 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 *Update Terakhir: 14 September 2026*
 
 
+### **8. Rencana Lanjutan (Belum Dikerjakan)**
+
+| Rencana | Catatan | Status |
+| :--- | :--- | :--- |
+| **SEO & Google Indexing** | Fondasi kode (`robots.txt`, `sitemap.xml`, meta description, Open Graph) + daftar Google Search Console + kunci `admin.html` dari indeks. Ditunda atas permintaan — jadi rencana lanjutan. | 📋 Planned |
+
+
+### **9. Recent Updates (15 September 2026)**
+
+| Fitur | Deskripsi Detail | File Terkait |
+| :--- | :--- | :--- |
+| **Ritme Spacing 96/64px** | Semua padding section diseragamkan (96px desktop / 64px HP), judul section 48px/32px. Aturan ganda `.shop-section` (120px vs 100px) + override inline di `index.html` dibersihkan. Commit `fe3f738`. | `style.css`, `index.html` |
+| **Checkout NaN & Overflow Fix** | Ongkir tak dikenal tidak lagi jadi `undefined` (penyebab Total `Rp NaN`), total dipagari angka. Grid checkout `minmax(0,1fr)` + kolom boleh susut agar sidebar Final Summary tidak kepental keluar layar. Commit `51a7d10`, `df4bdb3`. | `app.js`, `style.css` |
+| **Tombol Track Sejajar** | Pil oren tidak tengah: `padding-bottom: 4px` warisan menu + spasi ekor `letter-spacing`. Selektor dinaikkan ke `.nav-links a.nav-special` (flex tengah, `line-height: 1`, kompensasi padding kanan 1.5px). Berlaku semua halaman, belum di-push. | `style.css` |
+
+*Update Terakhir: 15 September 2026*
+
+
 
 

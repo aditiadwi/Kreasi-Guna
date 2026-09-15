@@ -126,10 +126,15 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     border-radius: 2px;
 }
 
-.nav-special {
+.nav-links a.nav-special {
     background: var(--gold-premium);
     color: var(--white) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
     padding: 10px 20px;
+    padding-right: calc(20px - 1.5px); /* kompensasi letter-spacing bawaan */
     border-radius: 50px;
 }
 .cart-nav-icon {
