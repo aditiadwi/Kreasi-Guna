@@ -184,5 +184,16 @@ Buat jaga-jaga, daftarnya disimpen di sini dulu:
 5. Skeleton loading ala Featured dipakai juga di halaman products sama track.
 
 
+### **11. Catatan 16 September 2026**
+
+- Testimoni home diubah jadi marquee yang ngalir terus kanan ke kiri, ngeloop selamanya, plus bisa diseret manual (mouse di desktop, swipe di HP). Tombol "Lihat Semua Ulasan" dipensiunkan karena nggak relevan lagi. Commit `60d9300`. (`app.js`, `style.css`)
+- Kelanjutannya: habis digeser manual, marqueenya diam 3 detik dulu baru jalan lagi. Sempat nggak gerak sama sekali gara-gara satu variabel (`seeMoreBtn`) kehapus pas rewrite — udah dibetulin.
+- Checkout opsi 3: ringkasan jadi sticky di desktop, di HP muncul bar bawah (total live + tombol bayar, ngumpet pas keranjang kosong atau udah masuk pembayaran), dan "Tambah Produk Lain" bisa dilipat. Commit `4c6244e`. (`app.js`, `checkout.html`, `style.css`)
+- Foto profil di feedback: yang login Google fotonya ikut kesimpen (kolom `avatar_url`, dibikin manual di SQL editor) dan nongol di kartu. Yang nggak ada fotonya dapat lingkaran inisial gold (Dina jadi "D"). Sengaja satu warna biar tetap kalem. Sempat dikira error padahal penyebabnya kode belum di-push — udah naik di `c862a84`.
+- Alert habis kirim feedback dibiarin bawaan browser dulu, belum diganti modal.
+- Sinkron keranjang antar-HP/laptop diputusin nggak usah: keranjang tetap lokal per perangkat. Alasannya udah dibahas (konflik edit, butuh internet terus, kasus guest-login ribet).
+- Catatan jurnal bagian 7–10 ditulis ulang pakai bahasa santai biar nggak kelihatan bikinan AI.
+
+
 
 

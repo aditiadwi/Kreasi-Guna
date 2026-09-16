@@ -619,6 +619,8 @@ body.menu-open {
 .advantage-section, .journey-section, .shop-section,
 .about-section, .checkout-section, .feedback-section, .testimonials-section,
 .news-section, .contact-section, .admin-section { padding: 96px 0; }
+/* Halaman fungsional: kepala dirapatkan, kaki tetap lega */
+.checkout-section, .cart-section { padding-top: 48px; }
 
 .advantage-card {
     background: var(--bg-light);
