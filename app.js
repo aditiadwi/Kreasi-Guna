@@ -614,6 +614,8 @@ function renderCart() {
 
     const pgEl = document.getElementById('payment-grand-total');
     if (pgEl) pgEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+    const mbEl = document.getElementById('mobile-bar-total');
+    if (mbEl) mbEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
 
     const checkoutGrid = document.getElementById('checkout-products-list');
     if (checkoutGrid) {
@@ -624,7 +626,21 @@ function renderCart() {
     if (proceedBtn) {
         proceedBtn.style.display = ids.length === 0 ? 'none' : 'block';
     }
+
+    // Bar total HP: tampil hanya saat ada isi keranjang di halaman checkout
+    const paybar = document.getElementById('mobile-paybar');
+    const showBar = ids.length > 0 && !!document.querySelector('.checkout-container');
+    if (paybar) paybar.style.display = showBar ? '' : 'none';
+    document.body.classList.toggle('has-paybar', showBar && window.innerWidth <= 992);
 }
+
+window.toggleQuickAdd = () => {
+    const sec = document.querySelector('.quick-add-section');
+    const btn = document.getElementById('quick-toggle');
+    if (!sec) return;
+    const collapsed = sec.classList.toggle('collapsed');
+    if (btn) btn.textContent = collapsed ? 'Tampilkan' : 'Sembunyikan';
+};
 
 window.removeFromCart = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
@@ -1302,6 +1318,9 @@ window.handleProceedToPayment = () => {
     if (payArea) {
         payArea.classList.remove('hidden');
         document.getElementById('btn-checkout').classList.add('hidden');
+        const paybar = document.getElementById('mobile-paybar');
+        if (paybar) paybar.style.display = 'none';
+        document.body.classList.remove('has-paybar');
         if (typeof setCheckoutStep === 'function') setCheckoutStep(3);
         const total = document.getElementById('grand-total').innerText;
         document.getElementById('payment-grand-total').innerText = total;

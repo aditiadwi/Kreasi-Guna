@@ -66,7 +66,10 @@
                     <div class="quick-add-section" style="margin: 25px 0; border-top: 1px dashed var(--border-light); border-bottom: 1px dashed var(--border-light); padding: 20px 0;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <h3 style="font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;">☕ Tambah Produk Lain</h3>
-                            <a href="products.html" style="font-size: 0.78rem; font-weight: 600; color: var(--wood-warm); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--coffee-dark)'" onmouseout="this.style.color='var(--wood-warm)'">Lihat Semua &rarr;</a>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <button type="button" id="quick-toggle" onclick="toggleQuickAdd()" style="background: transparent; border: 1px solid var(--border-light); border-radius: 999px; padding: 4px 14px; font-size: 0.75rem; font-weight: 700; color: var(--wood-warm); cursor: pointer; align-items: center;">Sembunyikan</button>
+                                <a href="products.html" style="font-size: 0.78rem; font-weight: 600; color: var(--wood-warm); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--coffee-dark)'" onmouseout="this.style.color='var(--wood-warm)'">Lihat Semua &rarr;</a>
+                            </div>
                         </div>
                         <div id="checkout-products-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
                             <!-- Ditempel oleh app.js -->
@@ -191,6 +194,12 @@
                 </div>
             </div>
         </section>
+
+        <!-- Bar total fixed khusus HP -->
+        <div id="mobile-paybar">
+            <div class="mobile-bar-total"><small>Total</small><span id="mobile-bar-total">Rp 0</span></div>
+            <button class="btn-primary" onclick="handleProceedToPayment()">Proceed to Payment</button>
+        </div>
     </main>
 
     <footer>
