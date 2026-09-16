@@ -1571,21 +1571,40 @@ function initStars() {
 }
 
 window.submitDirectReview = async () => {
-    const name = document.getElementById('direct-review-name').value || 'Anonymous';
-    const text = document.getElementById('direct-review-text').value;
+    const nameInput = document.getElementById('direct-review-name');
+    const textEl = document.getElementById('direct-review-text');
+    const text = textEl ? textEl.value : '';
     if (directSelectedRating === 0) return alert("Rating required!");
     if (!supabaseClient) return alert("Database unavailable");
 
+    // Ambil identitas sesi login (kalau ada) untuk nama + foto profil
+    let sessionName = '', sessionAvatar = '';
     try {
-        const { error } = await supabaseClient.from('feedback').insert([{
-            customer_name: name,
-            rating: directSelectedRating,
-            message: text
-        }]);
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+            sessionName = session.user.user_metadata.full_name || session.user.email || '';
+            sessionAvatar = session.user.user_metadata.avatar_url || '';
+        }
+    } catch (e) { /* guest: lanjut tanpa sesi */ }
+
+    const row = {
+        customer_name: (nameInput && nameInput.value) || sessionName || 'Anonymous',
+        rating: directSelectedRating,
+        message: text
+    };
+    if (sessionAvatar && /^https?:\/\//i.test(sessionAvatar)) row.avatar_url = sessionAvatar;
+
+    try {
+        let { error } = await supabaseClient.from('feedback').insert([row]);
+        // Kolom avatar_url belum ada di DB? kirim ulang tanpa foto (tampilan tetap jalan)
+        if (error && /avatar_url|column/i.test(error.message || '')) {
+            delete row.avatar_url;
+            ({ error } = await supabaseClient.from('feedback').insert([row]));
+        }
         if (error) throw error;
 
-        document.getElementById('direct-review-name').value = '';
-        document.getElementById('direct-review-text').value = '';
+        if (nameInput) nameInput.value = '';
+        if (textEl) textEl.value = '';
         directSelectedRating = 0;
         document.querySelectorAll('.star-d').forEach(s => s.classList.remove('active'));
         alert("Thanks! Your feedback is waiting for admin approval.");
@@ -1613,10 +1632,19 @@ async function renderTestimonials() {
             return;
         }
 
+        const avatarHtml = r => {
+            const url = (r.avatar_url && /^https?:\/\//i.test(r.avatar_url)) ? r.avatar_url : '';
+            const initial = (r.customer_name || 'A').charAt(0).toUpperCase();
+            if (url) return `<img src="${url}" alt="" loading="lazy" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-premium); flex-shrink: 0;" onerror="this.remove()">`;
+            return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gold-premium); color: white; font-weight: 800; font-size: 1rem; flex-shrink: 0;">${initial}</span>`;
+        };
         const cardHtml = r => `
                 <div class="testimonial-card">
                     <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
-                        <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700;">${r.customer_name || 'Anonymous'}</strong>
+                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                            ${avatarHtml(r)}
+                            <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${r.customer_name || 'Anonymous'}</strong>
+                        </div>
                         <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
                     </div>
                     <p class="testimonial-text" style="margin: 0; font-size: 0.93rem; line-height: 1.6;">"${r.message || ''}"</p>

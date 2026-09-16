@@ -153,35 +153,35 @@ Sistem **Smart Drip V2** saat ini dalam status **Stable**. Arsitektur telah siap
 *Update Terakhir: 9 September 2026*
 
 
-### **7. Recent Updates (14 September 2026)**
+### **7. Catatan 14 September 2026**
 
-| Fitur | Deskripsi Detail | File Terkait |
-| :--- | :--- | :--- |
-| **History Page Revamp** | Vertical timeline (ganti tabel datar) dengan gradien emas, TOC sticky rata tengah + progress bar baca, pull-quote khas, dan CTA akhir "Rasakan Sejarahnya" ke Produk/Brew. Regional cards dikembalikan bersih (emoji + judul + deskripsi tanpa pill flavor). | `history.html`, `style.css` |
-| **Home Journey Section Refresh** | Gambar hero `From Peak to Pouch` diganti `Pohon Gayo.webp` + `object-fit: cover; height: 100%` biar sepanjang kolom teks. Grid journey anti-luber via `minmax(min(300px,100%),1fr)` + guard overflow CSS. Gap `View Complete Shop` → `Our Mission` dirapatkan padding 120→40, margin tombol 60→30. | `index.html`, `style.css` |
-| **Step-Item Checkout Scoping** | Akar masalah teks luber kiri-kanan di home: class `.step-item` checkout (`display:flex` + `white-space:nowrap`) di-scoping ke `.checkout-steps` agar tidak ketimpa halaman lain (home, history, dst). | `style.css` |
-| **Overflow Guard Journey** | Penambah pengaman grid journey: semua anak `min-width:0; max-width:100%`, teks `overflow-wrap:break-word`, gambar `max-width:100%`. Di HP grid paksa 1 kolom. | `style.css` |
-| **Git Commit & Deploy** | Commit `7eb6bbd` ke `main`: 4 file diubah (`history.html`, `index.html`, `style.css`, `Images/Pohon Gayo.webp`). Push ke GitHub, Vercel auto-deploy. Screenshot & folder `Coba Entre 2` tidak ikut commit. | `git`, `Vercel` |
+Hari ini fokus ke halaman history sama beres-beres home:
 
-*Update Terakhir: 14 September 2026*
+- Halaman history dirombak. Tabel timeline yang datar itu diganti timeline vertikal (garis emas + titik per tahun), terus ditambah daftar isi sticky di atas, progress bar tipis pas baca, sama kutipan-kutipan ("Penny Universities", "Max Havelaar") biar nggak kayak tembok teks. Di bawahnya ada ajakan "Rasakan Sejarahnya" yang nyambung ke produk. Kartu daerah-daerah akhirnya dibalikin polos aja (emoji + judul + deskripsi) soalnya versi pakai label rasa malah kelihatan kosong. (`history.html`, `style.css`)
+- Bagian "From Peak to Pouch" di home ganti gambar ke `Pohon Gayo.webp` (foto tegak, pas buat kolom teks yang panjang) dan dikunci pakai `object-fit: cover` biar tingginya ngikutin teks terus. Grid-nya juga dibetulin biar nggak luber di HP (`minmax(min(300px,100%),1fr)`). Jarak tombol View Complete Shop ke Our Mission dirapetin. (`index.html`, `style.css`)
+- Nemu akar masalah teks journey yang luber ke kanan: ternyata class `.step-item` punya checkout (`display: flex` + `nowrap`) bocor ke home karena namanya sama persis. Sekarang yang checkout di-scope ke `.checkout-steps`, home aman. (`style.css`)
+- Pengaman overflow buat grid journey: anak-anaknya dipaksa `min-width: 0`, teks boleh patah kata. (`style.css`)
+- Push `7eb6bbd` ke main. Yang ikut cuma 4 file (termasuk gambar Pohon Gayo). Screenshot-screenshot sama folder `Coba Entre 2` nggak ikut, biarin lokal aja.
 
+### **8. Nanti dikerjain (ditunda dulu)**
 
-### **8. Rencana Lanjutan (Belum Dikerjakan)**
+- **SEO biar muncul di Google.** Rencananya: bikin `robots.txt`, `sitemap.xml`, meta description, Open Graph, daftar ke Search Console, terus kunci `admin.html` supaya nggak keindeks. Ditunda, nunggu aba-aba.
 
-| Rencana | Catatan | Status |
-| :--- | :--- | :--- |
-| **SEO & Google Indexing** | Fondasi kode (`robots.txt`, `sitemap.xml`, meta description, Open Graph) + daftar Google Search Console + kunci `admin.html` dari indeks. Ditunda atas permintaan — jadi rencana lanjutan. | 📋 Planned |
+### **9. Catatan 15 September 2026**
 
+- Spacing diseragamkan: semua section sekarang 96px (desktop) / 64px (HP), judul section 48/32px. Sebelumnya campur aduk — 120, 100, 80 — bahkan `.shop-section` kedobel definisinya. Inline style di `index.html` yang nimpa-nimpa juga dibersihin. Commit `fe3f738`. (`style.css`, `index.html`)
+- Checkout: total yang tadinya bisa jadi `Rp NaN` (ongkir nggak dikenal balikannya `undefined`) sekarang dipagari, nggak akan NaN lagi. Grid checkout juga dibetulin (`minmax(0,1fr)`) supaya sidebar Final Summary nggak kepental keluar layar. Commit `51a7d10`, `df4bdb3`. (`app.js`, `style.css`)
+- Tombol Track yang pil orennya miring: penyebabnya sepele, sisa `padding-bottom: 4px` dari menu biasa plus spasi ekor `letter-spacing`. Udah dilurusin pakai selektor yang lebih spesifik. Berlaku semua halaman. (`style.css`)
 
-### **9. Recent Updates (15 September 2026)**
+### **10. Ide UI/UX yang belum dieksekusi**
 
-| Fitur | Deskripsi Detail | File Terkait |
-| :--- | :--- | :--- |
-| **Ritme Spacing 96/64px** | Semua padding section diseragamkan (96px desktop / 64px HP), judul section 48px/32px. Aturan ganda `.shop-section` (120px vs 100px) + override inline di `index.html` dibersihkan. Commit `fe3f738`. | `style.css`, `index.html` |
-| **Checkout NaN & Overflow Fix** | Ongkir tak dikenal tidak lagi jadi `undefined` (penyebab Total `Rp NaN`), total dipagari angka. Grid checkout `minmax(0,1fr)` + kolom boleh susut agar sidebar Final Summary tidak kepental keluar layar. Commit `51a7d10`, `df4bdb3`. | `app.js`, `style.css` |
-| **Tombol Track Sejajar** | Pil oren tidak tengah: `padding-bottom: 4px` warisan menu + spasi ekor `letter-spacing`. Selektor dinaikkan ke `.nav-links a.nav-special` (flex tengah, `line-height: 1`, kompensasi padding kanan 1.5px). Berlaku semua halaman, belum di-push. | `style.css` |
+Buat jaga-jaga, daftarnya disimpen di sini dulu:
 
-*Update Terakhir: 15 September 2026*
+1. Hero home dibikin satu pesan tegas + satu tombol utama, yang sekunder dikecilin.
+2. Kartu produk disamain gayanya sama tombol Track (pil gold), hover foto yang alus.
+3. (Udah dijelasin, belum dikerjain) Drawer menu HP: background coklat tua, tiap menu ada ikon, Track jadi tombol full-width, animasi masuknya gantian.
+4. Bahasa diseragamkan: judul/CTA Inggris, penjelasan Indonesia.
+5. Skeleton loading ala Featured dipakai juga di halaman products sama track.
 
 
 
