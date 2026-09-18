@@ -7,6 +7,14 @@
     <title>Track Order | KG Smart Drip Coffee</title>
     <link rel="stylesheet" href="style.css?v=1.0.22">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        #rate-stars .rate-star { display: inline-block; transition: transform 0.15s ease; }
+        #rate-stars .rate-star.lit { color: #f1c40f; text-shadow: 0 2px 10px rgba(241, 196, 15, 0.45); }
+        #rate-stars .rate-star.dim { color: #e3ddd2; }
+        #rate-stars .rate-star.pop { animation: rate-pop 0.3s ease; }
+        @keyframes rate-pop { 0% { transform: scale(1); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
+        #rate-label { min-height: 1.4em; font-weight: 800; font-size: 0.9rem; color: var(--wood-warm); margin: -8px 0 12px; }
+    </style>
 </head>
 <body>
     <header>
@@ -108,7 +116,8 @@
             <div style="background: white; border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; box-shadow: var(--shadow-bold);">
                 <h3 id="rate-modal-title" style="margin: 0 0 5px; color: var(--coffee-dark);">Kasih Bintang</h3>
                 <p id="rate-modal-sub" style="font-size: 0.85rem; color: #777; margin: 0 0 15px;"></p>
-                <div id="rate-stars" style="font-size: 2rem; letter-spacing: 6px; cursor: pointer; margin-bottom: 15px; user-select: none;"></div>
+                <div id="rate-stars" onmouseleave="previewRateStars(0)" style="font-size: 2.6rem; letter-spacing: 8px; cursor: pointer; margin-bottom: 4px; user-select: none; -webkit-tap-highlight-color: transparent;"></div>
+                <p id="rate-label"></p>
                 <textarea id="rate-message" placeholder="Ceritakan rasanya (opsional)..." style="width: 100%; min-height: 70px; border: 1px solid #eee; border-radius: 10px; padding: 10px; font-size: 0.9rem; margin-bottom: 15px; font-family: inherit;"></textarea>
                 <div style="display: flex; gap: 10px;">
                     <button onclick="closeRateModal()" style="flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #ccc; background: white; font-weight: 700; cursor: pointer;">Batal</button>
@@ -143,18 +152,47 @@
         let _ratePending = null;
         let _rateValue = 0;
 
-        function renderRateStars() {
+        const RATE_LABELS = ['', 'Kurang cocok', 'Lumayan', 'Enak', 'Mantap', 'Luar biasa!'];
+        function previewRateStars(n) {
             const box = document.getElementById('rate-stars');
             if (!box) return;
+            const shown = n || _rateValue;
             box.innerHTML = [1, 2, 3, 4, 5].map(i =>
-                `<span onclick="setRateValue(${i})" style="color: ${i <= _rateValue ? '#f1c40f' : '#ddd'};">★</span>`
+                `<span class="rate-star ${i <= shown ? 'lit' : 'dim'}" onclick="setRateValue(${i}, this)" onmouseenter="previewRateStars(${i})">★</span>`
             ).join('');
+            const label = document.getElementById('rate-label');
+            if (label) label.innerText = RATE_LABELS[shown] || 'Ketuk bintang untuk menilai';
+        }
+        function renderRateStars() {
+            previewRateStars(0);
         }
 
-        window.setRateValue = function(i) {
+        window.setRateValue = function(i, el) {
             _rateValue = i;
             renderRateStars();
+            if (el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
         };
+
+        // Tandai tombol yang sudah pernah dirating (biar kelihatan sebelum diklik)
+        async function markRatedButtons(orderId) {
+            try {
+                if (typeof initSupabase === 'function') initSupabase();
+                if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') await fetchProducts();
+                const { data } = await supabaseClient.from('feedback').select('product_id').eq('order_id', orderId).not('product_id', 'is', null);
+                const rated = new Set((data || []).map(r => r.product_id));
+                if (!rated.size) return;
+                const items = window._trackParsed || [];
+                const btns = document.querySelectorAll('#res-items-list button');
+                items.forEach((it, idx) => {
+                    const lname = (it.name || '').toLowerCase();
+                    const prod = (DYNAMIC_PRODUCTS || []).find(p => p.name && p.name.toLowerCase() === lname)
+                        || (DYNAMIC_PRODUCTS || []).find(p => p.name && (p.name.toLowerCase().includes(lname) || (lname && lname.includes(p.name.toLowerCase()))));
+                    if (prod && rated.has(prod.id) && btns[idx]) {
+                        btns[idx].disabled = true; btns[idx].textContent = '★ Rated'; btns[idx].style.opacity = '0.5';
+                    }
+                });
+            } catch (e) {}
+        }
 
         window.rateTrackItem = async function(orderId, itemIdx, btn) {
             const items = window._trackParsed || [];
@@ -280,6 +318,7 @@
                         ${canRate ? `<button onclick="rateTrackItem('${data.order_id}', ${idx}, this)" style="flex-shrink: 0; padding: 4px 14px; border-radius: 999px; border: 1px solid var(--gold-premium); background: transparent; color: var(--wood-warm); font-weight: 700; font-size: 0.75rem; cursor: pointer;">★ Rate</button>` : ''}
                     </div>
                 `).join('');
+                markRatedButtons(data.order_id);
 
                 // Receipt Preview
                 const receiptImg = document.getElementById('res-receipt');
