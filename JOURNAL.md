@@ -182,6 +182,7 @@ Buat jaga-jaga, daftarnya disimpen di sini dulu:
 3. (Udah dijelasin, belum dikerjain) Drawer menu HP: background coklat tua, tiap menu ada ikon, Track jadi tombol full-width, animasi masuknya gantian.
 4. Bahasa diseragamkan: judul/CTA Inggris, penjelasan Indonesia.
 5. Skeleton loading ala Featured dipakai juga di halaman products sama track.
+6. Rating bintang per produk (terikat order, tampil rata-rata di kartu katalog) — dijadwalkan Jumat.
 
 
 ### **11. Catatan 16 September 2026**
@@ -193,6 +194,7 @@ Buat jaga-jaga, daftarnya disimpen di sini dulu:
 - Alert habis kirim feedback dibiarin bawaan browser dulu, belum diganti modal.
 - Sinkron keranjang antar-HP/laptop diputusin nggak usah: keranjang tetap lokal per perangkat. Alasannya udah dibahas (konflik edit, butuh internet terus, kasus guest-login ribet).
 - Catatan jurnal bagian 7–10 ditulis ulang pakai bahasa santai biar nggak kelihatan bikinan AI.
+- Statistik kunjungan per halaman: tiap halaman publik manggil `bump_page_view` (gagal diam-diam biar nggak ganggu pengunjung), dashboard admin nambah kartu Page Views. Butuh tabel + function `page_views` dibikin manual di SQL editor. Belum di-push.
 
 
 

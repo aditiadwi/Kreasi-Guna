@@ -2955,6 +2955,14 @@ function initLinkPrefetching() {
     });
 }
 
+// Statistik kunjungan per halaman (tabel page_views) — gagal diam-diam, tak boleh merusak halaman
+function trackPageView(sb, pageName) {
+    try {
+        if (!sb || !pageName) return;
+        sb.rpc('bump_page_view', { p: pageName }).then(() => {}, () => {});
+    } catch (e) { /* abaikan */ }
+}
+
 /** INITIALIZE */
 document.addEventListener('DOMContentLoaded', async () => {
     const menuToggle = document.getElementById('menu-toggle');
@@ -3023,6 +3031,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Only fetch products on pages that actually need them
     const sb = initSupabase();
+
+    // Catat kunjungan halaman untuk statistik admin (kecuali halaman admin sendiri)
+    const trackName = !page ? 'index' : page;
+    if (trackName !== 'admin') trackPageView(sb, trackName);
+
     const needsProducts = ['index', '', 'products', 'admin', 'checkout'].includes(page);
     if (needsProducts && sb) {
         fetchProducts().then(() => {

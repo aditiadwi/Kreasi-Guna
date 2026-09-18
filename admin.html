@@ -186,6 +186,15 @@
                             </table>
                         </div>
                     </div>
+                    <div class="admin-card">
+                        <h3>👁️ Page Views</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead><tr><th>Page</th><th style="text-align:right;">Views</th></tr></thead>
+                                <tbody id="page-views-table"><tr><td colspan="2" style="text-align:center; color:#888;">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="admin-card">
@@ -541,6 +550,7 @@
         }
 
         async function loadStats() {
+            loadPageViews(); // jalan paralel, tak menunggu order
             const { data: orders, error } = await adminSupabase.from('orders').select('*').order('created_at', { ascending: true });
             if (error || !orders) return;
 
@@ -572,6 +582,21 @@
 
             _trendOrdersCache = valid;
             renderSalesTrend();
+        }
+
+        async function loadPageViews() {
+            const tbody = document.getElementById('page-views-table');
+            if (!tbody) return;
+            try {
+                const { data, error } = await adminSupabase.from('page_views').select('*').order('views', { ascending: false });
+                if (error || !data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#888;">Belum ada data. Jalankan SQL page_views di Supabase, lalu buka halaman web.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map(r => `<tr><td style="text-transform:capitalize;">${r.page}</td><td style="text-align:right;"><b>${Number(r.views).toLocaleString('id-ID')}</b></td></tr>`).join('');
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#888;">Gagal memuat.</td></tr>';
+            }
         }
 
         window.renderSalesTrend = function() {
