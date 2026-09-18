@@ -309,6 +309,10 @@
                                 <option value="live">✅ Status: Live di Home</option>
                                 <option value="hidden">🔒 Status: Hidden / Internal</option>
                             </select>
+                            <select id="fb-filter-product" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                                <option value="all">☕ Semua produk</option>
+                                <option value="none">💬 Umum (tanpa produk)</option>
+                            </select>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Tampilkan:</label>
@@ -328,6 +332,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Customer</th>
+                                    <th>Produk</th>
                                     <th>Rating</th>
                                     <th>Message</th>
                                     <th>Kategori / Status</th>
@@ -961,14 +966,30 @@
 
         let allFeedbackData = [];
         let currentFbPage = 1;
+        let fbProductNames = {};
 
         async function loadFeedback() {
             const { data, error } = await adminSupabase.from('feedback').select('*').order('created_at', { ascending: false });
             if (error || !data) {
-                document.getElementById('admin-feedback-table').innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Gagal memuat feedback / Akses ditolak</td></tr>';
+                document.getElementById('admin-feedback-table').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888;">Gagal memuat feedback / Akses ditolak</td></tr>';
                 return;
             }
             allFeedbackData = data;
+
+            // Peta id produk -> nama + isi dropdown filter produk
+            try {
+                const { data: prods } = await adminSupabase.from('products').select('id,name');
+                fbProductNames = {};
+                (prods || []).forEach(p => { fbProductNames[p.id] = p.name; });
+                const sel = document.getElementById('fb-filter-product');
+                if (sel) {
+                    const cur = sel.value || 'all';
+                    const ids = [...new Set(allFeedbackData.map(f => f.product_id).filter(Boolean))];
+                    sel.innerHTML = '<option value="all">☕ Semua produk</option><option value="none">💬 Umum (tanpa produk)</option>' +
+                        ids.map(id => `<option value="${id}">${fbProductNames[id] || id}</option>`).join('');
+                    sel.value = [...sel.options].some(o => o.value === cur) ? cur : 'all';
+                }
+            } catch (e) { /* abaikan: filter produk opsional */ }
 
             // Hitung statistik
             const total = allFeedbackData.length;
@@ -990,8 +1011,14 @@
         function filterFeedback() {
             const filterVal = document.getElementById('fb-filter-rating')?.value || 'all';
             const perPageVal = document.getElementById('fb-per-page')?.value || '10';
+            const prodVal = document.getElementById('fb-filter-product')?.value || 'all';
 
             let filtered = [...allFeedbackData];
+            if (prodVal === 'none') {
+                filtered = filtered.filter(f => !f.product_id);
+            } else if (prodVal !== 'all') {
+                filtered = filtered.filter(f => f.product_id === prodVal);
+            }
             if (filterVal === 'eval') {
                 filtered = filtered.filter(f => (f.rating || 0) <= 3);
             } else if (filterVal === 'positive') {
@@ -1008,7 +1035,7 @@
             if (!tbody) return;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding: 20px;">Tidak ada feedback sesuai filter.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888; padding: 20px;">Tidak ada feedback sesuai filter.</td></tr>';
                 if (pageInfo) pageInfo.innerText = 'Menampilkan 0 ulasan';
                 if (pageBtns) pageBtns.innerHTML = '';
                 return;
@@ -1065,6 +1092,7 @@
                     <tr style="${isEval ? 'background-color: rgba(255, 243, 224, 0.4);' : ''}">
                         <td>${new Date(f.created_at).toLocaleDateString()}</td>
                         <td><b>${f.customer_name || 'Anonymous'}</b></td>
+                        <td>${f.product_id ? `<span style="background:#e3f2fd; color:#1565c0; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; white-space:nowrap;">☕ ${fbProductNames[f.product_id] || f.product_id}</span><br><small style="color:#999;">${f.order_id || ''}</small>` : '<span style="color:#aaa; font-size:0.8rem;">Umum</span>'}</td>
                         <td style="color: #f1c40f; white-space: nowrap;">${'★'.repeat(ratingNum)}${'☆'.repeat(5 - ratingNum)}</td>
                         <td style="max-width: 320px; word-break: break-word;">${f.message || ''}</td>
                         <td>${evalBadge}${liveBadge}</td>

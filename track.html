@@ -102,6 +102,20 @@
                 ❌ Order ID not found. <br><span style="font-weight: 400; font-size: 0.9rem;">Please check your ID again or contact us via WhatsApp.</span>
             </div>
         </div>
+
+        <!-- Modal rating produk terikat order -->
+        <div id="rate-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 15px;">
+            <div style="background: white; border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; box-shadow: var(--shadow-bold);">
+                <h3 id="rate-modal-title" style="margin: 0 0 5px; color: var(--coffee-dark);">Kasih Bintang</h3>
+                <p id="rate-modal-sub" style="font-size: 0.85rem; color: #777; margin: 0 0 15px;"></p>
+                <div id="rate-stars" style="font-size: 2rem; letter-spacing: 6px; cursor: pointer; margin-bottom: 15px; user-select: none;"></div>
+                <textarea id="rate-message" placeholder="Ceritakan rasanya (opsional)..." style="width: 100%; min-height: 70px; border: 1px solid #eee; border-radius: 10px; padding: 10px; font-size: 0.9rem; margin-bottom: 15px; font-family: inherit;"></textarea>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="closeRateModal()" style="flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #ccc; background: white; font-weight: 700; cursor: pointer;">Batal</button>
+                    <button onclick="submitRateModal()" style="flex: 1; padding: 12px; border-radius: 30px; border: none; background: var(--gold-premium); color: white; font-weight: 800; cursor: pointer;">Kirim ★</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
@@ -125,6 +139,99 @@
 
     <script src="app.js?v=1.0.22"></script>
     <script>
+        // Rating bintang per produk, terikat order yang sudah dikirim/selesai
+        let _ratePending = null;
+        let _rateValue = 0;
+
+        function renderRateStars() {
+            const box = document.getElementById('rate-stars');
+            if (!box) return;
+            box.innerHTML = [1, 2, 3, 4, 5].map(i =>
+                `<span onclick="setRateValue(${i})" style="color: ${i <= _rateValue ? '#f1c40f' : '#ddd'};">★</span>`
+            ).join('');
+        }
+
+        window.setRateValue = function(i) {
+            _rateValue = i;
+            renderRateStars();
+        };
+
+        window.rateTrackItem = async function(orderId, itemIdx, btn) {
+            const items = window._trackParsed || [];
+            const it = items[itemIdx];
+            if (!it) return;
+            try {
+                if (typeof initSupabase === 'function') initSupabase();
+                if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') await fetchProducts();
+            } catch (e) {}
+            const lname = (it.name || '').toLowerCase();
+            const prod = (DYNAMIC_PRODUCTS || []).find(p => p.name && p.name.toLowerCase() === lname)
+                || (DYNAMIC_PRODUCTS || []).find(p => p.name && (p.name.toLowerCase().includes(lname) || (lname && p.name && lname.includes(p.name.toLowerCase()))));
+            if (!prod) return alert('Produk "' + it.name + '" sudah tidak ada di katalog.');
+            try {
+                const { data } = await supabaseClient.from('feedback').select('id').eq('order_id', orderId).eq('product_id', prod.id).limit(1);
+                if (data && data.length) {
+                    if (btn) { btn.disabled = true; btn.textContent = '★ Rated'; btn.style.opacity = '0.5'; }
+                    return alert('Kamu sudah kasih rating untuk produk ini. Terima kasih!');
+                }
+            } catch (e) {}
+            _ratePending = { orderId, productId: prod.id, productName: prod.name, btn };
+            _rateValue = 0;
+            document.getElementById('rate-modal-title').innerText = 'Rate: ' + prod.name;
+            document.getElementById('rate-modal-sub').innerText = 'Order ' + orderId + ' · rating terverifikasi dari pembeli';
+            document.getElementById('rate-message').value = '';
+            renderRateStars();
+            document.getElementById('rate-modal').classList.remove('hidden');
+        };
+
+        window.closeRateModal = function() {
+            document.getElementById('rate-modal').classList.add('hidden');
+            _ratePending = null;
+        };
+
+        window.submitRateModal = async function() {
+            if (!_ratePending) return;
+            if (_rateValue < 1) return alert('Pilih dulu bintangnya (1-5).');
+            let sessionName = '', sessionAvatar = '';
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    sessionName = session.user.user_metadata.full_name || session.user.email || '';
+                    sessionAvatar = session.user.user_metadata.avatar_url || '';
+                }
+            } catch (e) {}
+            const orderName = (document.getElementById('res-name') || {}).innerText || '';
+            const row = {
+                customer_name: sessionName || (orderName && orderName !== '-' ? orderName : 'Anonymous'),
+                rating: _rateValue,
+                message: document.getElementById('rate-message').value || '',
+                product_id: _ratePending.productId,
+                order_id: _ratePending.orderId,
+                is_approved: true // terikat order asli, langsung tampil
+            };
+            if (sessionAvatar && /^https?:\/\//i.test(sessionAvatar)) row.avatar_url = sessionAvatar;
+            try {
+                let { error } = await supabaseClient.from('feedback').insert([row]);
+                if (error && /product_id|order_id|column/i.test(error.message || '')) {
+                    // Kolom rating produk belum ada di DB: fallback jadi ulasan umum
+                    delete row.product_id; delete row.order_id; delete row.avatar_url;
+                    row.is_approved = false;
+                    ({ error } = await supabaseClient.from('feedback').insert([row]));
+                    if (error) throw error;
+                    alert('Tersimpan sebagai ulasan umum (kolom rating produk belum ada di database).');
+                } else if (error) {
+                    throw error;
+                } else {
+                    alert('Makasih! Rating-mu langsung tampil di katalog.');
+                }
+                if (typeof PRODUCT_RATINGS !== 'undefined') PRODUCT_RATINGS = null;
+                if (_ratePending.btn) { _ratePending.btn.disabled = true; _ratePending.btn.textContent = '★ Rated'; _ratePending.btn.style.opacity = '0.5'; }
+                closeRateModal();
+            } catch (err) {
+                alert('Gagal menyimpan rating. Coba lagi.');
+            }
+        };
+
         window.handleTrackOrder = async function() {
             const idInput = document.getElementById('track-id-input');
             const id = idInput.value.trim();
@@ -159,15 +266,18 @@
                 document.getElementById('res-total').innerText = data.total_amount;
                 document.getElementById('res-method').innerText = `${data.payment_method} (${data.delivery_method})`;
 
-                // Render Items as a clean list
+                // Render Items as a clean list (+ tombol rating per item untuk order yang sudah dikirim/selesai)
                 const itemsList = data.items.split(', ');
                 window._trackItemsRaw = data.items;
                 window._trackSubtotal = data.subtotal;
                 window._trackShipping = data.shipping_fee;
                 window._trackBuyerNote = data.note;
-                document.getElementById('res-items-list').innerHTML = itemsList.map(item => `
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                window._trackParsed = (typeof parseTrackItems === 'function') ? parseTrackItems(data.items) : [];
+                const canRate = (data.status === 'COMPLETED' || data.status === 'SHIPPED');
+                document.getElementById('res-items-list').innerHTML = itemsList.map((item, idx) => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 8px;">
                         <span>• ${item.split(' [')[0]}</span>
+                        ${canRate ? `<button onclick="rateTrackItem('${data.order_id}', ${idx}, this)" style="flex-shrink: 0; padding: 4px 14px; border-radius: 999px; border: 1px solid var(--gold-premium); background: transparent; color: var(--wood-warm); font-weight: 700; font-size: 0.75rem; cursor: pointer;">★ Rate</button>` : ''}
                     </div>
                 `).join('');
 

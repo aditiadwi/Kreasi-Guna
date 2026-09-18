@@ -408,6 +408,37 @@ let currentShippingFee = 0;
 let directSelectedRating = 0;
 let customStandItems = [];
 
+// Rating bintang per produk (feedback terikat product_id, hanya yang disetujui) — gagal diam-diam
+let PRODUCT_RATINGS = null;
+async function fetchProductRatings() {
+    if (PRODUCT_RATINGS) return PRODUCT_RATINGS;
+    PRODUCT_RATINGS = {};
+    try {
+        const sb = initSupabase();
+        if (!sb) return PRODUCT_RATINGS;
+        const { data, error } = await sb.from('feedback')
+            .select('product_id,rating,customer_name,message,created_at')
+            .eq('is_approved', true)
+            .not('product_id', 'is', null)
+            .order('created_at', { ascending: false });
+        if (error || !data) return PRODUCT_RATINGS;
+        data.forEach(r => {
+            if (!r.product_id) return;
+            if (!PRODUCT_RATINGS[r.product_id]) PRODUCT_RATINGS[r.product_id] = { total: 0, count: 0, samples: [] };
+            const e = PRODUCT_RATINGS[r.product_id];
+            e.total += (r.rating || 0); e.count += 1;
+            if (e.samples.length < 3) e.samples.push(r);
+        });
+    } catch (e) { /* abaikan: rating tak boleh merusak katalog */ }
+    return PRODUCT_RATINGS;
+}
+function productRatingBadge(pid) {
+    const e = PRODUCT_RATINGS && PRODUCT_RATINGS[pid];
+    if (!e || !e.count) return `<div class="product-rating" style="color:#bbb;">☆ Belum ada rating</div>`;
+    const avg = e.total / e.count;
+    return `<div class="product-rating">${'&#9733;'.repeat(Math.round(avg))} (${avg.toFixed(1)} · ${e.count})</div>`;
+}
+
 async function initShop() {
     const grid = document.getElementById('product-grid');
     if (!grid) return;
@@ -418,19 +449,25 @@ async function initShop() {
         return;
     }
 
-    let reviews = [];
+    let ratings = {};
     try {
-        reviews = JSON.parse(localStorage.getItem('coffee_reviews') || '[]');
-        if (!Array.isArray(reviews)) reviews = [];
+        ratings = JSON.parse(localStorage.getItem('coffee_reviews') || '[]');
+        if (!Array.isArray(ratings)) ratings = [];
     } catch (e) {
         console.warn("Gagal membaca coffee_reviews dari localStorage:", e);
-        reviews = [];
+        ratings = [];
     }
+    await fetchProductRatings(); // rata-rata resmi dari Supabase (pengganti legacy di bawah)
     grid.innerHTML = products.map(p => {
         const out = p.stock <= 0;
         const low = !out && p.stock <= 5;
-        const prodReviews = reviews.filter(r => r.items && r.items.includes(p.name));
-        const avg = prodReviews.length > 0 ? (prodReviews.reduce((a, b) => a + b.rating, 0) / prodReviews.length).toFixed(1) : '0.0';
+        const prodReviews = ratings.filter(r => r.items && r.items.includes(p.name));
+        const legacyAvg = prodReviews.length > 0 ? (prodReviews.reduce((a, b) => a + b.rating, 0) / prodReviews.length) : 0;
+        const badge = (PRODUCT_RATINGS && PRODUCT_RATINGS[p.id] && PRODUCT_RATINGS[p.id].count)
+            ? productRatingBadge(p.id)
+            : (legacyAvg > 0
+                ? `<div class="product-rating">${'&#9733;'.repeat(Math.round(legacyAvg))} (${legacyAvg.toFixed(1)})</div>`
+                : `<div class="product-rating" style="color:#bbb;">☆ Belum ada rating</div>`);
         const imgClass = p.name.includes('BOX') ? 'img-box' : 'img-sachet';
         const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
         const desc = p.description || 'No description available for this product.';
@@ -440,9 +477,9 @@ return `
                 ${low ? `<div class="stock-urgency">Only ${p.stock} left!</div>` : ''}
                 <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
-                <div class="product-rating">${'&#9733;'.repeat(Math.round(avg))} (${avg})</div>
+                ${badge}
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
-                 <div class="card-actions">
+                  <div class="card-actions">
                     <button class="btn-details" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "'")})'>See Description</button>
                     <button class="btn-primary w-100" onclick="addToCart('${p.id}')" ${out ? 'disabled' : ''}>${out ? 'Sold Out' : 'Add to Cart'}</button>
                 </div>
@@ -2137,6 +2174,7 @@ async function renderFeaturedProducts() {
         return;
     }
     const featured = products.slice(0, 3);
+    await fetchProductRatings();
     grid.innerHTML = featured.map(p => {
         let imgClass = 'img-sachet';
         if (p.name && p.name.includes('BOX')) imgClass = 'img-box';
@@ -2150,6 +2188,7 @@ async function renderFeaturedProducts() {
                 ${low ? `<div class="stock-urgency">Only ${p.stock} left!</div>` : ''}
                 <img src="${imagePath}" class="${imgClass}" onerror="this.src='Images/My Product.png'" loading="lazy">
                 <h3>${p.name}</h3>
+                ${productRatingBadge(p.id)}
                 <div class="product-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
                  <div class="card-actions">
                     <button class="btn-details" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>See Description</button>
@@ -3374,6 +3413,17 @@ window.openProductModal = (product) => {
     document.getElementById('modal-product-price').innerText = 'Rp ' + parseInt(product.price).toLocaleString('id-ID');
     document.getElementById('modal-product-stock').innerText = out ? 'Sold Out' : 'Stock: ' + product.stock + ' units';
     document.getElementById('modal-product-desc').innerText = desc;
+    const revBox = document.getElementById('modal-product-reviews');
+    if (revBox) {
+        const e = PRODUCT_RATINGS && PRODUCT_RATINGS[product.id];
+        if (e && e.count) {
+            const avg = (e.total / e.count).toFixed(1);
+            revBox.innerHTML = `<h4 style="margin: 18px 0 8px;">Ulasan Pembeli · ★ ${avg} (${e.count})</h4>` +
+                e.samples.map(s => `<div style="border-top: 1px solid #f0f0f0; padding: 8px 0; font-size: 0.85rem;"><b>${'★'.repeat(s.rating || 5)}</b> — ${s.message || ''} <span style="color:#999;">· ${s.customer_name || 'Anonymous'}</span></div>`).join('');
+        } else {
+            revBox.innerHTML = `<h4 style="margin: 18px 0 8px;">Ulasan Pembeli</h4><p style="font-size: 0.85rem; color: #999;">Belum ada ulasan untuk produk ini. Beli dan lacak order-mu untuk kasih bintang pertama!</p>`;
+        }
+    }
     
     const addToCartBtn = document.getElementById('modal-add-to-cart');
     if (out) {
@@ -3417,6 +3467,7 @@ function injectProductModal() {
                         <h4>Description</h4>
                         <p id="modal-product-desc"></p>
                     </div>
+                    <div class="product-modal-reviews" id="modal-product-reviews"></div>
                     <button class="btn-primary w-100" id="modal-add-to-cart">Add to Cart</button>
                 </div>
             </div>
