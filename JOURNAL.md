@@ -197,5 +197,16 @@ Buat jaga-jaga, daftarnya disimpen di sini dulu:
 - Statistik kunjungan per halaman: tiap halaman publik manggil `bump_page_view` (gagal diam-diam biar nggak ganggu pengunjung), dashboard admin nambah kartu Page Views. Butuh tabel + function `page_views` dibikin manual di SQL editor. Belum di-push.
 
 
+### **12. Catatan 14 Oktober 2026**
+
+Bulan ini jatah progresnya buat SEO, yang dari September ditunda terus. Ternyata nggak seseram itu:
+
+- Bikin `robots.txt` di root. Isinya ngizinin bot Google masuk ke halaman publik, tapi nolak `/admin`, `/cart`, `/checkout`, `/track`. Plus nunjukin lokasi sitemap. (`robots.txt`)
+- Bikin `sitemap.xml` isi 6 halaman publik aja: Home `/`, `/products`, `/about`, `/brew`, `/history`, `/contact`. Pakai URL bersih (tanpa `.html`) ngikutin `cleanUrls: true` di Vercel. Yang transaksi/privat nggak dimasukin. (`sitemap.xml`)
+- Halaman admin dikunci pakai `<meta name="robots" content="noindex, nofollow">` biar kalaupun bot nyasar masuk, nggak bakal dipajang di hasil search. Dibuka manual tetap normal. (`admin.html`)
+- Semua halaman publik dipasang meta description + Open Graph + canonical + twitter card. Jadi pas link di-share ke WA/IG/Telegram muncul kartu cantik (judul + deskripsi + gambar `Latar Belakang Home 2.png`), bukan link polos. Deskripsi tiap halaman dibedain sesuai isinya. (`index.html`, `products.html`, `about.html`, `brew.html`, `history.html`, `contact.html`)
+- Abis push ke Vercel tinggal cek `/robots.txt` sama `/sitemap.xml` kebuka, terus daftarin domain `kreasi-guna-v2.vercel.app` ke Google Search Console sekali. Sisanya nunggu Google mampir 3-14 hari.
+
+
 
 

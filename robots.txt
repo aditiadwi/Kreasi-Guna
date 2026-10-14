@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /track
+
+Sitemap: https://kreasi-guna-v2.vercel.app/sitemap.xml
