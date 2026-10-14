@@ -208,6 +208,7 @@ Bulan ini jatah progresnya buat SEO, yang dari September ditunda terus. Ternyata
 - Abis push ke Vercel tinggal cek `/robots.txt` sama `/sitemap.xml` kebuka, terus daftarin domain `kreasi-guna-v2.vercel.app` ke Google Search Console sekali. Sisanya nunggu Google mampir 3-14 hari.
 - Update verifikasi: properti URL prefix `https://kreasi-guna-v2.vercel.app/` di Search Console **terverifikasi via Tag HTML** (`google-site-verification` di `index.html`, commit `7535367`). File verifikasi jangan dihapus biar status ijo terus. Lanjut submit `sitemap.xml` di menu Sitemaps.
 - Update sitemap: `sitemap.xml` awalnya "Tidak dapat mengambil", setelah kirim ulang + tunggu akhirnya **Berhasil diproses (Terakhir dibaca 14/10/26, Halaman ditemukan: 6, Video: 0)**. SEO Oktober resmi tamat.
+- Pelajaran indexing: sempat salah inspeksi `/product` (tanpa S, "URL tidak dikenali"). Yang bener `/products` statusnya "Ditemukan - saat ini tidak diindeks" (udah kedeteksi via sitemap, tinggal antre). Pas klik "Minta pengindeksan" kena **Kuota Terlampaui** (jatah harian Google habis, kesedot buat URL salah). Solusinya: 1 URL per hari mulai besok, sisanya biarin jalur sitemap otomatis 3-14 hari. Cara cek: `site:kreasi-guna-v2.vercel.app`.
 
 
 
