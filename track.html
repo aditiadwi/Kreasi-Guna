@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.22">
+    <link rel="stylesheet" href="style.css?v=1.0.27">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         #rate-stars .rate-star { display: inline-block; transition: transform 0.15s ease; }
@@ -146,7 +146,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.22"></script>
+    <script src="app.js?v=1.0.27"></script>
     <script>
         // Rating bintang per produk, terikat order yang sudah dikirim/selesai
         let _ratePending = null;
@@ -178,17 +178,18 @@
             try {
                 if (typeof initSupabase === 'function') initSupabase();
                 if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') await fetchProducts();
-                const { data } = await supabaseClient.from('feedback').select('product_id').eq('order_id', orderId).not('product_id', 'is', null);
-                const rated = new Set((data || []).map(r => r.product_id));
-                if (!rated.size) return;
+                const { data } = await supabaseClient.from('feedback').select('product_id,rating').eq('order_id', orderId).not('product_id', 'is', null);
+                const rated = {};
+                (data || []).forEach(r => { rated[r.product_id] = r.rating; });
+                if (!Object.keys(rated).length) return;
                 const items = window._trackParsed || [];
                 const btns = document.querySelectorAll('#res-items-list button');
                 items.forEach((it, idx) => {
                     const lname = (it.name || '').toLowerCase();
                     const prod = (DYNAMIC_PRODUCTS || []).find(p => p.name && p.name.toLowerCase() === lname)
                         || (DYNAMIC_PRODUCTS || []).find(p => p.name && (p.name.toLowerCase().includes(lname) || (lname && lname.includes(p.name.toLowerCase()))));
-                    if (prod && rated.has(prod.id) && btns[idx]) {
-                        btns[idx].disabled = true; btns[idx].textContent = '★ Rated'; btns[idx].style.opacity = '0.5';
+                    if (prod && rated[prod.id] && btns[idx]) {
+                        btns[idx].disabled = true; btns[idx].textContent = `★ ${rated[prod.id]} · Rated`; btns[idx].style.opacity = '0.5';
                     }
                 });
             } catch (e) {}
@@ -207,10 +208,10 @@
                 || (DYNAMIC_PRODUCTS || []).find(p => p.name && (p.name.toLowerCase().includes(lname) || (lname && p.name && lname.includes(p.name.toLowerCase()))));
             if (!prod) return alert('Produk "' + it.name + '" sudah tidak ada di katalog.');
             try {
-                const { data } = await supabaseClient.from('feedback').select('id').eq('order_id', orderId).eq('product_id', prod.id).limit(1);
+                const { data } = await supabaseClient.from('feedback').select('id,rating').eq('order_id', orderId).eq('product_id', prod.id).limit(1);
                 if (data && data.length) {
-                    if (btn) { btn.disabled = true; btn.textContent = '★ Rated'; btn.style.opacity = '0.5'; }
-                    return alert('Kamu sudah kasih rating untuk produk ini. Terima kasih!');
+                    if (btn) { btn.disabled = true; btn.textContent = `★ ${data[0].rating || '?'} · Rated`; btn.style.opacity = '0.5'; }
+                    return alert(`Kamu sudah kasih ${'★'.repeat(data[0].rating || 0)} (${data[0].rating || '?'}/5) untuk produk ini. Terima kasih!`);
                 }
             } catch (e) {}
             _ratePending = { orderId, productId: prod.id, productName: prod.name, btn };
@@ -263,7 +264,7 @@
                     alert('Makasih! Rating-mu langsung tampil di katalog.');
                 }
                 if (typeof PRODUCT_RATINGS !== 'undefined') PRODUCT_RATINGS = null;
-                if (_ratePending.btn) { _ratePending.btn.disabled = true; _ratePending.btn.textContent = '★ Rated'; _ratePending.btn.style.opacity = '0.5'; }
+                if (_ratePending.btn) { _ratePending.btn.disabled = true; _ratePending.btn.textContent = `★ ${_rateValue} · Rated`; _ratePending.btn.style.opacity = '0.5'; }
                 closeRateModal();
             } catch (err) {
                 alert('Gagal menyimpan rating. Coba lagi.');
