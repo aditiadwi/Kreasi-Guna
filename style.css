@@ -1473,7 +1473,7 @@ body.admin-active .testimonial-card .btn-delete { display: block; }
 
 /* UTILS */
 .hidden { display: none !important; }
-.w-100 { width: 100%; }
+.w-100 { width: 100%; text-align: center; }
 
 /* FORM VALIDATION */
 input:invalid:not(:placeholder-shown), 
