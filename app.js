@@ -882,12 +882,18 @@ function ensureOrderSuccessModal() {
     if (document.getElementById('order-success-backdrop')) return;
     const html = `
     <div id="order-success-backdrop" class="hidden">
+        <div class="confetti-canvas" id="confetti-canvas"></div>
         <div class="order-success-container" onclick="event.stopPropagation()">
-            <div class="order-success-icon">✅</div>
+            <div class="order-success-icon">
+                <svg viewBox="0 0 52 52" class="checkmark-circle">
+                    <circle class="circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark" fill="none" d="M14 27l7 7 16-16"/>
+                </svg>
+            </div>
             <h3>Pesanan Berhasil Dibuat!</h3>
             <p class="order-success-desc">Terima kasih telah berbelanja di Kreasi Guna. Detail pesanan telah dikirim ke email kamu.</p>
             <div class="order-success-details">
-                <div class="detail-row">
+                <div class="detail-row order-number-row">
                     <span class="detail-label" style="font-weight: 700;">Nomor Pesanan</span>
                     <span class="detail-value" id="order-success-id" style="font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="copyOrderIdFromModal()">KG-00000000-000<span class="copy-icon" style="font-size: 0.75em; opacity: 0.6;">⧉</span></span>
                 </div>
@@ -926,6 +932,25 @@ function showOrderSuccessModal(orderId, orderTotal) {
     document.getElementById('order-success-date').textContent = dateStr;
     document.getElementById('btn-goto-track').href = 'track.html?id=' + encodeURIComponent(orderId);
     document.getElementById('order-success-backdrop').classList.remove('hidden');
+    spawnConfetti();
+}
+
+function spawnConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
+    const colors = ['#c5a059', '#d4af37', '#27ae60', '#e67e22', '#8e44ad', '#3498db'];
+    const pieceCount = 50;
+    for (let i = 0; i < pieceCount; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.width = piece.style.height = (Math.random() * 8 + 6) + 'px';
+        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        piece.style.animationDuration = (Math.random() * 1.5 + 2.5) + 's';
+        canvas.appendChild(piece);
+        setTimeout(() => piece.remove(), 4500);
+    }
 }
 
 function goToTrackPage() {
@@ -965,26 +990,34 @@ function fallbackCopyOrderId(text, done) {
 
 window.copyOrderIdFromModal = () => {
     const el = document.getElementById('order-success-id');
-    const text = el ? el.textContent : _pendingOrderId;
+    const text = el ? el.textContent.replace('⧉', '').trim() : _pendingOrderId;
     if (!text) return;
     if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-            const original = el.textContent;
-            el.textContent = 'Tersalin!';
-            setTimeout(() => { el.textContent = original; }, 1500);
-        }).catch(() => fallbackCopyOrderId(text, () => {
-            const original = el.textContent;
-            el.textContent = 'Tersalin!';
-            setTimeout(() => { el.textContent = original; }, 1500);
-        }));
+        navigator.clipboard.writeText(text).then(() => showCopyToast(el));
     } else {
-        fallbackCopyOrderId(text, () => {
-            const original = el.textContent;
-            el.textContent = 'Tersalin!';
-            setTimeout(() => { el.textContent = original; }, 1500);
-        });
+        fallbackCopyOrderId(text, () => showCopyToast(el));
     }
 };
+
+function showCopyToast(el) {
+    let toast = el.querySelector('.copy-toast');
+    if (!toast) {
+        toast = document.createElement('span');
+        toast.className = 'copy-toast';
+        toast.textContent = 'Tersalin!';
+        toast.style.cssText = 'position:absolute;left:50%;transform:translateX(-50%);bottom:-28px;background:var(--coffee-dark);color:white;padding:4px 10px;border-radius:20px;font-size:0.65rem;font-weight:600;white-space:nowrap;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;z-index:10;';
+        el.style.position = 'relative';
+        el.appendChild(toast);
+    }
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(-4px)';
+    });
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(4px)';
+    }, 1500);
+}
 
 function escReceipt(s) {
     return String(s ?? '-').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
