@@ -891,9 +891,9 @@ function ensureOrderSuccessModal() {
         <div class="confetti-canvas" id="confetti-canvas"></div>
         <div class="order-success-container" onclick="event.stopPropagation()">
             <div class="order-success-icon">
-                <svg viewBox="0 0 52 52" class="checkmark-circle">
-                    <circle class="circle" cx="26" cy="26" r="25" fill="none"/>
-                    <path class="checkmark" fill="none" d="M14 27l7 7 16-16"/>
+                <svg viewBox="0 0 64 64" class="checkmark-circle">
+                    <circle class="circle" cx="32" cy="32" r="28" fill="none"/>
+                    <path class="checkmark" fill="none" d="M18 34l9 9 20-20"/>
                 </svg>
             </div>
             <h3>Pesanan Berhasil Dibuat!</h3>
