@@ -853,6 +853,7 @@ body.menu-open {
     letter-spacing: 2px;
     transition: all 0.3s; 
     border: none; 
+    border-radius: 12px;
     font-size: clamp(0.8rem, 2vw, 1rem);
 }
 .btn-primary:hover { 

@@ -1439,8 +1439,8 @@ function renderCheckoutProductsList() {
                     <span style="font-size: 0.68rem; color: ${stockBadgeColor}; font-weight: 600; margin-top: 2px;">${stockText}</span>
                 </div>
                 <button type="button" class="btn-qty" onclick="addToCartCheckout('${p.id}')" ${isOutOfStock ? 'disabled' : ''}
-                        style="width: 100%; padding: 6px; border: none; background: ${isOutOfStock ? '#ccc' : 'var(--wood-warm)'}; color: white; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: ${isOutOfStock ? 'not-allowed' : 'pointer'}; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;"
-                        ${!isOutOfStock ? `onmouseover="this.style.backgroundColor='var(--coffee-dark)'" onmouseout="this.style.backgroundColor='var(--wood-warm)'"` : ''}>
+                        style="width: 100%; padding: 6px; border: none; background: ${isOutOfStock ? '#ccc' : 'var(--gold-premium)'}; color: white; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: ${isOutOfStock ? 'not-allowed' : 'pointer'}; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;"
+                        ${!isOutOfStock ? `onmouseover="this.style.backgroundColor='var(--gold-accent)'" onmouseout="this.style.backgroundColor='var(--gold-premium)'"` : ''}>
                     ${isOutOfStock ? '🚫 Habis' : '➕ Tambah'}
                 </button>
             </div>
