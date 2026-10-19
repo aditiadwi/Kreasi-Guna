@@ -916,12 +916,12 @@ function ensureOrderSuccessModal() {
     });
 }
 
-function showOrderSuccessModal(orderId) {
+function showOrderSuccessModal(orderId, orderTotal) {
     ensureOrderSuccessModal();
     _pendingOrderId = orderId;
     document.getElementById('order-success-id').textContent = orderId;
     document.getElementById('order-success-payment').textContent = 'QRIS';
-    document.getElementById('order-success-total').textContent = document.getElementById('grand-total')?.innerText || 'Rp 0';
+    document.getElementById('order-success-total').textContent = orderTotal || 'Rp 0';
     const now = new Date();
     const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     document.getElementById('order-success-date').textContent = dateStr;
@@ -1726,13 +1726,15 @@ window.handlePlaceOrder = async () => {
             localStorage.setItem(getRecentOrdersStorageKey(), JSON.stringify(recentOrders));
         }
 
+        const orderTotal = document.getElementById('grand-total')?.innerText || 'Rp 0';
+        
         // SUCCESS: Clear everything
         cart = {}; 
         localStorage.removeItem(getCartStorageKey());
         clearFormData(); 
         renderCart(); 
         
-        showOrderSuccessModal(orderId);
+        showOrderSuccessModal(orderId, orderTotal);
 
     } catch (error) {
         console.error(error);
