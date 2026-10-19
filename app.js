@@ -889,7 +889,7 @@ function ensureOrderSuccessModal() {
             <div class="order-success-details">
                 <div class="detail-row">
                     <span class="detail-label" style="font-weight: 700;">Nomor Pesanan</span>
-                    <span class="detail-value" id="order-success-id" style="font-weight: 700; cursor: pointer;" onclick="copyOrderIdFromModal()">KG-00000000-000</span>
+                    <span class="detail-value" id="order-success-id" style="font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="copyOrderIdFromModal()">KG-00000000-000<span class="copy-icon" style="font-size: 0.75em; opacity: 0.6;">⧉</span></span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Metode Pembayaran</span>
