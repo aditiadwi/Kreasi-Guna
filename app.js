@@ -673,14 +673,17 @@ function renderCart() {
     const ids = Object.keys(cart);
 
     const isCartPage = document.querySelector('.cart-section') !== null;
+    const summaryEl = document.querySelector('.cart-page-summary');
 
     if (ids.length === 0) {
+        if (summaryEl) summaryEl.style.display = 'none';
         if (isCartPage) {
             cont.innerHTML = `<div class="empty-cart"><div class="empty-cart-icon">🛒</div><p>Your cart is empty.</p><a href="products.html" class="btn-primary">Browse Products</a></div>`;
         } else {
             cont.innerHTML = '<p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>';
         }
     } else {
+        if (summaryEl) summaryEl.style.display = '';
         cont.innerHTML = ids.map(id => {
             const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
             if (!p) return '';
