@@ -131,6 +131,10 @@ async function updateAuthUI() {
             loadUserSpecificState(session);
         }
 
+        // Gerbang checkout: sesi sudah pasti (login/kosong) — lanjutkan/blokir di sini
+        maybeContinueAfterGateLogin();
+        enforceCheckoutGate();
+
         if (session && session.user) {
             const user = session.user;
             const name = user.user_metadata.full_name || user.email;
@@ -227,6 +231,81 @@ if (supabaseClient) {
         updateAuthUI();
     });
 }
+
+/* GERBANG CHECKOUT (cart.html): pilih login Google / lanjut sebagai tamu
+   sebelum dibolehkan masuk checkout.html. */
+window.openCheckoutGate = () => {
+    const gate = document.getElementById('checkout-gate');
+    if (!gate) return;
+    gate.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeCheckoutGate = () => {
+    const gate = document.getElementById('checkout-gate');
+    if (!gate) return;
+    sessionStorage.removeItem('gate_pending');
+    gate.classList.add('hidden');
+    document.body.style.overflow = '';
+};
+
+window.proceedAsGuest = () => {
+    sessionStorage.removeItem('gate_pending');
+    sessionStorage.setItem('checkout_gate_ok', '1');
+    window.location.href = 'checkout.html';
+};
+
+window.gateGoogleLogin = () => {
+    sessionStorage.setItem('gate_pending', '1');
+    window.handleGoogleLogin();
+};
+
+// Balik dari OAuth Google — bisa mendarat di halaman mana pun (Site URL fallback)
+function maybeContinueAfterGateLogin() {
+    if (!sessionStorage.getItem('gate_pending')) return;
+    if (currentUserId) {
+        // Login sukses: anggap gerbang lolos, langsung masuk checkout dari halaman mana pun
+        sessionStorage.removeItem('gate_pending');
+        sessionStorage.setItem('checkout_gate_ok', '1');
+        window.location.href = 'checkout.html';
+    } else if (document.getElementById('checkout-gate')) {
+        // Kembali tanpa jadi login (dibatalkan) di cart: buka lagi gerbangnya
+        openCheckoutGate();
+    } else {
+        // Mendarat di halaman lain tanpa login (dibatalkan): buang penanda,
+        // biar login nav biasa di halaman itu tetap tinggal di halaman itu
+        sessionStorage.removeItem('gate_pending');
+    }
+}
+
+// checkout.html: kalau belum login dan belum memilih gerbang, lempar balik ke cart
+function enforceCheckoutGate() {
+    if (!window.location.pathname.includes('checkout')) return;
+    if (currentUserId || sessionStorage.getItem('checkout_gate_ok')) return;
+    window.location.replace('cart.html');
+}
+
+(function initCheckoutGate() {
+    const btn = document.getElementById('btn-proceed-checkout');
+    const gate = document.getElementById('checkout-gate');
+    if (!btn || !gate) return;
+
+    btn.addEventListener('click', (e) => {
+        if (currentUserId) return;                       // sudah login: langsung
+        if (sessionStorage.getItem('checkout_gate_ok')) return; // pilihan tamu sesi ini
+        e.preventDefault();
+        openCheckoutGate();
+    });
+
+    // Klik area gelap di luar panel = tutup
+    gate.addEventListener('click', (e) => {
+        if (e.target === gate) closeCheckoutGate();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !gate.classList.contains('hidden')) closeCheckoutGate();
+    });
+})();
 
 // Check and handle OAuth errors in URL query parameters
 if (typeof window !== 'undefined') {
@@ -610,23 +689,29 @@ function renderCart() {
             const imagePath = p.image_url && p.image_url.trim() !== '' ? p.image_url : 'Images/My Product.png';
 
             if (isCartPage) {
+                const trashSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
                 return `
-                    <div class="cart-page-item">
-                        <div class="cart-item-image">
-                            <img src="${imagePath}" onerror="this.src='Images/My Product.png'" alt="${p.name}">
+                    <div class="cart-row">
+                        <div class="cart-row-reveal">
+                            <button class="btn-trash" onclick="removeFromCart('${id}')" aria-label="Hapus ${p.name}">${trashSvg}</button>
                         </div>
-                        <div class="cart-item-info">
-                            <h4>${p.name}</h4>
-                            <div class="cart-item-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
-                            <div class="cart-item-subtotal">Subtotal: Rp ${(p.price * cart[id]).toLocaleString('id-ID')}</div>
-                        </div>
-                        <div class="cart-item-controls">
-                            <div class="quantity-controls">
-                                <button class="btn-qty" onclick="updateQty('${id}',-1)">-</button>
-                                <span>${cart[id]}</span>
-                                <button class="btn-qty" onclick="updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button>
+                        <div class="cart-page-item">
+                            <div class="cart-item-image">
+                                <img src="${imagePath}" onerror="this.src='Images/My Product.png'" alt="${p.name}">
                             </div>
-                            <button class="btn-remove-item" onclick="removeFromCart('${id}')">Remove</button>
+                            <div class="cart-item-info">
+                                <h4>${p.name}</h4>
+                                <div class="cart-item-price">Rp ${parseInt(p.price).toLocaleString('id-ID')}</div>
+                                <div class="cart-item-subtotal">Subtotal: Rp ${(p.price * cart[id]).toLocaleString('id-ID')}</div>
+                            </div>
+                            <div class="cart-item-controls">
+                                <div class="quantity-controls">
+                                    <button class="btn-qty" onclick="updateQty('${id}',-1)" aria-label="Kurangi jumlah">-</button>
+                                    <span>${cart[id]}</span>
+                                    <button class="btn-qty" onclick="updateQty('${id}',1)" aria-label="Tambah jumlah" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button>
+                                </div>
+                                <button class="btn-trash btn-trash-inline" onclick="removeFromCart('${id}')" aria-label="Hapus ${p.name}">${trashSvg}</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -664,6 +749,11 @@ function renderCart() {
         proceedBtn.style.display = ids.length === 0 ? 'none' : 'block';
     }
 
+    const contShopBtn = document.getElementById('btn-continue-shopping');
+    if (contShopBtn) {
+        contShopBtn.style.display = ids.length === 0 ? 'none' : 'block';
+    }
+
     // Bar total HP: tampil hanya saat ada isi keranjang di halaman checkout
     const paybar = document.getElementById('mobile-paybar');
     const showBar = ids.length > 0 && !!document.querySelector('.checkout-container');
@@ -688,6 +778,57 @@ window.removeFromCart = (id) => {
         renderCart();
     });
 };
+
+// Swipe-to-delete di HP: geser item ke kiri untuk membuka tombol tempat sampah
+(function setupCartSwipe() {
+    let startX = 0, startY = 0, activeRow = null, dragging = false;
+    const REVEAL_WIDTH = 72;
+
+    function closeAll() {
+        document.querySelectorAll('.cart-page-item.swiped').forEach(el => el.classList.remove('swiped'));
+    }
+
+    document.addEventListener('touchstart', (e) => {
+        if (window.innerWidth > 768) return;
+        const item = e.target.closest ? e.target.closest('.cart-page-item') : null;
+        if (!item) { closeAll(); return; }
+        if (e.target.closest('.btn-qty, .btn-trash')) return;
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        activeRow = item;
+        dragging = true;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!dragging || !activeRow) return;
+        const t = e.touches[0];
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+        if (Math.abs(dy) > Math.abs(dx)) { dragging = false; activeRow = null; return; }
+        if (dx < 0) {
+            activeRow.style.transition = 'none';
+            activeRow.style.transform = `translateX(${Math.max(dx, -REVEAL_WIDTH)}px)`;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (!dragging || !activeRow) { dragging = false; activeRow = null; return; }
+        const dx = e.changedTouches[0].clientX - startX;
+        activeRow.style.transition = '';
+        activeRow.style.transform = '';
+        if (dx < -40) {
+            closeAll();
+            activeRow.classList.add('swiped');
+        } else if (dx > 10) {
+            activeRow.classList.remove('swiped');
+        } else if (!activeRow.classList.contains('swiped')) {
+            closeAll();
+        }
+        dragging = false;
+        activeRow = null;
+    });
+})();
 
 let _removeConfirmResolver = null;
 
