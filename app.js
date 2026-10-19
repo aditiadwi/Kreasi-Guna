@@ -884,26 +884,29 @@ function ensureOrderSuccessModal() {
     <div id="order-success-backdrop" class="hidden">
         <div class="order-success-container" onclick="event.stopPropagation()">
             <div class="order-success-icon">✅</div>
-            <h3>Order Submitted!</h3>
-            <div class="checkout-steps" style="margin-bottom: 16px;">
-                <div class="step-item done"><span class="step-circle">✓</span><span>Cart</span></div>
-                <div class="step-line done"></div>
-                <div class="step-item done"><span class="step-circle">✓</span><span>Details</span></div>
-                <div class="step-line done"></div>
-                <div class="step-item done"><span class="step-circle">✓</span><span>Pay</span></div>
-            </div>
-            <p>Please save your Order ID to track your order on the 'Track' page.</p>
-            <div class="order-id-box">
-                <code id="order-success-id">ORD-000</code>
-                <button class="btn-copy-order" id="btn-copy-order-id" onclick="copyOrderId()">⧉ Copy</button>
+            <h3>Pesanan Berhasil Dibuat!</h3>
+            <p class="order-success-desc">Terima kasih telah berbelanja di Kreasi Guna. Detail pesanan telah dikirim ke email kamu.</p>
+            <div class="order-success-details">
+                <div class="detail-row">
+                    <span class="detail-label">Nomor Pesanan</span>
+                    <span class="detail-value" id="order-success-id">KG-00000000-000</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Metode Pembayaran</span>
+                    <span class="detail-value" id="order-success-payment">QRIS</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Pembayaran</span>
+                    <span class="detail-value" id="order-success-total">Rp 0</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Tanggal Pesanan</span>
+                    <span class="detail-value" id="order-success-date">-</span>
+                </div>
             </div>
             <div class="order-success-actions">
-                <a href="#" class="btn-track-order" id="btn-goto-track">Track My Order →</a>
-                <div class="receipt-file-row">
-                    <button type="button" class="btn-receipt-file" onclick="downloadReceipt()">🖨️ Print</button>
-                    <button type="button" class="btn-receipt-file" onclick="downloadReceiptAs('pdf', this)">📄 PDF</button>
-                    <button type="button" class="btn-receipt-file" onclick="downloadReceiptAs('png', this)">🖼️ PNG</button>
-                </div>
+                <a href="#" class="btn-track-order" id="btn-goto-track">Lihat Detail Pesanan</a>
+                <button type="button" class="btn-track-order btn-guest-track" onclick="goToTrackPage()">Lacak Pesanan Sebagai Tamu</button>
             </div>
         </div>
     </div>`;
@@ -917,8 +920,11 @@ function showOrderSuccessModal(orderId) {
     ensureOrderSuccessModal();
     _pendingOrderId = orderId;
     document.getElementById('order-success-id').textContent = orderId;
-    const copyBtn = document.getElementById('btn-copy-order-id');
-    if (copyBtn) copyBtn.innerHTML = '⧉ Copy';
+    document.getElementById('order-success-payment').textContent = 'QRIS';
+    document.getElementById('order-success-total').textContent = document.getElementById('grand-total')?.innerText || 'Rp 0';
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('order-success-date').textContent = dateStr;
     document.getElementById('btn-goto-track').href = 'track.html?id=' + encodeURIComponent(orderId);
     document.getElementById('order-success-backdrop').classList.remove('hidden');
 }

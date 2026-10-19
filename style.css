@@ -2199,49 +2199,37 @@ a:active {
     color: var(--coffee-dark);
     margin-bottom: 8px;
 }
-.order-success-container p {
+.order-success-desc {
     font-size: 0.92rem;
-    color: var(--text-main);
-    margin-bottom: 16px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
     line-height: 1.6;
 }
-.order-id-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f8f9fa;
-    border: 1px dashed var(--gold-premium);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 20px;
-}
-.order-id-box code {
-    flex: 1;
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: var(--coffee-dark);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.order-success-details {
     text-align: left;
+    margin-bottom: 24px;
+    padding: 0 4px;
 }
-.btn-copy-order {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border-radius: 30px;
-    border: none;
-    background: var(--coffee-dark);
-    color: white;
+.detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+.detail-row:last-child {
+    border-bottom: none;
+}
+.detail-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.detail-value {
+    font-size: 1rem;
     font-weight: 700;
-    font-size: 0.82rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.btn-copy-order:hover {
-    background: var(--wood-warm);
+    color: var(--coffee-dark);
 }
 .order-success-actions {
     display: flex;
@@ -2250,8 +2238,8 @@ a:active {
 }
 .btn-track-order {
     flex: 1;
-    padding: 12px 20px;
-    border-radius: 30px;
+    padding: 14px 20px;
+    border-radius: 12px;
     border: none;
     background: var(--gold-premium);
     color: white;
@@ -2261,9 +2249,19 @@ a:active {
     transition: all 0.2s ease;
     text-decoration: none;
     display: inline-block;
+    text-align: center;
 }
 .btn-track-order:hover {
-    background: var(--wood-warm);
+    background: var(--gold-accent);
+}
+.btn-guest-track {
+    background: transparent;
+    color: var(--gold-premium);
+    border: 2px solid var(--gold-premium);
+}
+.btn-guest-track:hover {
+    background: var(--gold-premium);
+    color: white;
 }
 
 /* CHECKOUT STEPS */
