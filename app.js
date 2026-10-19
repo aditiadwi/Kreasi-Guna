@@ -888,8 +888,8 @@ function ensureOrderSuccessModal() {
             <p class="order-success-desc">Terima kasih telah berbelanja di Kreasi Guna. Detail pesanan telah dikirim ke email kamu.</p>
             <div class="order-success-details">
                 <div class="detail-row">
-                    <span class="detail-label">Nomor Pesanan</span>
-                    <span class="detail-value" id="order-success-id">KG-00000000-000</span>
+                    <span class="detail-label" style="font-weight: 700;">Nomor Pesanan</span>
+                    <span class="detail-value" id="order-success-id" style="font-weight: 700; cursor: pointer;" onclick="copyOrderIdFromModal()">KG-00000000-000</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Metode Pembayaran</span>
@@ -906,7 +906,6 @@ function ensureOrderSuccessModal() {
             </div>
             <div class="order-success-actions">
                 <a href="#" class="btn-track-order" id="btn-goto-track">Lihat Detail Pesanan</a>
-                <button type="button" class="btn-track-order btn-guest-track" onclick="goToTrackPage()">Lacak Pesanan Sebagai Tamu</button>
             </div>
         </div>
     </div>`;
@@ -963,6 +962,29 @@ function fallbackCopyOrderId(text, done) {
     document.body.removeChild(ta);
     if (done) done();
 }
+
+window.copyOrderIdFromModal = () => {
+    const el = document.getElementById('order-success-id');
+    const text = el ? el.textContent : _pendingOrderId;
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            const original = el.textContent;
+            el.textContent = 'Tersalin!';
+            setTimeout(() => { el.textContent = original; }, 1500);
+        }).catch(() => fallbackCopyOrderId(text, () => {
+            const original = el.textContent;
+            el.textContent = 'Tersalin!';
+            setTimeout(() => { el.textContent = original; }, 1500);
+        }));
+    } else {
+        fallbackCopyOrderId(text, () => {
+            const original = el.textContent;
+            el.textContent = 'Tersalin!';
+            setTimeout(() => { el.textContent = original; }, 1500);
+        });
+    }
+};
 
 function escReceipt(s) {
     return String(s ?? '-').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
