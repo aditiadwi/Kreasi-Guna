@@ -317,6 +317,17 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     gap: 40px;
     align-items: start;
 }
+.cart-page-container.cart-empty {
+    grid-template-columns: 1fr;
+    justify-items: center;
+}
+.cart-page-container.cart-empty .cart-page-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
 .cart-page-items {
     display: flex;
     flex-direction: column;

@@ -674,9 +674,11 @@ function renderCart() {
 
     const isCartPage = document.querySelector('.cart-section') !== null;
     const summaryEl = document.querySelector('.cart-page-summary');
+    const containerEl = document.querySelector('.cart-page-container');
 
     if (ids.length === 0) {
         if (summaryEl) summaryEl.style.display = 'none';
+        if (containerEl) containerEl.classList.add('cart-empty');
         if (isCartPage) {
             cont.innerHTML = `<div class="empty-cart"><div class="empty-cart-icon">🛒</div><p>Your cart is empty.</p><a href="products.html" class="btn-primary">Browse Products</a></div>`;
         } else {
@@ -684,6 +686,7 @@ function renderCart() {
         }
     } else {
         if (summaryEl) summaryEl.style.display = '';
+        if (containerEl) containerEl.classList.remove('cart-empty');
         cont.innerHTML = ids.map(id => {
             const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
             if (!p) return '';
