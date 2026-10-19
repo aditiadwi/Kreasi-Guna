@@ -716,7 +716,7 @@ function renderCart() {
                     </div>
                 `;
             } else {
-                return `<div class="cart-item"><div><h4>${p.name}</h4><span>Rp ${parseInt(p.price).toLocaleString('id-ID')} x ${cart[id]} <small style="color: var(--text-muted); font-size: 0.72rem; font-weight: 500;">(Stok: ${p.stock})</small></span></div><div class="quantity-controls"><button class="btn-qty" onclick="updateQty('${id}',-1)">-</button><span>${cart[id]}</span><button class="btn-qty" onclick="updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button></div></div>`;
+                return `<div class="cart-item"><div class="cart-item-main"><img class="cart-item-thumb" src="${imagePath}" onerror="this.src='Images/My Product.png'" alt=""><div><h4>${p.name}</h4><span>Rp ${parseInt(p.price).toLocaleString('id-ID')} x ${cart[id]} <small style="color: var(--text-muted); font-size: 0.72rem; font-weight: 500;">(Stok: ${p.stock})</small></span></div></div><div class="quantity-controls"><button class="btn-qty" onclick="updateQty('${id}',-1)">-</button><span>${cart[id]}</span><button class="btn-qty" onclick="updateQty('${id}',1)" ${isMaxStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>+</button></div></div>`;
             }
         }).join('');
     }
@@ -1432,7 +1432,7 @@ function renderCheckoutProductsList() {
             <div style="background: #faf7f5; border: 1px solid var(--border-light); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; gap: 6px; transition: transform 0.2s;"
                  onmouseover="this.style.transform='translateY(-2px)'"
                  onmouseout="this.style.transform='none'">
-                <img src="${imagePath}" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.src='Images/My Product.png'">
+                <img src="${imagePath}" style="width: 45px; height: 45px; object-fit: contain; border-radius: 12px; overflow: hidden;" onerror="this.src='Images/My Product.png'">
                 <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                     <h5 style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 0.75rem; color: var(--coffee-dark); line-height: 1.2;">${p.name}</h5>
                     <span style="font-size: 0.72rem; color: var(--wood-warm); font-weight: 600; margin-top: 3px;">Rp ${parseInt(p.price).toLocaleString('id-ID')}</span>
