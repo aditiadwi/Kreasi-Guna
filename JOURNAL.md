@@ -211,5 +211,19 @@ Bulan ini jatah progresnya buat SEO, yang dari September ditunda terus. Ternyata
 - Pelajaran indexing: sempat salah inspeksi `/product` (tanpa S, "URL tidak dikenali"). Yang bener `/products` statusnya "Ditemukan - saat ini tidak diindeks" (udah kedeteksi via sitemap, tinggal antre). Pas klik "Minta pengindeksan" kena **Kuota Terlampaui** (jatah harian Google habis, kesedot buat URL salah). Solusinya: 1 URL per hari mulai besok, sisanya biarin jalur sitemap otomatis 3-14 hari. Cara cek: `site:kreasi-guna-v2.vercel.app`.
 
 
+### **13. Catatan 19 Oktober 2026**
+
+Hari ini ngerapatin cart, checkout, sama gerbang login sebelum bayar:
+
+- Item di Track yang udah dinilai sekarang nampilin skor bintang yang dikasih, jadi kelihatan "kamu kasih 4" nggak cuma tanda udah pernah. Commit `52a5f99`. (`track.html`, `app.js`)
+- Cart dirombak sesuai contoh: tombol qty jadi lingkaran outline hitam, foto produk membulat (radius 20px, 16px di HP), tombol "Checkout Now" dikasih radius, "← Continue Shopping" dipindah ke bawah daftar produk biar nggak keburu ke-scroll, spasi "Order Summary" diseragamkan. Di HP item bisa di-swipe ke kiri buat muncul tombol hapus. Commit `184d56a`. (`cart.html`, `app.js`, `style.css`)
+- Gerbang checkout: pencet "Checkout Now" belum login → muncul pilihan **Login** atau **Lanjut sebagai Tamu** (aksen gold, ngikutin contoh). Login Google dari gerbang otomatis balik ke checkout (flag di sessionStorage), tamu juga boleh lanjut. Pengecekan dipasang juga di `checkout.html` biar nyasar ke sana tanpa login tetap ketangkep. **Pending dari kamu:** isi Supabase Dashboard → Authentication → URL Configuration (Site URL + Redirect URLs) biar `redirectTo` Google-nya jalan. Commit `184d56a`. (`cart.html`, `checkout.html`, `app.js`, `style.css`)
+- Label tombol full-width ("Checkout Now", "Shop Now") dipusatin lewat `.w-100`. Commit `f7f571f`. (`style.css`)
+- Baris produk di checkout dapet thumbnail 56px kotak bundar sebelum nama (ngikutin contoh "Ringkasan Pesanan"), gambar di kartu quick-add juga dibulatin. Commit `a3b0cef`. (`app.js`, `style.css`)
+- Aduan foto drip bag di cart nggak kelihatan kotak bundar: ternyata `My Product.png` itu landscape (1195×544), pakai `object-fit: contain` cuma jadi pita bersudut tajam di tengah kotak. Diganti `cover` di cart, thumb checkout, dan quick-add — foto jadi selalu ngisi kotak yang udah dibulatkan. Commit `6cab751`. (`style.css`, `app.js`)
+- Cache-bust sampai `v=1.0.30`. Semua push ke main, Vercel auto-deploy. Backup `backup-2026-10-19/` plus screenshot/contoh gambar "Contoh..." dibiarin lokal aja, nggak ikut commit.
+
+
+
 
 
