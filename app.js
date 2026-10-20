@@ -155,6 +155,7 @@ async function updateAuthUI() {
                         <span style="font-size: 0.75rem; font-weight: 600; color: var(--coffee-black); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${name}</span>
                         <span style="font-size: 0.7rem; color: var(--text-muted); word-break: break-all;">${user.email}</span>
                         <hr style="border: 0; border-top: 1px solid var(--border-light); margin: 5px 0;">
+                        <a href="account.html" style="color: var(--coffee-black); font-size: 0.8rem; font-weight: bold; text-decoration: none; display: block; padding: 5px; text-transform: uppercase; letter-spacing: 1px;">👤 Akun Saya</a>
                         <a href="javascript:void(0)" onclick="handleLogout()" style="color: #dc3545; font-size: 0.8rem; font-weight: bold; text-decoration: none; display: block; padding: 5px; text-transform: uppercase; letter-spacing: 1px;">Logout</a>
                     </div>
                 </div>

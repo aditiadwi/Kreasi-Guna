@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script src="env.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Akun Saya | KG Smart Drip Coffee</title>
+    <link rel="stylesheet" href="style.css?v=1.0.54">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <span>KG</span>
+                <div class="logo-subtitle">Kreasi Guna</div>
+            </div>
+            <button class="mobile-menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="history.html">History</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="brew.html">Brew</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="track.html" class="nav-special">Track</a></li>
+                <li><a href="cart.html" class="cart-nav-icon" id="cart-nav-link">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="account-main container">
+        <!-- Belum login -->
+        <div id="account-gate" class="acc-gate hidden">
+            <div class="acc-gate-card">
+                <div class="acc-gate-icon">🔒</div>
+                <h1>Masuk ke Akunmu</h1>
+                <p>Login untuk melihat pesanan, ulasan, dan alamat pengirimanmu.</p>
+                <button class="btn-primary" onclick="handleGoogleLogin()">Masuk dengan Google</button>
+                <a href="index.html" class="acc-gate-back">← Kembali ke Beranda</a>
+            </div>
+        </div>
+
+        <!-- Sudah login -->
+        <div id="account-app" class="acc-layout hidden">
+            <aside class="acc-sidebar">
+                <div class="acc-user">
+                    <div class="acc-avatar" id="acc-avatar">?</div>
+                    <div class="acc-user-meta">
+                        <strong id="acc-name">—</strong>
+                        <span id="acc-email">—</span>
+                    </div>
+                </div>
+                <nav class="acc-menu">
+                    <button class="acc-menu-btn active" data-section="orders" onclick="switchAccountSection('orders', this)">📅 <span>Pesanan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="reviews" onclick="switchAccountSection('reviews', this)">⭐ <span>Ulasan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="addresses" onclick="switchAccountSection('addresses', this)">📍 <span>Alamat Pengiriman</span></button>
+                    <button class="acc-menu-btn acc-logout" onclick="handleLogout()">🚪 <span>Keluar</span></button>
+                </nav>
+            </aside>
+
+            <div class="acc-content">
+                <!-- ============ PESANAN SAYA ============ -->
+                <section id="section-orders" class="acc-section">
+                    <div class="acc-section-head">
+                        <h2>📅 Pesanan Saya</h2>
+                        <span class="acc-section-sub">Riwayat semua pesananmu di sini.</span>
+                    </div>
+                    <div id="orders-list">
+                        <div class="acc-loading">Memuat pesanan…</div>
+                    </div>
+                </section>
+
+                <!-- ============ ULASAN SAYA ============ -->
+                <section id="section-reviews" class="acc-section hidden">
+                    <div class="acc-section-head">
+                        <h2>⭐ Ulasan Saya</h2>
+                        <span class="acc-section-sub">Bintang & komentar yang pernah kamu berikan.</span>
+                    </div>
+                    <div id="reviews-list">
+                        <div class="acc-loading">Memuat ulasan…</div>
+                    </div>
+                </section>
+
+                <!-- ============ ALAMAT PENGIRIMAN ============ -->
+                <section id="section-addresses" class="acc-section hidden">
+                    <div class="acc-section-head">
+                        <h2>📍 Alamat Pengiriman</h2>
+                        <span class="acc-section-sub">Daftar alamat tersimpan <small>(maks. 3)</small> — checkout jadi lebih cepat.</span>
+                    </div>
+
+                    <div id="address-list"><div class="acc-loading">Memuat alamat…</div></div>
+
+                    <button type="button" class="acc-btn-ghost" id="btn-toggle-addr-form" onclick="toggleAddrForm()">+ Tambah Alamat Baru</button>
+
+                    <form id="acc-addr-form" class="acc-addr-form hidden" onsubmit="return accSaveAddress(event)">
+                        <input type="hidden" id="acc-addr-edit-index" value="-1">
+                        <div class="acc-form-row">
+                            <label class="acc-field">
+                                <span>Nama Penerima</span>
+                                <input type="text" id="acc-addr-name" placeholder="Nama lengkap" maxlength="80" required>
+                            </label>
+                            <label class="acc-field">
+                                <span>Nomor WhatsApp</span>
+                                <input type="tel" id="acc-addr-phone" placeholder="08xxxxxxxxxx" maxlength="20">
+                            </label>
+                        </div>
+                        <div class="acc-form-row">
+                            <label class="acc-field">
+                                <span>Kota / Wilayah Pengiriman</span>
+                                <select id="acc-addr-city" required>
+                                    <option value="" disabled selected>Pilih kota</option>
+                                    <option value="jakarta">Jakarta</option>
+                                    <option value="bekasi">Bekasi</option>
+                                    <option value="bandung">Bandung</option>
+                                    <option value="surabaya">Surabaya</option>
+                                    <option value="medan">Medan</option>
+                                    <option value="bali">Bali</option>
+                                </select>
+                            </label>
+                            <label class="acc-field">
+                                <span>Provinsi</span>
+                                <select id="acc-addr-province" required>
+                                    <option value="" disabled selected>Pilih provinsi</option>
+                                    <option value="jakarta">DKI Jakarta</option>
+                                    <option value="jawa-barat">Jawa Barat</option>
+                                    <option value="jawa-tengah">Jawa Tengah</option>
+                                    <option value="jawa-timur">Jawa Timur</option>
+                                    <option value="bali">Bali</option>
+                                    <option value="sumut">Sumatera Utara</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label class="acc-field">
+                            <span>Kode Pos</span>
+                            <input type="text" id="acc-addr-postal" placeholder="12345" maxlength="10">
+                        </label>
+                        <label class="acc-field">
+                            <span>Alamat Lengkap</span>
+                            <textarea id="acc-addr-address" placeholder="Jalan, nomor rumah, kelurahan, kecamatan" rows="3" maxlength="300" required></textarea>
+                        </label>
+                        <div class="acc-form-actions">
+                            <button type="submit" class="btn-primary" id="btn-acc-addr-save">Simpan Alamat</button>
+                            <button type="button" class="acc-btn-ghost" onclick="resetAddrForm()">Batal</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-socials">
+                <a href="https://instagram.com/kreasiguna" target="_blank" class="social-icon">Instagram</a>
+                <a href="https://wa.me/6281219092900" target="_blank" class="social-icon">WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/6281219092900" class="whatsapp-float" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24">
+            <path fill="#fff" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/>
+            <path fill="#25d366" d="M12.004 3.105c4.896 0 8.878 3.987 8.878 8.888 0 4.896-3.987 8.878-8.878 8.878-1.578 0-3.095-.414-4.428-1.201l-.317-.189-3.295.843.864-3.15-.208-.332A8.826 8.826 0 0 1 3.12 12c0-4.896 3.982-8.895 8.884-8.895zm4.847 9.873c-.26-.13-1.536-.757-1.772-.843-.236-.086-.41-.13-.58.13-.17.26-.66.827-.81 1-.15.171-.3.193-.56.064-1.22-.618-2.14-1.096-2.984-2.54-.223-.377.223-.35.635-1.18.068-.137.034-.257-.017-.36-.051-.103-.456-1.097-.624-1.504-.163-.398-.33-.341-.45-.347-.116-.006-.25-.006-.384-.006-.134 0-.353.051-.536.253-.183.201-.7.683-.7 1.667 0 .983.714 1.93 1.157 2.52 2.012 2.76 4.38 3.376 6.51 3.424.57 0 1.09-.03 1.5-.09.457-.068 1.4-.537 1.6-.1.2.437.2.823.14.909-.05.086-.184.13-.443.26z"/>
+        </svg>
+    </a>
+
+    <script src="app.js?v=1.0.54"></script>
+    <script>
+        const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
+        const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
+        const STATUS_STYLES = {
+            PENDING:    { bg: '#fff3cd', fg: '#856404', label: 'Menunggu Verifikasi' },
+            SHIPPED:    { bg: '#d4edda', fg: '#155724', label: 'Dikirim' },
+            COMPLETED:  { bg: '#d1ecf1', fg: '#0c5460', label: 'Selesai' },
+            CANCELLED:  { bg: '#f8d7da', fg: '#721c24', label: 'Dibatalkan' }
+        };
+
+        let accSession = null;
+        let accOrders = [];
+        let accReviews = [];
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        function rp(v) { return 'Rp ' + (parseInt(v || 0)).toLocaleString('id-ID'); }
+        function fmtDate(iso) {
+            if (!iso) return '—';
+            try { return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); }
+            catch (e) { return iso; }
+        }
+        function statusChip(status) {
+            const s = STATUS_STYLES[status] || { bg: '#eee', fg: '#333', label: status || 'Diproses' };
+            return `<span class="acc-status-chip" style="background:${s.bg};color:${s.fg};">${esc(s.label)}</span>`;
+        }
+
+        window.switchAccountSection = function (section, btn) {
+            ['orders', 'reviews', 'addresses'].forEach(s => {
+                document.getElementById('section-' + s).classList.toggle('hidden', s !== section);
+            });
+            document.querySelectorAll('.acc-menu-btn[data-section]').forEach(b => b.classList.toggle('active', b.dataset.section === section));
+        };
+
+        /* ================= PESANAN ================= */
+        async function loadOrders() {
+            const box = document.getElementById('orders-list');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('orders')
+                    .select('*')
+                    .eq('customer_email', accSession.user.email)
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+                accOrders = data || [];
+                if (!accOrders.length) {
+                    box.innerHTML = `<div class="acc-empty">
+                        <div class="acc-empty-icon">📦</div>
+                        <p>Belum ada pesanan.</p>
+                        <a href="products.html" class="btn-primary">Mulai Belanja</a>
+                    </div>`;
+                    return;
+                }
+                box.innerHTML = accOrders.map((o, i) => {
+                    const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
+                    const preview = items.slice(0, 2).map(it => esc(it.name) + (it.qty > 1 ? ` ×${it.qty}` : '')).join(', ');
+                    const more = items.length > 2 ? ` <span class="acc-more">+${items.length - 2} lainnya</span>` : '';
+                    return `<div class="acc-order-card">
+                        <div class="acc-order-top">
+                            <div>
+                                <strong class="acc-order-id">${esc(o.order_id)}</strong>
+                                <span class="acc-order-date">${fmtDate(o.created_at)}</span>
+                            </div>
+                            ${statusChip(o.status)}
+                        </div>
+                        <div class="acc-order-mid">
+                            <span class="acc-order-items">${preview || '—'}${more}</span>
+                            <span class="acc-order-total">${rp(o.total_amount)}</span>
+                        </div>
+                        <div class="acc-order-actions">
+                            <button class="acc-btn-ghost" onclick="toggleOrderDetail(${i}, this)">Lihat Detail</button>
+                            <a class="acc-btn-ghost" href="track.html?id=${encodeURIComponent(o.order_id)}">Lacak</a>
+                        </div>
+                        <div class="acc-order-detail hidden" id="acc-order-detail-${i}"></div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                console.error('Gagal memuat pesanan:', e);
+                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">⚠️</div><p>Gagal memuat pesanan. Muat ulang halaman untuk coba lagi.</p></div>`;
+            }
+        }
+
+        window.toggleOrderDetail = function (idx, btn) {
+            const box = document.getElementById('acc-order-detail-' + idx);
+            if (!box) return;
+            const isOpen = !box.classList.contains('hidden');
+            if (isOpen) {
+                box.classList.add('hidden');
+                if (btn) btn.textContent = 'Lihat Detail';
+                return;
+            }
+            const o = accOrders[idx];
+            if (!o) return;
+            const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
+            const st = STATUS_STYLES[o.status];
+            const noteMap = {
+                PENDING: 'Pesananmu sedang menunggu verifikasi pembayaran dari tim kami.',
+                SHIPPED: 'Kabar baik! Kopimu sedang dalam perjalanan ke alamatmu.',
+                COMPLETED: 'Pesanan selesai. Semoga kamu suka Smart Drip Coffee-mu!',
+                CANCELLED: 'Pesanan ini dibatalkan. Hubungi kami untuk info lebih lanjut.'
+            };
+
+            let timeline = '';
+            if (o.status !== 'CANCELLED') {
+                const steps = ['Pesanan Dibuat', 'Diproses', 'Dikirim', 'Selesai'];
+                let doneCount = 1, currentIdx = 1;
+                if (o.status === 'SHIPPED') { doneCount = 3; currentIdx = 3; }
+                if (o.status === 'COMPLETED') { doneCount = 4; currentIdx = -1; }
+                timeline = `<div class="acc-timeline">` + steps.map((s, si) => {
+                    const cls = si < doneCount ? 'done' : (si === currentIdx ? 'current' : '');
+                    return `<div class="acc-step ${cls}"><span class="acc-step-dot">${si < doneCount ? '✓' : (si + 1)}</span><span class="acc-step-label">${s}</span></div>`;
+                }).join('') + `</div>`;
+            }
+
+            const rows = items.map(it => `
+                <div class="acc-item-row">
+                    <span>• ${esc(it.name)}${it.qty > 1 ? ` ×${it.qty}` : ''}</span>
+                    <span>${it.subtotal ? rp(it.subtotal) : '—'}</span>
+                </div>`).join('');
+
+            box.innerHTML = `
+                <div class="acc-detail-inner">
+                    ${timeline}
+                    ${o.status === 'CANCELLED' ? `<div class="acc-note acc-note-danger">Pesanan ini dibatalkan. Hubungi kami untuk info lebih lanjut.</div>` : `<div class="acc-note">${esc(noteMap[o.status] || 'Pesanan sedang diproses.')}</div>`}
+                    <div class="acc-detail-grid">
+                        <div class="acc-detail-box">
+                            <h4>🧾 Ringkasan Produk</h4>
+                            ${rows || '<p class="acc-muted">Tidak ada rincian produk.</p>'}
+                            <div class="acc-sum-row"><span>Subtotal</span><span>${rp(o.subtotal)}</span></div>
+                            <div class="acc-sum-row"><span>Ongkos Kirim</span><span>${rp(o.shipping_fee)}</span></div>
+                            <div class="acc-sum-row acc-sum-total"><span>Total</span><span>${rp(o.total_amount)}</span></div>
+                        </div>
+                        <div class="acc-detail-box">
+                            <h4>🚚 Informasi Pengiriman</h4>
+                            <p><strong>Nama:</strong> ${esc(o.customer_name)}</p>
+                            <p><strong>Telepon:</strong> ${esc(o.customer_phone || '—')}</p>
+                            <p><strong>Alamat:</strong> ${esc(o.address || '—')}</p>
+                            <p><strong>Pengiriman:</strong> ${esc(o.delivery_method || '—')}</p>
+                            <p><strong>Pembayaran:</strong> ${esc(o.payment_method || '—')}</p>
+                            ${o.receipt_url ? `<div class="acc-receipt"><span>Bukti Pembayaran:</span><img src="${esc(o.receipt_url)}" alt="Bukti pembayaran" loading="lazy" onclick="window.open(this.src)"></div>` : ''}
+                        </div>
+                    </div>
+                    <div class="acc-detail-actions">
+                        <a class="btn-primary" href="track.html?id=${encodeURIComponent(o.order_id)}">Lacak Pesanan</a>
+                    </div>
+                </div>`;
+            box.classList.remove('hidden');
+            if (btn) btn.textContent = 'Sembunyikan Detail';
+        };
+
+        /* ================= ULASAN ================= */
+        async function loadReviews() {
+            const box = document.getElementById('reviews-list');
+            try {
+                const fullName = (accSession.user.user_metadata && accSession.user.user_metadata.full_name) || '';
+                const myOrders = accOrders.map(o => o.order_id).filter(Boolean);
+
+                let rows = [];
+                const queries = [];
+                if (fullName) {
+                    queries.push(supabaseClient.from('feedback').select('*').eq('customer_name', fullName));
+                }
+                if (myOrders.length) {
+                    queries.push(supabaseClient.from('feedback').select('*').in('order_id', myOrders));
+                }
+                const results = await Promise.all(queries);
+                const seen = {};
+                results.forEach(r => {
+                    (r.data || []).forEach(f => {
+                        if (f && f.id && !seen[f.id]) { seen[f.id] = true; rows.push(f); }
+                    });
+                });
+                rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                accReviews = rows;
+
+                if (!accReviews.length) {
+                    box.innerHTML = `<div class="acc-empty">
+                        <div class="acc-empty-icon">⭐</div>
+                        <p>Belum ada ulasan. Nilai pesananmu lewat halaman Track Order.</p>
+                        <a href="track.html" class="btn-primary">Beri Ulasan</a>
+                    </div>`;
+                    return;
+                }
+
+                if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
+                    try { await fetchProducts(); } catch (e) {}
+                }
+                const prodMap = {};
+                (DYNAMIC_PRODUCTS || []).forEach(p => { prodMap[p.id] = p; });
+
+                box.innerHTML = accReviews.map((f, i) => {
+                    const p = f.product_id ? prodMap[f.product_id] : null;
+                    const img = p && p.image_url ? p.image_url : 'Images/My Product.png';
+                    const pname = p ? p.name : 'Ulasan Umum';
+                    const rating = parseInt(f.rating || 0, 10);
+                    const stars = [1, 2, 3, 4, 5].map(n => `<span class="${n <= rating ? 'acc-star on' : 'acc-star'}">★</span>`).join('');
+                    return `<div class="acc-review-card">
+                        <img class="acc-review-img" src="${esc(img)}" alt="${esc(pname)}" loading="lazy" onerror="this.src='Images/My Product.png'">
+                        <div class="acc-review-body">
+                            <div class="acc-review-head">
+                                <strong>${esc(pname)}</strong>
+                                <span class="acc-review-date">${fmtDate(f.created_at)}</span>
+                            </div>
+                            <div class="acc-stars">${stars}</div>
+                            ${f.message ? `<p class="acc-review-msg">${esc(f.message)}</p>` : '<p class="acc-review-msg acc-muted">Tanpa komentar.</p>'}
+                            <div class="acc-review-actions">
+                                <button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>
+                                <button class="acc-btn-danger" onclick="deleteReview(${i})">Hapus</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                console.error('Gagal memuat ulasan:', e);
+                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">⚠️</div><p>Gagal memuat ulasan. Muat ulang halaman untuk coba lagi.</p></div>`;
+            }
+        }
+
+        window.editReview = async function (idx) {
+            const f = accReviews[idx];
+            if (!f) return;
+            const msg = prompt('Ubah komentar ulasanmu:', f.message || '');
+            if (msg === null) return;
+            try {
+                const { error } = await supabaseClient.from('feedback').update({ message: msg.trim() }).eq('id', f.id);
+                if (error) throw error;
+                f.message = msg.trim();
+                loadReviews();
+            } catch (e) {
+                alert('Gagal mengubah ulasan: ' + (e.message || 'coba lagi nanti.'));
+            }
+        };
+
+        window.deleteReview = async function (idx) {
+            const f = accReviews[idx];
+            if (!f) return;
+            if (!confirm('Hapus ulasan ini?')) return;
+            try {
+                const { error } = await supabaseClient.from('feedback').delete().eq('id', f.id);
+                if (error) throw error;
+                loadReviews();
+            } catch (e) {
+                alert('Gagal menghapus ulasan: ' + (e.message || 'coba lagi nanti.'));
+            }
+        };
+
+        /* ================= ALAMAT ================= */
+        function renderAccAddresses() {
+            const box = document.getElementById('address-list');
+            const book = getAddressBook();
+            if (!book.length) {
+                box.innerHTML = `<div class="acc-empty acc-empty-compact"><div class="acc-empty-icon">📍</div><p>Belum ada alamat tersimpan.</p></div>`;
+                return;
+            }
+            box.innerHTML = book.map((b, i) => `
+                <div class="acc-addr-card">
+                    <div class="acc-addr-info">
+                        <strong>${esc(b.name)}</strong>
+                        ${b.phone ? `<span class="acc-addr-phone">${esc(b.phone)}</span>` : ''}
+                        <p>${esc(b.address)}</p>
+                        <span class="acc-addr-region">${esc(CITY_LABELS[b.city] || b.city || '')}${b.province ? ' · ' + esc(PROVINCE_LABELS[b.province] || b.province) : ''}${b.postalCode ? ' ' + esc(b.postalCode) : ''}</span>
+                    </div>
+                    <div class="acc-addr-actions">
+                        <button class="acc-btn-ghost" onclick="editAddress(${i})">Ubah</button>
+                        <button class="acc-btn-danger" onclick="deleteAddress(${i})">Hapus</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        window.toggleAddrForm = function () {
+            const form = document.getElementById('acc-addr-form');
+            form.classList.toggle('hidden');
+            if (!form.classList.contains('hidden')) {
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                document.getElementById('acc-addr-name').focus();
+            }
+        };
+
+        window.resetAddrForm = function () {
+            const form = document.getElementById('acc-addr-form');
+            form.reset();
+            document.getElementById('acc-addr-edit-index').value = '-1';
+            document.getElementById('btn-acc-addr-save').textContent = 'Simpan Alamat';
+            form.classList.add('hidden');
+        };
+
+        window.editAddress = function (i) {
+            const b = getAddressBook()[i];
+            if (!b) return;
+            document.getElementById('acc-addr-edit-index').value = String(i);
+            document.getElementById('acc-addr-name').value = b.name || '';
+            document.getElementById('acc-addr-phone').value = b.phone || '';
+            document.getElementById('acc-addr-city').value = b.city || '';
+            document.getElementById('acc-addr-province').value = b.province || '';
+            document.getElementById('acc-addr-postal').value = b.postalCode || '';
+            document.getElementById('acc-addr-address').value = b.address || '';
+            document.getElementById('btn-acc-addr-save').textContent = 'Simpan Perubahan';
+            const form = document.getElementById('acc-addr-form');
+            form.classList.remove('hidden');
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+
+        window.deleteAddress = function (i) {
+            if (!confirm('Hapus alamat ini?')) return;
+            const book = getAddressBook();
+            book.splice(i, 1);
+            localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
+            renderAccAddresses();
+        };
+
+        window.accSaveAddress = function (e) {
+            e.preventDefault();
+            const entry = {
+                name: document.getElementById('acc-addr-name').value.trim(),
+                phone: document.getElementById('acc-addr-phone').value.trim(),
+                email: (accSession && accSession.user.email) || '',
+                city: document.getElementById('acc-addr-city').value,
+                province: document.getElementById('acc-addr-province').value,
+                postalCode: document.getElementById('acc-addr-postal').value.trim(),
+                address: document.getElementById('acc-addr-address').value.trim()
+            };
+            if (!entry.name || entry.name.length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
+            if (!entry.address || entry.address.length < 10) return alert('Masukkan alamat lengkap (min. 10 karakter).');
+
+            const editIdx = parseInt(document.getElementById('acc-addr-edit-index').value, 10);
+            let book = getAddressBook();
+            if (editIdx >= 0 && book[editIdx]) {
+                book[editIdx] = entry;
+            } else {
+                book = book.filter(b => !(b.email === entry.email && b.address === entry.address));
+                book.unshift(entry);
+                if (book.length > 3) book = book.slice(0, 3);
+            }
+            localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
+            resetAddrForm();
+            renderAccAddresses();
+            return false;
+        };
+
+        /* ================= INIT ================= */
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                if (typeof initSupabase === 'function') initSupabase();
+                if (!supabaseClient) throw new Error('Supabase belum siap.');
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session || !session.user) {
+                    document.getElementById('account-gate').classList.remove('hidden');
+                    return;
+                }
+                accSession = session;
+                // Pastikan kunci storage per-user sudah benar sebelum baca address book
+                if (typeof currentUserId !== 'undefined' && !currentUserId) currentUserId = session.user.id;
+
+                const meta = session.user.user_metadata || {};
+                const name = meta.full_name || session.user.email || 'Pengguna';
+                const avatar = meta.avatar_url;
+                document.getElementById('acc-name').textContent = name;
+                document.getElementById('acc-email').textContent = session.user.email || '';
+                const av = document.getElementById('acc-avatar');
+                if (avatar) {
+                    av.innerHTML = `<img src="${esc(avatar)}" alt="${esc(name)}">`;
+                } else {
+                    av.textContent = name.charAt(0).toUpperCase();
+                }
+
+                document.getElementById('account-app').classList.remove('hidden');
+
+                renderAccAddresses();
+                await loadOrders();
+                loadReviews();
+            } catch (e) {
+                console.error('Gagal inisialisasi halaman akun:', e);
+                document.getElementById('account-gate').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

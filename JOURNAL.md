@@ -241,14 +241,32 @@ Hari ini ngerapatin cart, checkout, sama gerbang login sebelum bayar:
 - Tombol **Lokasi Terkini** & **Pilih di Peta** sekarang auto-fill **Provinsi** (dropdown, lewat helper baru `matchProvince()`) dan **Kode Pos** dari data Nominatim — user nggak perlu isi manual lagi setelah detect lokasi. `matchShippingCity()` valid list juga ditambah `'bekasi'`. Commit `e57e292`. Cache-bust `v=1.0.47`. (`app.js`)
 - **Address book di-restyle** biar matching desain checkout baru: container jadi kartu putih bersudut bundar (hapus border dashed), item alamat pakai background `#fafafa` + hover gold, tombol hapus merah, tombol "Simpan alamat ini" full-width gold outline. Teks di-Indonesikan ("Alamat Tersimpan", "maks. 3"). Commit `0f6b0b1`. Cache-bust `v=1.0.48`. (`style.css`, `app.js`)
 - Dropdown Layanan Pengiriman (native `<select>`) tetap pakai styling bawaan browser untuk popup opsi-nya — nggak bisa di-style pakai CSS. Sudah diputuskan biarkan saja (opsi paling aman).
+- Perapian mikro: tombol "See Description" di produk nggak pecah dua baris (`white-space: nowrap`), header quick-add checkout nggak numpuk di HP, layout alamat checkout jadi satu kolom penuh di HP (class `.address-grid`), Total di paybar nggak ikut nge-wrap. Commits `4fe3b7b`, `7a8f2a8`, `340bc19`.
+- Toast sukses dipindah ke tengah bawah (full-width di HP, `text-align: center`) biar nggak nempel kiri. Commit `7d2a11a`.
+- Burger menu HP dikasih bayangan ke kanan + `overscroll-behavior: contain` biar scroll nggak bocor ke halaman di belakangnya. Commit `b5a022c`. Cache-bust `v=1.0.53`.
+
+
+### **14. Catatan 20 Oktober 2026**
+
+Hari ini bikin halaman akun user (versi basic), ngikutin 3 contoh gambar (Pesanan Saya, Ulasan Saya, Alamat Pengiriman):
+
+- **`account.html` (baru)** — layout sidebar (avatar + nama + email, menu: Pesanan Saya / Ulasan Saya / Alamat Pengiriman / Keluar) + konten di kanan. Belum login → kartu gerbang "Masuk dengan Google". Meta `noindex, nofollow` + masuk `robots.txt` (`Disallow: /account`) biar nggak keindeks. (`account.html`, `robots.txt`)
+- **Pesanan Saya**: fetch `orders` by `customer_email`, kartu per order (ID, tanggal, chip status berwarna, preview item, total). "Lihat Detail" expand inline: timeline 4-step (Dibuat/Diproses/Dikirim/Selesai — mapping status PENDING/SHIPPED/COMPLETED; CANCELLED nggak ada timeline, diganti catatan merah), ringkasan produk + subtotal/ongkir/total, info pengiriman/pembayaran, preview bukti bayar. Tombol "Lacak" → `track.html?id=ORD-xxx`.
+- **`track.html`** sekarang auto-track dari URL `?id=` — biar tombol Lacak dari halaman akun (atau link manapun) langsung nampilin hasilnya. (`track.html`)
+- **Ulasan Saya**: fetch `feedback` dua jalur — by `customer_name` (nama lengkap session) + `order_id in` (order milik user), digabung & dedupe. Kartu: foto produk (lookup `DYNAMIC_PRODUCTS`), nama produk / "Ulasan Umum", bintang, komentar, tombol Ubah (prompt) & Hapus (confirm + delete Supabase).
+- **Alamat Pengiriman**: baca/tulis address book localStorage per-user (maks. 3, fungsi lama `getAddressBook` dipakai ulang). Form tambah/ubah: nama, HP, kota, provinsi, kode pos, alamat. Validasi nama ≥3 & alamat ≥10 karakter (sama kayak checkout).
+- **Dropdown user di header** (`app.js`): nambah item "👤 Akun Saya" → `account.html` sebelum Logout.
+- CSS `.acc-*` di `style.css` (grid `260px 1fr`, sticky sidebar, ≤868px jadi 1 kolom + menu jadi baris wrap).
+- Cache-bust `v=1.0.54` semua HTML. `node --check app.js` lolos.
 
 
 ### **Catatan buat besok (lanjut)**
 
+- Tes alur akun end-to-end di HP & desktop: login → Pesanan Saya (detail expand) → Ulasan (ubah/hapus) → Alamat (tambah/ubah/hapus)
+- Cek RLS Supabase tabel `feedback`: kalau UPDATE/DELETE ditolak buat user biasa, tombol Ubah/Hapus ulasan bakal error — perlu policy khusus atau dipindah server-side
 - Cek hasil deploy Vercel: pastikan checkout address form tampil benar (Data Penerima + Alamat Pengiriman)
-- Tes alur lengkap: detect lokasi terkini → pastikan provinsi & kode pos keisi otomatis
 - Supabase Dashboard → Authentication → URL Configuration (Site URL + Redirect URLs) — biar OAuth Google jalan
-- Ide berikutnya: rating bintang per produk di katalog (dijadwalkan Jumat)
+- Ide lanjutan halaman akun (versi lanjutan): Wishlist, Metode Pembayaran, Pengaturan Akun, timeline detail pakai timestamp asli kalau kolomnya ada
 
 
 
