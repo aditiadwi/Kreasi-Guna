@@ -3590,9 +3590,9 @@ window.renderAddressBook = () => {
         section = document.createElement('div');
         section.id = 'address-book-section';
         section.innerHTML = `
-            <div class="address-book-title">📒 Saved Addresses <small>(max 3)</small></div>
+            <div class="address-book-title">📒 Alamat Tersimpan <small>(maks. 3)</small></div>
             <div id="address-book-list"></div>
-            <button type="button" class="btn-save-address" id="btn-save-address" onclick="saveCurrentFormAddress()">+ Save current address</button>`;
+            <button type="button" class="btn-save-address" id="btn-save-address" onclick="saveCurrentFormAddress()">+ Simpan alamat ini</button>`;
         const banner = document.getElementById('autofill-banner');
         if (banner && banner.parentElement === form) {
             form.insertBefore(section, banner);
@@ -3604,7 +3604,7 @@ window.renderAddressBook = () => {
     if (!list) return;
     const book = getAddressBook();
     if (book.length === 0) {
-        list.innerHTML = '<div class="address-book-empty">No saved addresses yet. Fill the form and save it for faster checkout next time.</div>';
+        list.innerHTML = '<div class="address-book-empty">Belum ada alamat tersimpan. Isi form lalu simpan untuk checkout lebih cepat next time.</div>';
         return;
     }
     list.innerHTML = book.map((b, i) => `
@@ -3612,7 +3612,7 @@ window.renderAddressBook = () => {
             <button type="button" class="address-book-use" onclick="applyBookAddress(${i})">
                 <strong>${b.name}</strong><span>${b.city ? b.city + ' — ' : ''}${b.address}</span>
             </button>
-            <button type="button" class="address-book-del" onclick="deleteBookAddress(${i})" title="Delete">×</button>
+            <button type="button" class="address-book-del" onclick="deleteBookAddress(${i})" title="Hapus">×</button>
         </div>`).join('');
 };
 
