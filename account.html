@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.62">
+    <link rel="stylesheet" href="style.css?v=1.0.63">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -176,7 +176,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.62"></script>
+    <script src="app.js?v=1.0.63"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -260,7 +260,9 @@
             }
         }
 
-        window.toggleOrderDetail = function (idx, btn) {
+        let accOpenIdx = -1;
+
+        window.toggleOrderDetail = async function (idx, btn) {
             const box = document.getElementById('acc-order-detail-' + idx);
             if (!box) return;
             const isOpen = !box.classList.contains('hidden');
@@ -273,12 +275,19 @@
             if (!o) return;
             const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
             const st = STATUS_STYLES[o.status];
+            const statusUpper = String(o.status || '').toUpperCase();
+            const isDone = (statusUpper === 'COMPLETED' || statusUpper === 'DELIVERED');
             const noteMap = {
                 PENDING: 'Pesananmu sedang menunggu verifikasi pembayaran dari tim kami.',
                 SHIPPED: 'Kabar baik! Kopimu sedang dalam perjalanan ke alamatmu.',
                 COMPLETED: 'Pesanan selesai. Semoga kamu suka Smart Drip Coffee-mu!',
                 CANCELLED: 'Pesanan ini dibatalkan. Hubungi kami untuk info lebih lanjut.'
             };
+
+            // Katalog untuk thumbnail & tombol beli lagi/ulasan
+            if (isDone && (!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
+                try { await fetchProducts(); } catch (e) {}
+            }
 
             let timeline = '';
             if (o.status !== 'CANCELLED') {
@@ -292,11 +301,29 @@
                 }).join('') + `</div>`;
             }
 
-            const rows = items.map(it => `
-                <div class="acc-item-row">
-                    <span>• ${esc(it.name)}${it.qty > 1 ? ` ×${it.qty}` : ''}</span>
-                    <span>${it.subtotal ? rp(it.subtotal) : '—'}</span>
-                </div>`).join('');
+            const rows = items.map((it, k) => {
+                if (!isDone) {
+                    return `<div class="acc-item-row">
+                        <span>• ${esc(it.name)}${it.qty > 1 ? ` ×${it.qty}` : ''}</span>
+                        <span>${it.subtotal ? rp(it.subtotal) : '—'}</span>
+                    </div>`;
+                }
+                const prod = (typeof findProductByName === 'function') ? findProductByName(it.name) : null;
+                const img = (prod && prod.image_url) ? prod.image_url : 'Images/My Product.png';
+                const unit = parseInt(it.price || (prod ? prod.price : 0) || 0);
+                return `<div class="acc-item-row acc-item-done">
+                    <img class="acc-item-thumb" src="${esc(img)}" alt="" onerror="this.src='Images/My Product.png'" loading="lazy">
+                    <div class="acc-item-main">
+                        <strong>${esc(it.name)}</strong>
+                        <span>Rp ${unit.toLocaleString('id-ID')} &times; ${it.qty}</span>
+                    </div>
+                    <span class="acc-item-sub">${it.subtotal ? rp(it.subtotal) : rp(unit * (it.qty || 1))}</span>
+                    <div class="acc-item-actions">
+                        <button class="acc-btn-rate" data-rate-item="${k}" onclick="accRateItem(${k}, this)">★ Beri Ulasan</button>
+                        <button class="acc-btn-buy" onclick="accBuyItem(${k}, this)">🛒 Beli Lagi</button>
+                    </div>
+                </div>`;
+            }).join('');
 
             box.innerHTML = `
                 <div class="acc-detail-inner">
@@ -321,11 +348,56 @@
                         </div>
                     </div>
                     <div class="acc-detail-actions">
+                        ${isDone ? `<button class="acc-btn-ghost" onclick="accReorder(${idx}, this)">🔁 Beli Lagi Semua</button>` : ''}
                         <a class="btn-primary" href="track.html?id=${encodeURIComponent(o.order_id)}">Lacak Pesanan</a>
                     </div>
                 </div>`;
             box.classList.remove('hidden');
             if (btn) btn.textContent = 'Sembunyikan Detail';
+            accOpenIdx = idx;
+            if (isDone && items.length) markRatedOrderButtons(o.order_id, o.items, box);
+        };
+
+        /* ===== Aksi pesanan selesai: beri ulasan & beli lagi ===== */
+        window.accRateItem = function (k, btn) {
+            const o = accOrders[accOpenIdx];
+            if (!o) return;
+            const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
+            const it = items[k];
+            if (!it) return;
+            rateOrderProduct(o.order_id, o.items, it.name, btn);
+        };
+
+        window.accBuyItem = async function (k, btn) {
+            const o = accOrders[accOpenIdx];
+            if (!o) return;
+            const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
+            const it = items[k];
+            if (!it) return;
+            if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
+                try { await fetchProducts(); } catch (e) {}
+            }
+            const p = findProductByName(it.name);
+            if (!p) return alert('Produk "' + it.name + '" sudah tidak ada di katalog.');
+            if (p.stock <= 0) return alert('Maaf, "' + p.name + '" sedang habis.');
+            const room = p.stock - (cart[p.id] || 0);
+            const qty = Math.min(it.qty || 1, room);
+            if (qty <= 0) return alert('Stok tidak mencukupi (sudah penuh di keranjang).');
+            cart[p.id] = (cart[p.id] || 0) + qty;
+            renderCart();
+            if (typeof showToast === 'function') showToast(`"${p.name}" × ${qty} ditambahkan ke keranjang`);
+            if (btn) {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '✓ Ditambahkan';
+                btn.disabled = true;
+                setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+            }
+        };
+
+        window.accReorder = (k, btn) => {
+            const o = accOrders[k];
+            if (!o) return;
+            reorderItemsList(o.items, btn);
         };
 
         /* ================= ULASAN ================= */

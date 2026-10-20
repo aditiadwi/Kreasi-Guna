@@ -3209,6 +3209,73 @@ a:active {
     border-bottom: 1px dashed #eee;
     font-size: 0.86rem;
 }
+
+/* Baris item pesanan selesai (ada aksi ulasan & beli lagi) */
+.acc-item-row.acc-item-done {
+    display: grid;
+    grid-template-columns: 46px 1fr auto;
+    grid-template-areas:
+        'thumb main sub'
+        'thumb actions actions';
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 8px;
+    padding: 10px 0;
+}
+.acc-item-thumb {
+    grid-area: thumb;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border-light);
+    background: #f7f3ec;
+    align-self: start;
+}
+.acc-item-main { grid-area: main; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.acc-item-main strong { font-size: 0.86rem; color: var(--coffee-dark); font-weight: 700; }
+.acc-item-main span { font-size: 0.75rem; color: var(--text-muted); }
+.acc-item-done .acc-item-sub { grid-area: sub; font-weight: 800; color: var(--coffee-dark); font-size: 0.86rem; white-space: nowrap; }
+.acc-item-actions {
+    grid-area: actions;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.acc-btn-rate,
+.acc-btn-buy {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    border: 1px solid transparent;
+}
+.acc-btn-rate {
+    background: linear-gradient(135deg, var(--gold-accent), var(--gold-premium));
+    color: white;
+    box-shadow: 0 3px 8px rgba(197, 160, 89, 0.3);
+}
+.acc-btn-rate:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(197, 160, 89, 0.4); }
+.acc-btn-rate:disabled { opacity: 0.55; cursor: default; transform: none; box-shadow: none; }
+.acc-btn-buy { background: white; border-color: var(--gold-premium); color: var(--wood-warm); }
+.acc-btn-buy:hover { background: var(--gold-premium); color: white; }
+.acc-btn-buy:disabled { opacity: 0.7; cursor: default; }
+
+/* Modal rating bintang (disuntik app.js) */
+#rate-stars .rate-star { display: inline-block; transition: transform 0.15s ease; }
+#rate-stars .rate-star.lit { color: #f1c40f; text-shadow: 0 2px 10px rgba(241, 196, 15, 0.45); }
+#rate-stars .rate-star.dim { color: #e3ddd2; }
+#rate-stars .rate-star.pop { animation: rate-pop 0.3s ease; }
+@keyframes rate-pop { 0% { transform: scale(1); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
+#rate-label { min-height: 1.4em; font-weight: 800; font-size: 0.9rem; color: var(--wood-warm); margin: -8px 0 12px; }
+
 .acc-sum-row {
     display: flex;
     justify-content: space-between;
@@ -3346,6 +3413,19 @@ a:active {
     .acc-review-actions .acc-btn-ghost,
     .acc-review-actions .acc-btn-danger { flex: 1; text-align: center; }
     .acc-detail-actions .btn-primary { width: 100%; text-align: center; }
+    .acc-item-row.acc-item-done {
+        grid-template-columns: 46px 1fr;
+        grid-template-areas:
+            'thumb main'
+            'thumb sub'
+            'actions actions';
+    }
+    .acc-item-done .acc-item-sub { justify-self: start; }
+    .acc-item-actions { justify-content: stretch; }
+    .acc-item-actions .acc-btn-rate,
+    .acc-item-actions .acc-btn-buy { flex: 1; justify-content: center; }
+    .acc-detail-actions { flex-wrap: wrap; gap: 8px; }
+    .acc-detail-actions .acc-btn-ghost { flex: 1; text-align: center; }
 }
 
 
