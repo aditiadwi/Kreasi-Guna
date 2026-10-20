@@ -2872,11 +2872,11 @@ a:active {
     align-items: center;
     justify-content: center;
     margin: 0 auto 14px;
-    font-size: 2rem;
     background: linear-gradient(145deg, var(--gold-accent), var(--gold-premium));
     color: white;
     box-shadow: 0 6px 18px rgba(197, 160, 89, 0.4);
 }
+.acc-gate-icon svg { width: 34px; height: 34px; display: block; }
 .acc-gate-card h1 { font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 10px; }
 .acc-gate-card p { color: var(--text-muted); margin-bottom: 25px; }
 .acc-gate-card .btn-primary { padding: 13px 30px; border-radius: 12px; }
@@ -2949,7 +2949,7 @@ a:active {
 }
 .acc-menu { display: flex; flex-direction: column; gap: 6px; }
 
-/* Ikon emoji badge */
+/* Ikon badge (SVG custom) */
 .acc-ico {
     display: inline-flex;
     align-items: center;
@@ -2963,16 +2963,17 @@ a:active {
     flex-shrink: 0;
     transition: all 0.2s ease;
 }
+.acc-ico svg { width: 15px; height: 15px; display: block; }
 .acc-ico-lg {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    font-size: 1.05rem;
     background: linear-gradient(145deg, var(--gold-accent), var(--gold-premium));
     box-shadow: 0 3px 8px rgba(197, 160, 89, 0.35);
     vertical-align: -7px;
     margin-right: 4px;
 }
+.acc-ico-lg svg { width: 18px; height: 18px; }
 
 .acc-menu-btn {
     display: flex;
@@ -3036,13 +3037,27 @@ a:active {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.7rem;
     background: white;
     border: 2px dashed var(--gold-accent);
     margin-bottom: 12px;
+    color: var(--gold-premium);
 }
+.acc-empty-icon svg { width: 28px; height: 28px; display: block; }
 .acc-empty p { color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem; }
 .acc-empty .btn-primary { padding: 10px 24px; border-radius: 12px; display: inline-block; text-decoration: none; }
+
+/* Ikon SVG inline (judul, tombol) */
+.acc-h4-ico, .acc-btn-ico {
+    display: inline-flex;
+    align-items: center;
+    color: var(--gold-premium);
+    flex-shrink: 0;
+}
+.acc-ico-flat { margin: 0; }
+.acc-h4-ico svg, .acc-btn-ico svg { width: 16px; height: 16px; display: block; }
+.acc-h4-ico { margin-right: 6px; vertical-align: -3px; }
+.acc-btn-rate .acc-btn-ico, .acc-btn-buy .acc-btn-ico { color: currentColor; }
+.acc-btn-rate .acc-btn-ico svg, .acc-btn-buy .acc-btn-ico svg { width: 13px; height: 13px; }
 
 /* Pesanan */
 .acc-order-card {

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.63">
+    <link rel="stylesheet" href="style.css?v=1.0.64">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -41,7 +41,7 @@
         <!-- Belum login -->
         <div id="account-gate" class="acc-gate hidden">
             <div class="acc-gate-card">
-                <div class="acc-gate-icon">🔒</div>
+                <div class="acc-gate-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
                 <h1>Masuk ke Akunmu</h1>
                 <p>Login untuk melihat pesanan, ulasan, dan alamat pengirimanmu.</p>
                 <button class="btn-primary" onclick="handleGoogleLogin()">Masuk dengan Google</button>
@@ -60,10 +60,10 @@
                     </div>
                 </div>
                 <nav class="acc-menu">
-<button class="acc-menu-btn active" data-section="orders" onclick="switchAccountSection('orders', this)"><span class="acc-ico">📅</span> <span>Pesanan Saya</span></button>
-                    <button class="acc-menu-btn" data-section="reviews" onclick="switchAccountSection('reviews', this)"><span class="acc-ico">⭐</span> <span>Ulasan Saya</span></button>
-                    <button class="acc-menu-btn" data-section="addresses" onclick="switchAccountSection('addresses', this)"><span class="acc-ico">📍</span> <span>Alamat Pengiriman</span></button>
-                    <button class="acc-menu-btn acc-logout" onclick="handleLogout()"><span class="acc-ico">🚪</span> <span>Keluar</span></button>
+<button class="acc-menu-btn active" data-section="orders" onclick="switchAccountSection('orders', this)"><span class="acc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> <span>Pesanan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="reviews" onclick="switchAccountSection('reviews', this)"><span class="acc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></span> <span>Ulasan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="addresses" onclick="switchAccountSection('addresses', this)"><span class="acc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span> <span>Alamat Pengiriman</span></button>
+                    <button class="acc-menu-btn acc-logout" onclick="handleLogout()"><span class="acc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span> <span>Keluar</span></button>
                 </nav>
             </aside>
 
@@ -71,7 +71,7 @@
                 <!-- ============ PESANAN SAYA ============ -->
                 <section id="section-orders" class="acc-section">
                     <div class="acc-section-head">
-                        <h2><span class="acc-ico acc-ico-lg">📅</span> Pesanan Saya</h2>
+                        <h2><span class="acc-ico acc-ico-lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Pesanan Saya</h2>
                         <span class="acc-section-sub">Riwayat semua pesananmu di sini.</span>
                     </div>
                     <div id="orders-list">
@@ -82,7 +82,7 @@
                 <!-- ============ ULASAN SAYA ============ -->
                 <section id="section-reviews" class="acc-section hidden">
                     <div class="acc-section-head">
-                        <h2><span class="acc-ico acc-ico-lg">⭐</span> Ulasan Saya</h2>
+                        <h2><span class="acc-ico acc-ico-lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></span> Ulasan Saya</h2>
                         <span class="acc-section-sub">Bintang & komentar yang pernah kamu berikan.</span>
                     </div>
                     <div id="reviews-list">
@@ -93,7 +93,7 @@
                 <!-- ============ ALAMAT PENGIRIMAN ============ -->
                 <section id="section-addresses" class="acc-section hidden">
                     <div class="acc-section-head">
-                        <h2><span class="acc-ico acc-ico-lg">📍</span> Alamat Pengiriman</h2>
+                        <h2><span class="acc-ico acc-ico-lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span> Alamat Pengiriman</h2>
                         <span class="acc-section-sub">Daftar alamat tersimpan <small>(maks. 3)</small> — checkout jadi lebih cepat.</span>
                     </div>
 
@@ -176,7 +176,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.63"></script>
+    <script src="app.js?v=1.0.64"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -194,6 +194,19 @@
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
+        /* Ikon SVG custom (gaya Feather) */
+        const ACC_ICONS = {
+            calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+            star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/>',
+            pin: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+            package: '<line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+            alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+            cart: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
+            file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+            truck: '<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
+            repeat: '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'
+        };
+        const accIco = (name, cls) => `<span class="${cls || 'acc-h4-ico'}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ACC_ICONS[name] || ''}</svg></span>`;
         function rp(v) { const d = String(v ?? '').replace(/[^\d]/g, ''); if (!d) return String(v ?? '-').trim() || '-'; return 'Rp ' + parseInt(d, 10).toLocaleString('id-ID'); }
         function fmtDate(iso) {
             if (!iso) return '—';
@@ -225,7 +238,7 @@
                 accOrders = data || [];
                 if (!accOrders.length) {
                     box.innerHTML = `<div class="acc-empty">
-                        <div class="acc-empty-icon">📦</div>
+                        <div class="acc-empty-icon">${accIco('package', 'acc-ico-flat')}</div>
                         <p>Belum ada pesanan.</p>
                         <a href="products.html" class="btn-primary">Mulai Belanja</a>
                     </div>`;
@@ -256,7 +269,7 @@
                 }).join('');
             } catch (e) {
                 console.error('Gagal memuat pesanan:', e);
-                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">⚠️</div><p>Gagal memuat pesanan. Muat ulang halaman untuk coba lagi.</p></div>`;
+                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">${accIco('alert', 'acc-ico-flat')}</div><p>Gagal memuat pesanan. Muat ulang halaman untuk coba lagi.</p></div>`;
             }
         }
 
@@ -319,8 +332,8 @@
                     </div>
                     <span class="acc-item-sub">${it.subtotal ? rp(it.subtotal) : rp(unit * (it.qty || 1))}</span>
                     <div class="acc-item-actions">
-                        <button class="acc-btn-rate" data-rate-item="${k}" onclick="accRateItem(${k}, this)">★ Beri Ulasan</button>
-                        <button class="acc-btn-buy" onclick="accBuyItem(${k}, this)">🛒 Beli Lagi</button>
+                        <button class="acc-btn-rate" data-rate-item="${k}" onclick="accRateItem(${k}, this)">${accIco('star', 'acc-btn-ico')} Beri Ulasan</button>
+                        <button class="acc-btn-buy" onclick="accBuyItem(${k}, this)">${accIco('cart', 'acc-btn-ico')} Beli Lagi</button>
                     </div>
                 </div>`;
             }).join('');
@@ -331,14 +344,14 @@
                     ${o.status === 'CANCELLED' ? `<div class="acc-note acc-note-danger">Pesanan ini dibatalkan. Hubungi kami untuk info lebih lanjut.</div>` : `<div class="acc-note">${esc(noteMap[o.status] || 'Pesanan sedang diproses.')}</div>`}
                     <div class="acc-detail-grid">
                         <div class="acc-detail-box">
-                            <h4>🧾 Ringkasan Produk</h4>
+                            <h4>${accIco('file')} Ringkasan Produk</h4>
                             ${rows || '<p class="acc-muted">Tidak ada rincian produk.</p>'}
                             <div class="acc-sum-row"><span>Subtotal</span><span>${rp(o.subtotal)}</span></div>
                             <div class="acc-sum-row"><span>Ongkos Kirim</span><span>${rp(o.shipping_fee)}</span></div>
                             <div class="acc-sum-row acc-sum-total"><span>Total</span><span>${rp(o.total_amount)}</span></div>
                         </div>
                         <div class="acc-detail-box">
-                            <h4>🚚 Informasi Pengiriman</h4>
+                            <h4>${accIco('truck')} Informasi Pengiriman</h4>
                             <p><strong>Nama:</strong> ${esc(o.customer_name)}</p>
                             <p><strong>Telepon:</strong> ${esc(o.customer_phone || '—')}</p>
                             <p><strong>Alamat:</strong> ${esc(o.address || '—')}</p>
@@ -348,7 +361,7 @@
                         </div>
                     </div>
                     <div class="acc-detail-actions">
-                        ${isDone ? `<button class="acc-btn-ghost" onclick="accReorder(${idx}, this)">🔁 Beli Lagi Semua</button>` : ''}
+                        ${isDone ? `<button class="acc-btn-ghost" onclick="accReorder(${idx}, this)">${accIco('repeat', 'acc-btn-ico')} Beli Lagi Semua</button>` : ''}
                         <a class="btn-primary" href="track.html?id=${encodeURIComponent(o.order_id)}">Lacak Pesanan</a>
                     </div>
                 </div>`;
@@ -427,7 +440,7 @@
 
                 if (!accReviews.length) {
                     box.innerHTML = `<div class="acc-empty">
-                        <div class="acc-empty-icon">⭐</div>
+                        <div class="acc-empty-icon">${accIco('star', 'acc-ico-flat')}</div>
                         <p>Belum ada ulasan. Nilai pesananmu lewat halaman Track Order.</p>
                         <a href="track.html" class="btn-primary">Beri Ulasan</a>
                     </div>`;
@@ -464,7 +477,7 @@
                 }).join('');
             } catch (e) {
                 console.error('Gagal memuat ulasan:', e);
-                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">⚠️</div><p>Gagal memuat ulasan. Muat ulang halaman untuk coba lagi.</p></div>`;
+                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">${accIco('alert', 'acc-ico-flat')}</div><p>Gagal memuat ulasan. Muat ulang halaman untuk coba lagi.</p></div>`;
             }
         }
 
@@ -501,7 +514,7 @@
             const box = document.getElementById('address-list');
             const book = getAddressBook();
             if (!book.length) {
-                box.innerHTML = `<div class="acc-empty acc-empty-compact"><div class="acc-empty-icon">📍</div><p>Belum ada alamat tersimpan.</p></div>`;
+                box.innerHTML = `<div class="acc-empty acc-empty-compact"><div class="acc-empty-icon">${accIco('pin', 'acc-ico-flat')}</div><p>Belum ada alamat tersimpan.</p></div>`;
                 return;
             }
             box.innerHTML = book.map((b, i) => `
