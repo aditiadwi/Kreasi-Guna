@@ -477,6 +477,7 @@ const MOCK_COFFEE_NEWS = [
 
 const SHIPPING_FEES = {
     jakarta: { reg: 15000, sameday: 25000, instant: 45000 },
+    bekasi: { reg: 15000, sameday: 25000, instant: 45000 },
     bandung: { reg: 20000, sameday: 35000, instant: 60000 },
     surabaya: { reg: 25000, sameday: 45000, instant: 75000 },
     medan: { reg: 35000, sameday: 60000, instant: 90000 },
