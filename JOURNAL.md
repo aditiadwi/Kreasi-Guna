@@ -222,6 +222,18 @@ Hari ini ngerapatin cart, checkout, sama gerbang login sebelum bayar:
 - Baris produk di checkout dapet thumbnail 56px kotak bundar sebelum nama (ngikutin contoh "Ringkasan Pesanan"), gambar di kartu quick-add juga dibulatin. Commit `a3b0cef`. (`app.js`, `style.css`)
 - Aduan foto drip bag di cart nggak kelihatan kotak bundar: ternyata `My Product.png` itu landscape (1195×544), pakai `object-fit: contain` cuma jadi pita bersudut tajam di tengah kotak. Diganti `cover` di cart, thumb checkout, dan quick-add — foto jadi selalu ngisi kotak yang udah dibulatkan. Commit `6cab751`. (`style.css`, `app.js`)
 - Cache-bust sampai `v=1.0.30`. Semua push ke main, Vercel auto-deploy. Backup `backup-2026-10-19/` plus screenshot/contoh gambar "Contoh..." dibiarin lokal aja, nggak ikut commit.
+- Fix centang hijau terpotong: SVG viewBox diperbesar 52→64, radius 25→28, path diperpanjang, dasharray disesuaikan. Commit `95bbe96`. Cache-bust ke `v=1.0.41`, push ke main. (`app.js`, `style.css`)
+
+
+### **14. Catatan 20 Oktober 2026**
+
+Checkout & cart dirapatin sesuai contoh:
+
+- Bekasi masuk jadi kota pengiriman (fee sama Jakarta: 15k/25k/45k), `matchShippingCity()` deteksi "bekasi" → return `'bekasi'`, Jabodetabek lain tetap `'jakarta'`. Commit `fd04c8b`, `9c466eb`. (`app.js`)
+- Label dropdown Layanan Pengiriman sekarang nampilin harga per opsi (mis. `Regular (J&T / JNE) — Rp 15.000`), harga ikut berubah pas ganti kota lewat `handleShippingUpdate()`. Default Jakarta terpilih. Commit `f50a04e`. (`app.js`)
+- Dropdown Layanan Pengiriman (native `<select>`) tetap pakai styling bawaan browser untuk popup opsi-nya — nggak bisa di-style pakai CSS. Sudah diputuskan biarkan saja (opsi paling aman).
+- **Redesign alamat pengiriman checkout** sesuai referensi `Images/Contoh Tampilan  Alamat Pengiriman Halaman Checkout.jpeg`: form dipecah jadi dua section — **Data Penerima** (Nama Lengkap, Nomor WhatsApp dengan prefix +62 & ikon WA, Email) dan **Alamat Pengiriman** (Alamat Lengkap + tombol deteksi lokasi, Kota/Kabupaten, Provinsi dropdown, Kode Pos). Nambah checkbox "Simpan alamat ini untuk pesanan berikutnya", tombol jadi "Lanjut ke Pembayaran →". `handleProceedToPayment()` validasi provinsi & kode pos juga; nomor HP otomatis prepend `+62` sebelum disimpan. Address book nyimpen province & postalCode. Commit `8130089`. Cache-bust `v=1.0.46`. (`checkout.html`, `app.js`)
+- Tombol **Lokasi Terkini** & **Pilih di Peta** sekarang auto-fill **Provinsi** (dropdown, lewat helper baru `matchProvince()`) dan **Kode Pos** dari data Nominatim — user nggak perlu isi manual lagi setelah detect lokasi. `matchShippingCity()` valid list juga ditambah `'bekasi'`. Commit `e57e292`. Cache-bust `v=1.0.47`. (`app.js`)
 
 - Judul "Complete Your Order" di checkout diratakan tinggi dengan "Final Summary" (tighten line-height, margin-top: 0). Commit `dddf8aa`. (`style.css`)
 - Tombol quick-add "➕ Tambah" di checkout jadi emas (`--gold-premium`), `.btn-primary` (Checkout Now, Proceed to Payment, dll.) dikasih `border-radius: 12px`. Commit `0fd8251`. (`style.css`, `app.js`)
@@ -232,24 +244,17 @@ Hari ini ngerapatin cart, checkout, sama gerbang login sebelum bayar:
 - Nomor Pesanan dipindah tengah, icon ✅ diganti **lingkaran hijau + centang SVG animasi draw**, confetti jatuh pas modal muncul, toast copy nggak ganti teks nomor. Commit `1cf84e4`. (`app.js`, `style.css`)
 - Order Summary di cart **disembunyikan pas keranjang kosong** (`display: none`), muncul pas ada item. Commit `7ffabda`. (`app.js`)
 - Empty cart state di tengah penuh: grid jadi 1 kolom, `.cart-page-items` flex center + `min-height: 400px`. Commit `228b095`. (`app.js`, `style.css`)
-- Cache-bust sampai `v=1.0.41`. Semua push ke main, Vercel auto-deploy.
+- Cache-bust sampai `v=1.0.40`. Semua push ke main, Vercel auto-deploy.
 
-- Fix centang hijau terpotong: SVG viewBox diperbesar 52→64, radius 25→28, path diperpanjang, dasharray disesuaikan. Commit `95bbe96`. (`app.js`, `style.css`)
-- Bekasi masuk jadi kota pengiriman (fee sama Jakarta: 15k/25k/45k), `matchShippingCity()` deteksi "bekasi" → return `'bekasi'`, Jabodetabek lain tetap `'jakarta'`. Commit `fd04c8b`, `9c466eb`. (`app.js`)
-- Label dropdown Layanan Pengiriman sekarang nampilin harga per opsi (mis. `Regular (J&T / JNE) — Rp 15.000`), harga ikut berubah pas ganti kota lewat `handleShippingUpdate()`. Default Jakarta terpilih. Commit `f50a04e`. (`app.js`)
-- **Redesign alamat pengiriman checkout** sesuai referensi `Images/Contoh Tampilan  Alamat Pengiriman Halaman Checkout.jpeg`: form dipecah jadi dua section — **Data Penerima** (Nama Lengkap, Nomor WhatsApp dengan prefix +62 & ikon WA, Email) dan **Alamat Pengiriman** (Alamat Lengkap + tombol deteksi lokasi, Kota/Kabupaten, Provinsi dropdown, Kode Pos). Nambah checkbox "Simpan alamat ini untuk pesanan berikutnya", tombol jadi "Lanjut ke Pembayaran →". `handleProceedToPayment()` validasi provinsi & kode pos juga; nomor HP otomatis prepend `+62` sebelum disimpan. Address book nyimpen province & postalCode. Commit `8130089`. Cache-bust `v=1.0.46`. (`checkout.html`, `app.js`)
-- Tombol **Lokasi Terkini** & **Pilih di Peta** sekarang auto-fill **Provinsi** (dropdown, lewat helper baru `matchProvince()`) dan **Kode Pos** dari data Nominatim — user nggak perlu isi manual lagi setelah detect lokasi. `matchShippingCity()` valid list juga ditambah `'bekasi'`. Commit `e57e292`. Cache-bust `v=1.0.47`. (`app.js`)
+
+### **15. Catatan 27 Oktober 2026**
+
+Sisa kerjaan 20 Oktober yang dicatat minggu ini biar "Catatan 20 Oktober" fokus ke batch checkout: polesan UI pagi plus bikin halaman akun user (versi basic), ngikutin 3 contoh gambar (Pesanan Saya, Ulasan Saya, Alamat Pengiriman):
+
 - **Address book di-restyle** biar matching desain checkout baru: container jadi kartu putih bersudut bundar (hapus border dashed), item alamat pakai background `#fafafa` + hover gold, tombol hapus merah, tombol "Simpan alamat ini" full-width gold outline. Teks di-Indonesikan ("Alamat Tersimpan", "maks. 3"). Commit `0f6b0b1`. Cache-bust `v=1.0.48`. (`style.css`, `app.js`)
-- Dropdown Layanan Pengiriman (native `<select>`) tetap pakai styling bawaan browser untuk popup opsi-nya — nggak bisa di-style pakai CSS. Sudah diputuskan biarkan saja (opsi paling aman).
 - Perapian mikro: tombol "See Description" di produk nggak pecah dua baris (`white-space: nowrap`), header quick-add checkout nggak numpuk di HP, layout alamat checkout jadi satu kolom penuh di HP (class `.address-grid`), Total di paybar nggak ikut nge-wrap. Commits `4fe3b7b`, `7a8f2a8`, `340bc19`.
 - Toast sukses dipindah ke tengah bawah (full-width di HP, `text-align: center`) biar nggak nempel kiri. Commit `7d2a11a`.
 - Burger menu HP dikasih bayangan ke kanan + `overscroll-behavior: contain` biar scroll nggak bocor ke halaman di belakangnya. Commit `b5a022c`. Cache-bust `v=1.0.53`.
-
-
-### **14. Catatan 20 Oktober 2026**
-
-Hari ini bikin halaman akun user (versi basic), ngikutin 3 contoh gambar (Pesanan Saya, Ulasan Saya, Alamat Pengiriman):
-
 - **`account.html` (baru)** — layout sidebar (avatar + nama + email, menu: Pesanan Saya / Ulasan Saya / Alamat Pengiriman / Keluar) + konten di kanan. Belum login → kartu gerbang "Masuk dengan Google". Meta `noindex, nofollow` + masuk `robots.txt` (`Disallow: /account`) biar nggak keindeks. (`account.html`, `robots.txt`)
 - **Pesanan Saya**: fetch `orders` by `customer_email`, kartu per order (ID, tanggal, chip status berwarna, preview item, total). "Lihat Detail" expand inline: timeline 4-step (Dibuat/Diproses/Dikirim/Selesai — mapping status PENDING/SHIPPED/COMPLETED; CANCELLED nggak ada timeline, diganti catatan merah), ringkasan produk + subtotal/ongkir/total, info pengiriman/pembayaran, preview bukti bayar. Tombol "Lacak" → `track.html?id=ORD-xxx`.
 - **`track.html`** sekarang auto-track dari URL `?id=` — biar tombol Lacak dari halaman akun (atau link manapun) langsung nampilin hasilnya. (`track.html`)
