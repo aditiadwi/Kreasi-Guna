@@ -3672,7 +3672,12 @@ window.renderRecentOrdersTrack = () => {
     const list = document.getElementById('recent-orders-list');
     if (!container || !list) return;
 
-    const recentOrders = JSON.parse(localStorage.getItem(getRecentOrdersStorageKey()) || '[]');
+    let recentOrders = JSON.parse(localStorage.getItem(getRecentOrdersStorageKey()) || '[]');
+    // Deduplicate while preserving order (first occurrence wins)
+    recentOrders = [...new Set(recentOrders)];
+    // Update storage with deduplicated array
+    localStorage.setItem(getRecentOrdersStorageKey(), JSON.stringify(recentOrders));
+
     if (recentOrders.length === 0) {
         container.classList.add('hidden');
         return;
