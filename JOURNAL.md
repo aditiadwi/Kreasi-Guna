@@ -257,7 +257,7 @@ Hari ini bikin halaman akun user (versi basic), ngikutin 3 contoh gambar (Pesana
 - **Alamat Pengiriman**: baca/tulis address book localStorage per-user (maks. 3, fungsi lama `getAddressBook` dipakai ulang). Form tambah/ubah: nama, HP, kota, provinsi, kode pos, alamat. Validasi nama ≥3 & alamat ≥10 karakter (sama kayak checkout).
 - **Dropdown user di header** (`app.js`): nambah item "👤 Akun Saya" → `account.html` sebelum Logout.
 - CSS `.acc-*` di `style.css` (grid `260px 1fr`, sticky sidebar, ≤868px jadi 1 kolom + menu jadi baris wrap).
-- Cache-bust `v=1.0.54` semua HTML. `node --check app.js` lolos.
+- Cache-bust `v=1.0.54` semua HTML. `node --check app.js` lolos. Commit `247f705`.
 
 
 ### **Catatan buat besok (lanjut)**
