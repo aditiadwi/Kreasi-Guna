@@ -1330,6 +1330,10 @@ body.menu-open {
     outline: none; border-color: var(--gold-accent); box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.1); 
 }
 
+/* Checkout address grid (Kota / Provinsi / Kode Pos) */
+.address-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.address-grid .form-group { margin-bottom: 0; }
+
 /* STAR RATING */
 .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; margin-bottom: 20px; }
 .star-d { font-size: 2.5rem; cursor: pointer; color: #ddd; transition: all 0.2s; }
@@ -1613,6 +1617,15 @@ footer { margin-top: auto; padding: 50px 0 calc(30px + env(safe-area-inset-botto
     .contact-grid { grid-template-columns: 1fr; gap: 40px; }
     .contact-map { height: 300px; }
     .whatsapp-float { width: 55px; height: 55px; bottom: 20px; right: 20px; }
+
+    /* Checkout address grid: stack ke 1 kolom di HP */
+    .address-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+    .address-grid .form-group { margin-bottom: 20px; }
+
+    /* Quick-add header: wrap rapi di HP */
+    .quick-add-header { flex-wrap: wrap; gap: 8px !important; }
+    .quick-add-header h3 { font-size: 0.95rem !important; }
+    .quick-add-header > div { gap: 8px !important; }
 
     /* 2-COLUMN MOBILE & TABLET PRODUCT GRID */
     .product-grid { 
