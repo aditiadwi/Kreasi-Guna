@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.57">
+    <link rel="stylesheet" href="style.css?v=1.0.58">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         #rate-stars .rate-star { display: inline-block; transition: transform 0.15s ease; }
@@ -65,12 +65,12 @@
             </h1>
             <p style="color: var(--text-muted); margin-bottom: 30px;">Check your delivery status and order details.</p>
             
-            <div style="display: flex; gap: 10px; margin-bottom: 40px; flex-wrap: wrap;">
-                <div style="position: relative; flex: 1; min-width: 250px;">
-                    <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="track-id-input" placeholder="Enter Order ID (ORD-171...)" style="flex: 1; min-width: 250px; padding: 15px 15px 15px 46px; border: 2px solid #eee; border-radius: 12px; outline: none; transition: 0.3s; font-size: 1rem;" onfocus="this.style.borderColor='var(--gold-premium)'" onblur="this.style.borderColor='#eee'" onkeydown="if(event.key==='Enter'){event.preventDefault();handleTrackOrder()}">
+            <div style="display: flex; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center; align-items: stretch;">
+                <div style="position: relative; flex: 1; max-width: 520px; min-width: 250px;">
+                    <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; z-index: 1;" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="track-id-input" placeholder="Enter Order ID (ORD-171...)" style="width: 100%; box-sizing: border-box; padding: 15px 15px 15px 46px; border: 2px solid #eee; border-radius: 12px; outline: none; transition: 0.3s; font-size: 1rem; background: white;" onfocus="this.style.borderColor='var(--gold-premium)'" onblur="this.style.borderColor='#eee'" onkeydown="if(event.key==='Enter'){event.preventDefault();handleTrackOrder()}">
                 </div>
-                <button class="btn-primary" id="track-btn" style="padding: 15px 30px; border-radius: 12px;" onclick="handleTrackOrder()"><span class="tico-btn"><span class="tico tico-md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>Track Now</span></button>
+                <button class="btn-primary" id="track-btn" style="padding: 15px 30px; border-radius: 12px; flex-shrink: 0;" onclick="handleTrackOrder()"><span class="tico-btn"><span class="tico tico-md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>Track Now</span></button>
             </div>
 
             <div id="recent-orders-container" class="hidden" style="text-align: left; background: #fafafa; border-radius: 12px; padding: 15px; margin-bottom: 30px; border: 1px dashed #ddd;">
@@ -169,7 +169,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.57"></script>
+    <script src="app.js?v=1.0.58"></script>
     
 
 </body>
