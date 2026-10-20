@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="env.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart | KG — Smart Drip Coffee</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=1.0.22">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <span>KG</span>
+                <div class="logo-subtitle">Kreasi Guna</div>
+            </div>
+            <button class="mobile-menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="history.html">History</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="brew.html">Brew</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="track.html" class="nav-special">Track</a></li>
+                <li><a href="cart.html" class="cart-nav-icon active" id="cart-nav-link">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="cart-section container">
+            <h2 class="section-header">Your Cart</h2>
+            <div class="checkout-steps">
+                <div class="step-item current"><span class="step-circle">1</span><span>Cart</span></div>
+                <div class="step-line"></div>
+                <div class="step-item"><span class="step-circle">2</span><span>Details</span></div>
+                <div class="step-line"></div>
+                <div class="step-item"><span class="step-circle">3</span><span>Pay</span></div>
+            </div>
+            <div class="cart-page-container">
+                <div class="cart-page-items">
+                    <div id="cart-items">
+                        <div class="empty-cart">
+                            <div class="empty-cart-icon">🛒</div>
+                            <p>Your cart is empty.</p>
+                            <a href="products.html" class="btn-primary">Browse Products</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="cart-page-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-line">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal">Rp 0</span>
+                    </div>
+                    <div class="summary-line total">
+                        <span>Total</span>
+                        <span id="cart-total">Rp 0</span>
+                    </div>
+                    <a href="checkout.html" class="btn-primary w-100" id="btn-proceed-checkout">Checkout Now →</a>
+                    <a href="products.html" class="btn-continue-shopping">← Continue Shopping</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-socials">
+                <a href="https://instagram.com/kreasiguna" target="_blank" class="social-icon">Instagram</a>
+                <a href="https://wa.me/6281219092900" target="_blank" class="social-icon">WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved. | <a href="javascript:void(0)" onclick="loginAdmin()">Admin Login</a></p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/6281219092900" class="whatsapp-float" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24">
+            <path fill="#fff" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/>
+            <path fill="#25d366" d="M12.004 3.105c4.896 0 8.878 3.987 8.878 8.888 0 4.896-3.987 8.878-8.878 8.878-1.578 0-3.095-.414-4.428-1.201l-.317-.189-3.295.843.864-3.15-.208-.332A8.826 8.826 0 0 1 3.12 12c0-4.896 3.982-8.895 8.884-8.895zm4.847 9.873c-.26-.13-1.536-.757-1.772-.843-.236-.086-.41-.13-.58.13-.17.26-.66.827-.81 1-.15.171-.3.193-.56.064-1.22-.618-2.14-1.096-2.984-2.54-.223-.377.223-.35.635-1.18.068-.137.034-.257-.017-.36-.051-.103-.456-1.097-.624-1.504-.163-.398-.33-.341-.45-.347-.116-.006-.25-.006-.384-.006-.134 0-.353.051-.536.253-.183.201-.7.683-.7 1.667 0 .983.714 1.93 1.157 2.52 2.012 2.76 4.38 3.376 6.51 3.424.57 0 1.09-.03 1.5-.09.457-.068 1.4-.537 1.6-.1.2.437.2.823.14.909-.05.086-.184.13-.443.26z"/>
+        </svg>
+    </a>
+
+    <script src="app.js?v=1.0.22"></script>
+</body>
+</html>

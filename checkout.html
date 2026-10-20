@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <script src="env.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout | KG — Smart Drip Coffee</title>
+    <title>Checkout | KG â€” Smart Drip Coffee</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css?v=1.0.56">
+    <link rel="stylesheet" href="style.css?v=1.0.57">
     <script type="text/javascript" src="https://unpkg.com/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
@@ -52,7 +52,7 @@
                 <div class="cart-details">
                     <h2 class="section-header">Complete Your Order</h2>
                     <div class="checkout-steps" id="checkout-steps">
-                        <div class="step-item done" data-step="1"><span class="step-circle">✓</span><span>Cart</span></div>
+                        <div class="step-item done" data-step="1"><span class="step-circle">âœ“</span><span>Cart</span></div>
                         <div class="step-line done" data-line="1"></div>
                         <div class="step-item current" data-step="2"><span class="step-circle">2</span><span>Details</span></div>
                         <div class="step-line" data-line="2"></div>
@@ -65,7 +65,7 @@
                     <!-- Quick Add More Products -->
                     <div class="quick-add-section" style="margin: 25px 0; border-top: 1px dashed var(--border-light); border-bottom: 1px dashed var(--border-light); padding: 20px 0;">
                         <div class="quick-add-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h3 style="font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;">☕ Tambah Produk Lain</h3>
+                            <h3 style="font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;">â˜• Tambah Produk Lain</h3>
                             <div style="display: flex; gap: 10px; align-items: center;">
                                 <button type="button" id="quick-toggle" onclick="toggleQuickAdd()" class="btn-hide-quick-add" style="background: transparent; border: 1px solid var(--border-light); border-radius: 999px; padding: 4px 14px; font-size: 0.75rem; font-weight: 700; color: var(--wood-warm); cursor: pointer; align-items: center; white-space: nowrap;">Sembunyikan</button>
                                 <a href="products.html" class="btn-see-all" style="font-size: 0.78rem; font-weight: 600; color: var(--wood-warm); text-decoration: none; transition: color 0.2s; white-space: nowrap;" onmouseover="this.style.color='var(--coffee-dark)'" onmouseout="this.style.color='var(--wood-warm)'">Lihat Semua &rarr;</a>
@@ -80,7 +80,7 @@
                         <h3 style="margin-bottom: 16px;">Data Penerima</h3>
                         <div id="autofill-banner" class="hidden" style="background: rgba(224, 192, 151, 0.12); border: 1px dashed var(--latte-accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 0.3s ease;">
                             <div style="font-size: 0.85rem; color: var(--wood-warm); font-weight: 600;">
-                                💡 Gunakan alamat pengiriman terakhir Anda?
+                                ðŸ’¡ Gunakan alamat pengiriman terakhir Anda?
                             </div>
                             <button type="button" onclick="autofillShippingProfile()" style="background: var(--latte-accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
                                 Isi Otomatis
@@ -119,19 +119,19 @@
                                         style="background: transparent; border: 1px solid var(--latte-accent); padding: 6px 10px; border-radius: 8px; color: var(--wood-warm); font-weight: 600; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease; outline: none;"
                                         onmouseover="this.style.backgroundColor='var(--latte-accent)'; this.style.color='white';"
                                         onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--wood-warm)';">
-                                        📍 Lokasi Terkini
+                                        ðŸ“ Lokasi Terkini
                                     </button>
                                     <button type="button" id="btn-open-map" onclick="detectUserLocationMap()" 
                                         style="background: transparent; border: 1px solid var(--latte-accent); padding: 6px 10px; border-radius: 8px; color: var(--wood-warm); font-weight: 600; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease; outline: none;"
                                         onmouseover="this.style.backgroundColor='var(--latte-accent)'; this.style.color='white';"
                                         onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--wood-warm)';">
-                                        🗺️ Pilih di Peta
+                                        ðŸ—ºï¸ Pilih di Peta
                                     </button>
                                 </div>
                             </div>
                             <textarea id="customer-address" placeholder="Jl. Contoh No. 10, Bekasi Timur" required minlength="10"></textarea>
                             <p id="address-helper-note" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
-                                💡 <span id="address-helper-text">Catatan: Silakan tambahkan nomor rumah/blok/RT/RW secara lengkap.</span>
+                                ðŸ’¡ <span id="address-helper-text">Catatan: Silakan tambahkan nomor rumah/blok/RT/RW secara lengkap.</span>
                             </p>
                             <div class="error-message">Masukkan alamat lengkap (min. 10 karakter).</div>
                         </div>
@@ -171,9 +171,9 @@
                         <div class="form-group">
                             <label>Layanan Pengiriman *</label>
                             <select id="delivery-service" required>
-                                <option value="reg" selected>Regular (J&T / JNE) — Rp 15.000</option>
-                                <option value="sameday">GoSend Same Day — Rp 25.000</option>
-                                <option value="instant">GoSend Instant — Rp 45.000</option>
+                                <option value="reg" selected>Regular (J&T / JNE) â€” Rp 15.000</option>
+                                <option value="sameday">GoSend Same Day â€” Rp 25.000</option>
+                                <option value="instant">GoSend Instant â€” Rp 45.000</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -225,7 +225,7 @@
                         </div>
                         <button id="btn-place-order" class="btn-primary w-100" onclick="handlePlaceOrder()">Submit Payment & Order</button>
                     </div>
-                    <button id="btn-checkout" class="btn-primary w-100" onclick="handleProceedToPayment()">Lanjut ke Pembayaran →</button>
+                    <button id="btn-checkout" class="btn-primary w-100" onclick="handleProceedToPayment()">Lanjut ke Pembayaran â†’</button>
                 </div>
             </div>
         </section>
@@ -233,13 +233,13 @@
         <!-- Bar total fixed khusus HP -->
         <div id="mobile-paybar">
             <div class="mobile-bar-total"><small>Total</small><span id="mobile-bar-total">Rp 0</span></div>
-            <button class="btn-primary" onclick="handleProceedToPayment()">Lanjut ke Pembayaran →</button>
+            <button class="btn-primary" onclick="handleProceedToPayment()">Lanjut ke Pembayaran â†’</button>
         </div>
     </main>
 
     <footer>
         <div class="footer-bottom">
-            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved.</p>
+            <p>&copy; 2026 Smart Drip Coffee â€” Kreasi Guna. All rights reserved.</p>
         </div>
     </footer>
 
@@ -253,7 +253,7 @@
         <div style="background: white; width: 100%; max-width: 600px; border-radius: 16px; padding: 20px; box-shadow: var(--shadow-bold); position: relative; display: flex; flex-direction: column; gap: 15px;">
             <button type="button" id="btn-close-map" style="position: absolute; top: 15px; right: 15px; background: #eee; border: none; font-size: 1.2rem; cursor: pointer; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 10;">&times;</button>
             <h3 style="margin-top: 0; font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); display: flex; align-items: center; gap: 8px;">
-                📍 Geser Pin ke Rumah Anda
+                ðŸ“ Geser Pin ke Rumah Anda
             </h3>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
                 Geser peta atau seret pin merah tepat ke lokasi rumah Anda agar alamat kurir akurat.
@@ -267,7 +267,7 @@
                            onfocus="this.style.borderColor='var(--wood-warm)'"
                            onblur="this.style.borderColor='var(--border-light)'">
                     <button type="button" id="btn-map-search" style="padding: 10px 16px; border-radius: 8px; border: none; background: var(--wood-warm); color: white; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; white-space: nowrap;">
-                        🔍 Cari
+                        ðŸ” Cari
                     </button>
                 </div>
                 <div id="map-search-results" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: white; border: 1px solid var(--border-light); border-radius: 8px; box-shadow: var(--shadow-bold); z-index: 1010; margin-top: 4px;"></div>
@@ -292,6 +292,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=1.0.56"></script>
+    <script src="app.js?v=1.0.57"></script>
 </body>
 </html>
+

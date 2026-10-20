@@ -280,7 +280,7 @@ Daftar progress yang udah kelar, urut tanggal — ringkas doang, detailnya tetap
 - **14 Oktober 2026** — SEO kelar: `robots.txt`, `sitemap.xml`, meta description + Open Graph di semua halaman publik, verifikasi Google Search Console, sitemap resmi kebaca (6 halaman).
 - **19 Oktober 2026** — Cart & gerbang checkout: skor bintang nongol di Track, cart dirombak (qty outline, foto membulat, swipe hapus di HP), gerbang Login / Lanjut sebagai Tamu sebelum bayar, thumbnail baris checkout, fix centang modal sukses.
 - **20 Oktober 2026** — Batch checkout sesuai contoh: Bekasi masuk + ongkir per-opsi, form alamat dipecah (Data Penerima + Alamat Pengiriman), auto-fill provinsi & kode pos dari deteksi lokasi, modal sukses + nomor pesanan bold/copy/⧉, ringkasan pesanan & empty cart dirapikan.
-- **27 Oktober 2026** — Halaman akun user (`account.html`: Pesanan Saya, Ulasan Saya, Alamat Pengiriman), lacak otomatis dari URL `?id=`, poles dropdown header (kartu menu rapi + icon SVG), address book restyle, polesan mikro HP (toast tengah, burger menu, layout checkout). Cache aset terakhir `v=1.0.56`.
+- **27 Oktober 2026** — Halaman akun user (`account.html`: Pesanan Saya, Ulasan Saya, Alamat Pengiriman), lacak otomatis dari URL `?id=`, poles dropdown header (kartu menu rapi + icon SVG), address book restyle, polesan mikro HP (toast tengah, burger menu, layout checkout). **Perbaiki Track Order**: Enter key submit, error handling bedakan network/not found, loading state tombol. Cache aset terakhir `v=1.0.57`.
 
 
 ### **Catatan buat besok (lanjut)**
