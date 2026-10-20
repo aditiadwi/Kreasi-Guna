@@ -3697,6 +3697,96 @@ window.fillAndTrackOrder = (id) => {
     }
 };
 
+window.handleTrackOrder = async () => {
+    const input = document.getElementById('track-id-input');
+    const trackResult = document.getElementById('track-result');
+    const trackError = document.getElementById('track-error');
+    const trackBtn = document.getElementById('track-btn');
+
+    if (!input || !input.value.trim()) {
+        alert('Masukkan Order ID terlebih dahulu');
+        return;
+    }
+
+    const orderId = input.value.trim();
+
+    trackResult.classList.add('hidden');
+    trackError.classList.add('hidden');
+    if (trackBtn) {
+        trackBtn.disabled = true;
+        trackBtn.innerText = 'Mencari...';
+    }
+
+    try {
+        const sb = initSupabase();
+        if (!sb) throw new Error('Database tidak tersedia');
+
+        const { data, error } = await sb
+            .from('orders')
+            .select('*')
+            .eq('order_id', orderId)
+            .single();
+
+        if (error || !data) {
+            throw new Error('Order tidak ditemukan');
+        }
+
+        window._trackOrderData = data;
+        window._trackItemsRaw = data.items;
+
+        document.getElementById('res-id').innerText = data.order_id;
+        const statusEl = document.getElementById('res-status');
+        statusEl.innerText = data.status || 'PENDING';
+        statusEl.className = 'status-badge ' + (data.status || 'PENDING').toLowerCase();
+
+        document.getElementById('res-name').innerText = data.customer_name || '-';
+        document.getElementById('res-phone').innerText = data.customer_phone || '-';
+        document.getElementById('res-email').innerText = data.customer_email || '-';
+        document.getElementById('res-address').innerText = data.address || '-';
+
+        const items = parseTrackItems(data.items);
+        const itemsHtml = items.map((it, i) => `
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee;">
+                <span>${i + 1}. ${it.name}</span>
+                <span>${it.qty} x Rp ${parseInt(it.price).toLocaleString('id-ID')}</span>
+            </div>
+        `).join('');
+        document.getElementById('res-items-list').innerHTML = itemsHtml || '<p>Tidak ada item</p>';
+        document.getElementById('res-total').innerText = rp(data.total_amount);
+        document.getElementById('res-method').innerText = data.payment_method || '-';
+
+        const receiptEl = document.getElementById('res-receipt');
+        const receiptSection = document.getElementById('res-receipt-section');
+        if (data.receipt_url) {
+            receiptEl.src = data.receipt_url;
+            receiptSection.style.display = 'block';
+        } else {
+            receiptSection.style.display = 'none';
+        }
+
+        const noteEl = document.getElementById('res-note');
+        const statusText = {
+            'PENDING': 'Pesanan Anda sedang menunggu verifikasi pembayaran.',
+            'CONFIRMED': 'Pesanan dikonfirmasi dan sedang diproses.',
+            'SHIPPED': 'Pesanan telah dikirim. Silakan cek nomor resi di aplikasi kurir.',
+            'DELIVERED': 'Pesanan telah sampai. Terima kasih telah berbelanja!',
+            'CANCELLED': 'Pesanan dibatalkan.'
+        };
+        noteEl.innerText = statusText[data.status] || 'Status pesanan: ' + (data.status || 'PENDING');
+
+        trackResult.classList.remove('hidden');
+
+    } catch (err) {
+        console.error('Track order error:', err);
+        trackError.classList.remove('hidden');
+    } finally {
+        if (trackBtn) {
+            trackBtn.disabled = false;
+            trackBtn.innerText = 'Track Now';
+        }
+    }
+};
+
 window.openProductModal = (product) => {
     const modal = document.getElementById('product-detail-modal');
     if (!modal) return;
