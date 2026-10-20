@@ -267,6 +267,22 @@ Sisa kerjaan 20 Oktober yang dicatat minggu ini biar "Catatan 20 Oktober" fokus 
 - **Poles item menu dropdown (Akun Saya / Logout)**: emoji mentah `👤`/`🚪` diganti **SVG stroke** (`currentColor` — tampilannya konsisten antar device dan ikut warna hover). Tiap item dapat icon badge 28px (background cream → gold pas hover; variant merah buat Logout), item geser 2px halus pas hover, dan "Akun Saya" dikasih panah `›` di kanan biar kelihatan sebagai link navigasi. Border-left diganti geser halus biar lebih clean. Cache-bust `v=1.0.56`. (`app.js`, `style.css`)
 
 
+### **16. Rekap Progress (sampai 27 Oktober 2026)**
+
+Daftar progress yang udah kelar, urut tanggal — ringkas doang, detailnya tetap ada di catatan harian masing-masing:
+
+- **Sampai 7 Agustus 2026** — Fondasi Smart Drip V2: berhenti jadi landing page statis, jadi e-commerce beneran. Database Supabase (produk, pesanan, feedback), dashboard admin (CRUD, grafik penjualan, best seller, ekspor CSV), stok autopilot, lacak pesanan tanpa daftar akun, kirim email struk dua arah lewat EmailJS.
+- **12–19 Agustus 2026** — Katalog & keranjang: kartu produk + modal "See Description", halaman `cart.html` sendiri, badge keranjang + toast notifikasi, gambar produk diseragamkan, testimoni home + tombol "Lihat Semua Ulasan".
+- **9 September 2026** — Gelombang besar: hover preview keranjang (plus minus), modal sukses pesanan + Copy ID, address book, tombol Download Receipt, pencarian admin fuzzy + ranking, grafik sales trend per bulan, Buy Again, indikator langkah checkout, plus fix login admin yang sempat mati.
+- **14 September 2026** — Halaman history dirombak (timeline vertikal, daftar isi sticky, progress bar baca), foto "From Peak to Pouch" diganti + grid HP dibetulin.
+- **15 September 2026** — Spacing semua section diseragamkan (96/64px), fix total `Rp NaN`, tombol Track dilurusin.
+- **16 September 2026** — Testimoni home jadi marquee yang ngalir (diam 3 detik kalo diseret manual), checkout opsi 3 (ringkasan sticky di desktop + bar total di HP), foto profil nongol di ulasan (avatar Google / inisial gold).
+- **14 Oktober 2026** — SEO kelar: `robots.txt`, `sitemap.xml`, meta description + Open Graph di semua halaman publik, verifikasi Google Search Console, sitemap resmi kebaca (6 halaman).
+- **19 Oktober 2026** — Cart & gerbang checkout: skor bintang nongol di Track, cart dirombak (qty outline, foto membulat, swipe hapus di HP), gerbang Login / Lanjut sebagai Tamu sebelum bayar, thumbnail baris checkout, fix centang modal sukses.
+- **20 Oktober 2026** — Batch checkout sesuai contoh: Bekasi masuk + ongkir per-opsi, form alamat dipecah (Data Penerima + Alamat Pengiriman), auto-fill provinsi & kode pos dari deteksi lokasi, modal sukses + nomor pesanan bold/copy/⧉, ringkasan pesanan & empty cart dirapikan.
+- **27 Oktober 2026** — Halaman akun user (`account.html`: Pesanan Saya, Ulasan Saya, Alamat Pengiriman), lacak otomatis dari URL `?id=`, poles dropdown header (kartu menu rapi + icon SVG), address book restyle, polesan mikro HP (toast tengah, burger menu, layout checkout). Cache aset terakhir `v=1.0.56`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - Tes alur akun end-to-end di HP & desktop: login → Pesanan Saya (detail expand) → Ulasan (ubah/hapus) → Alamat (tambah/ubah/hapus)
