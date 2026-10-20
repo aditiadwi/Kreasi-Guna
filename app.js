@@ -1453,7 +1453,7 @@ window.reorderTrackItems = async (btn) => {
     if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') {
         if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Loading products...'; }
         await fetchProducts();
-        if (btn) { btn.disabled = false; btn.innerHTML = '🔁 Buy Again'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="tico-btn"><span class="tico tico-md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span>Buy Again</span>'; }
     }
     const byName = {};
     (DYNAMIC_PRODUCTS || []).forEach(p => { byName[String(p.name).toLowerCase()] = p; });
