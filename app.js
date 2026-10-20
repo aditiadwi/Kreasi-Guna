@@ -1427,17 +1427,18 @@ function dataURLToBlob(dataURL) {
 function getTrackReceiptData() {
     const txt = (id) => (document.getElementById(id)?.innerText || '-').trim();
     const items = parseTrackItems(window._trackItemsRaw);
+    const od = window._trackOrderData || {};
     return {
         orderId: txt('res-id'),
-        date: new Date().toLocaleString('id-ID'),
+        date: txt('res-date') !== '-' ? txt('res-date') : new Date().toLocaleString('id-ID'),
         customerName: txt('res-name'),
         customerPhone: txt('res-phone'),
-        customerEmail: txt('res-email'),
+        customerEmail: od.customer_email || '-',
         location: txt('res-address'),
         items: items.length ? items : [{ name: '(see order details)', qty: 1, price: 0, subtotal: 0 }],
         subtotal: window._trackSubtotal || '-', shipping: window._trackShipping || '-',
         total: txt('res-total'),
-        delivery: txt('res-method'), method: txt('res-method'),
+        delivery: txt('res-delivery'), method: txt('res-method'),
         status: txt('res-status'),
         note: window._trackBuyerNote || '-'
     };
@@ -1451,9 +1452,12 @@ window.reorderTrackItems = async (btn) => {
     if (!window._trackItemsRaw) return alert('Track an order first.');
     if (typeof initSupabase === 'function') initSupabase();
     if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') {
-        if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Loading products...'; }
+        if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Memuat produk...'; }
         await fetchProducts();
-        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="tico-btn"><span class="tico tico-md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span>Buy Again</span>'; }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="tico tico-md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span><span id="reorder-text">Beli Lagi</span>';
+        }
     }
     const byName = {};
     (DYNAMIC_PRODUCTS || []).forEach(p => { byName[String(p.name).toLowerCase()] = p; });
@@ -3702,25 +3706,55 @@ window.fillAndTrackOrder = (id) => {
     }
 };
 
+window.hideTrackResult = () => {
+    const r = document.getElementById('track-result');
+    if (r) r.classList.add('hidden');
+};
+
+// Timeline: PENDING→step2 current, CONFIRMED→3, SHIPPED→4, DELIVERED→5 (done)
+function setTrackTimeline(status) {
+    const s = String(status || 'PENDING').toUpperCase();
+    const map = { 'PENDING': 1, 'CONFIRMED': 2, 'PAID': 2, 'SHIPPED': 3, 'DELIVERED': 4, 'COMPLETED': 4 };
+    const cancelled = s === 'CANCELLED';
+    const cur = cancelled ? -1 : (map[s] !== undefined ? map[s] : 1);
+    for (let i = 0; i < 5; i++) {
+        const el = document.getElementById('tl-' + (i + 1));
+        if (!el) continue;
+        el.classList.remove('done', 'current');
+        if (cancelled) continue;
+        if (i < cur) el.classList.add('done');
+        else if (i === cur) el.classList.add('current');
+    }
+    const bar = document.getElementById('tl-bar');
+    if (bar) bar.style.width = cancelled ? '0%' : (cur * 20) + '%';
+}
+
+const TRACK_STATUS_LABELS = {
+    'PENDING': 'Menunggu Pembayaran',
+    'CONFIRMED': 'Diproses',
+    'SHIPPED': 'Dikirim',
+    'DELIVERED': 'Selesai',
+    'CANCELLED': 'Dibatalkan'
+};
+
 window.handleTrackOrder = async () => {
     const input = document.getElementById('track-id-input');
     const trackResult = document.getElementById('track-result');
     const trackError = document.getElementById('track-error');
     const trackBtn = document.getElementById('track-btn');
+    const trackBtnText = document.getElementById('track-btn-text');
 
     if (!input || !input.value.trim()) {
-        alert('Masukkan Order ID terlebih dahulu');
+        alert('Masukkan ID Pemesanan terlebih dahulu');
         return;
     }
 
     const orderId = input.value.trim();
 
-    trackResult.classList.add('hidden');
-    trackError.classList.add('hidden');
-    if (trackBtn) {
-        trackBtn.disabled = true;
-        trackBtn.innerText = 'Mencari...';
-    }
+    if (trackResult) trackResult.classList.add('hidden');
+    if (trackError) trackError.classList.add('hidden');
+    if (trackBtn) trackBtn.disabled = true;
+    if (trackBtnText) trackBtnText.innerText = 'Mencari...';
 
     try {
         const sb = initSupabase();
@@ -3738,57 +3772,112 @@ window.handleTrackOrder = async () => {
 
         window._trackOrderData = data;
         window._trackItemsRaw = data.items;
+        window._trackSubtotal = data.subtotal || null;
+        window._trackShipping = data.shipping_fee || null;
+        window._trackBuyerNote = data.note || null;
 
-        document.getElementById('res-id').innerText = data.order_id;
-        const statusEl = document.getElementById('res-status');
-        statusEl.innerText = data.status || 'PENDING';
-        statusEl.className = 'status-badge ' + (data.status || 'PENDING').toLowerCase();
+        const $ = (id) => document.getElementById(id);
+        const rawStatus = String(data.status || 'PENDING').toUpperCase();
 
-        document.getElementById('res-name').innerText = data.customer_name || '-';
-        document.getElementById('res-phone').innerText = data.customer_phone || '-';
-        document.getElementById('res-email').innerText = data.customer_email || '-';
-        document.getElementById('res-address').innerText = data.address || '-';
+        $('res-id').innerText = data.order_id;
+
+        const createdDate = data.created_at ? new Date(data.created_at) : null;
+        const dateStr = createdDate && !isNaN(createdDate)
+            ? createdDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + createdDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+            : '-';
+        $('res-date').innerText = dateStr;
+        $('tl-d1').innerText = dateStr;
+
+        const statusEl = $('res-status');
+        statusEl.innerText = TRACK_STATUS_LABELS[rawStatus] || rawStatus;
+        statusEl.className = 'status-badge ' + rawStatus.toLowerCase();
+
+        $('res-method').innerText = data.payment_method || '-';
+        $('res-delivery').innerText = data.delivery_method || '-';
+        $('res-total').innerText = rp(data.total_amount);
+
+        $('res-name').innerText = data.customer_name || '-';
+        $('res-phone').innerText = data.customer_phone || '-';
+        $('res-address').innerText = data.address || '-';
+
+        setTrackTimeline(rawStatus);
 
         const items = parseTrackItems(data.items);
-        const itemsHtml = items.map((it, i) => `
-            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee;">
-                <span>${i + 1}. ${it.name}</span>
-                <span>${it.qty} x Rp ${parseInt(it.price).toLocaleString('id-ID')}</span>
+        const itemsHtml = items.map((it) => `
+            <div class="tk-item">
+                <img src="${it.img || 'Images/My Product.png'}" alt="" onerror="this.src='Images/My Product.png'" loading="lazy">
+                <div class="tk-item-info">
+                    <strong>${escReceipt(it.name)}</strong>
+                    <span>Rp ${parseInt(it.price || 0).toLocaleString('id-ID')} &times; ${it.qty}</span>
+                </div>
+                <span class="tk-item-sub">Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}</span>
             </div>
         `).join('');
-        document.getElementById('res-items-list').innerHTML = itemsHtml || '<p>Tidak ada item</p>';
-        document.getElementById('res-total').innerText = rp(data.total_amount);
-        document.getElementById('res-method').innerText = data.payment_method || '-';
+        $('res-items-list').innerHTML = itemsHtml || '<p style="color:#999;font-size:0.9rem;">Tidak ada item</p>';
 
-        const receiptEl = document.getElementById('res-receipt');
-        const receiptSection = document.getElementById('res-receipt-section');
+        const ship = rp(data.shipping_fee);
+        $('res-summary').innerHTML = `
+            <div class="tk-summary-row"><span>Subtotal</span><span>${rp(data.subtotal)}</span></div>
+            <div class="tk-summary-row"><span>Ongkos Kirim</span><span>${ship}</span></div>
+            <div class="tk-summary-row grand"><span>Total</span><span>${rp(data.total_amount)}</span></div>
+        `;
+
+        // Thumbnail produk: cari gambar dari katalog berdasar nama item pertama
+        let thumb = '';
+        try {
+            if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') {
+                await fetchProducts();
+            }
+            const firstName = (items[0] && items[0].name || '').toLowerCase();
+            const prod = (DYNAMIC_PRODUCTS || []).find(p => String(p.name).toLowerCase() === firstName);
+            if (prod && prod.image_url) thumb = prod.image_url;
+            // Sisipkan img ke item agar konsisten
+            items.forEach(it => {
+                const p = (DYNAMIC_PRODUCTS || []).find(x => String(x.name).toLowerCase() === String(it.name).toLowerCase());
+                if (p && p.image_url) it.img = p.image_url;
+            });
+            if (thumb) {
+                $('res-items-list').innerHTML = items.map((it) => `
+                    <div class="tk-item">
+                        <img src="${it.img || 'Images/My Product.png'}" alt="" onerror="this.src='Images/My Product.png'" loading="lazy">
+                        <div class="tk-item-info">
+                            <strong>${escReceipt(it.name)}</strong>
+                            <span>Rp ${parseInt(it.price || 0).toLocaleString('id-ID')} &times; ${it.qty}</span>
+                        </div>
+                        <span class="tk-item-sub">Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}</span>
+                    </div>
+                `).join('');
+            }
+        } catch (e) { /* katalog gagal: thumbnail default */ }
+        $('res-thumb').src = thumb || 'Images/My Product.png';
+
+        const receiptEl = $('res-receipt');
+        const receiptSection = $('res-receipt-section');
         if (data.receipt_url) {
             receiptEl.src = data.receipt_url;
-            receiptSection.style.display = 'block';
+            receiptSection.classList.remove('hidden');
         } else {
-            receiptSection.style.display = 'none';
+            receiptSection.classList.add('hidden');
         }
 
-        const noteEl = document.getElementById('res-note');
         const statusText = {
             'PENDING': 'Pesanan Anda sedang menunggu verifikasi pembayaran.',
-            'CONFIRMED': 'Pesanan dikonfirmasi dan sedang diproses.',
-            'SHIPPED': 'Pesanan telah dikirim. Silakan cek nomor resi di aplikasi kurir.',
+            'CONFIRMED': 'Pembayaran dikonfirmasi dan pesanan sedang diproses.',
+            'SHIPPED': 'Pesanan telah dikirim. Terima kasih sudah menunggu!',
             'DELIVERED': 'Pesanan telah sampai. Terima kasih telah berbelanja!',
-            'CANCELLED': 'Pesanan dibatalkan.'
+            'CANCELLED': 'Pesanan ini telah dibatalkan.'
         };
-        noteEl.innerText = statusText[data.status] || 'Status pesanan: ' + (data.status || 'PENDING');
+        $('res-note').innerText = statusText[rawStatus] || 'Status pesanan: ' + rawStatus;
 
         trackResult.classList.remove('hidden');
+        trackResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch (err) {
         console.error('Track order error:', err);
-        trackError.classList.remove('hidden');
+        if (trackError) trackError.classList.remove('hidden');
     } finally {
-        if (trackBtn) {
-            trackBtn.disabled = false;
-            trackBtn.innerText = 'Track Now';
-        }
+        if (trackBtn) trackBtn.disabled = false;
+        if (trackBtnText) trackBtnText.innerText = 'Lacak Pesanan';
     }
 };
 
