@@ -139,24 +139,28 @@ async function updateAuthUI() {
             const user = session.user;
             const name = user.user_metadata.full_name || user.email;
             const avatar = user.user_metadata.avatar_url;
-            
-            let avatarHtml = '';
-            if (avatar) {
-                avatarHtml = `<img src="${avatar}" alt="${name}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-premium); margin-right: 8px;">`;
-            } else {
-                avatarHtml = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--gold-premium); color: white; font-weight: bold; font-size: 0.8rem; margin-right: 8px;">${name.charAt(0).toUpperCase()}</span>`;
-            }
+            const initial = name.charAt(0).toUpperCase();
+
+            const avatarInner = avatar ? `<img src="${avatar}" alt="${name}">` : initial;
+            const avatarCls = avatar ? 'has-img' : '';
 
             authLi.innerHTML = `
-                <div class="user-profile-menu" style="display: flex; align-items: center; gap: 5px; position: relative;">
-                    ${avatarHtml}
-                    <span class="user-nav-name" style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; color: var(--coffee-black); max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; letter-spacing: 1px;" onclick="toggleUserDropdown()">${name.split(' ')[0]} ▾</span>
-                    <div id="user-dropdown" class="auth-dropdown hidden" style="position: absolute; top: 120%; right: 0; background: white; border: 1px solid var(--border-light); border-radius: 8px; box-shadow: var(--shadow-medium); z-index: 1001; padding: 12px; min-width: 180px; display: flex; flex-direction: column; gap: 8px;">
-                        <span style="font-size: 0.75rem; font-weight: 600; color: var(--coffee-black); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${name}</span>
-                        <span style="font-size: 0.7rem; color: var(--text-muted); word-break: break-all;">${user.email}</span>
-                        <hr style="border: 0; border-top: 1px solid var(--border-light); margin: 5px 0;">
-                        <a href="account.html" style="color: var(--coffee-black); font-size: 0.8rem; font-weight: bold; text-decoration: none; display: block; padding: 5px; text-transform: uppercase; letter-spacing: 1px;">👤 Akun Saya</a>
-                        <a href="javascript:void(0)" onclick="handleLogout()" style="color: #dc3545; font-size: 0.8rem; font-weight: bold; text-decoration: none; display: block; padding: 5px; text-transform: uppercase; letter-spacing: 1px;">Logout</a>
+                <div class="user-profile-menu">
+                    <button type="button" class="user-nav-trigger" onclick="toggleUserDropdown()" aria-haspopup="true" aria-expanded="false">
+                        <span class="user-nav-avatar ${avatarCls}">${avatarInner}</span>
+                        <span class="user-nav-name">${name.split(' ')[0]}</span>
+                        <svg class="user-nav-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div id="user-dropdown" class="auth-dropdown hidden">
+                        <div class="auth-dd-head">
+                            <span class="auth-dd-avatar ${avatarCls}">${avatarInner}</span>
+                            <span class="auth-dd-id">
+                                <strong title="${name}">${name}</strong>
+                                <span title="${user.email}">${user.email}</span>
+                            </span>
+                        </div>
+                        <a href="account.html" class="auth-dd-item"><span class="auth-dd-ico">👤</span>Akun Saya</a>
+                        <a href="javascript:void(0)" onclick="handleLogout()" class="auth-dd-item is-danger"><span class="auth-dd-ico">🚪</span>Logout</a>
                     </div>
                 </div>
             `;
@@ -191,7 +195,13 @@ async function updateAuthUI() {
 
 window.toggleUserDropdown = () => {
     const dropdown = document.getElementById('user-dropdown');
-    if (dropdown) dropdown.classList.toggle('hidden');
+    if (!dropdown) return;
+    const nowHidden = dropdown.classList.toggle('hidden'); // true = baru ditutup
+    const trigger = document.querySelector('.user-nav-trigger');
+    if (trigger) {
+        trigger.classList.toggle('open', !nowHidden);
+        trigger.setAttribute('aria-expanded', String(!nowHidden));
+    }
 };
 
 window.handleGoogleLogin = async () => {
@@ -339,6 +349,11 @@ document.addEventListener('click', (e) => {
     const profileMenu = document.querySelector('.user-profile-menu');
     if (dropdown && !dropdown.classList.contains('hidden') && profileMenu && !profileMenu.contains(e.target)) {
         dropdown.classList.add('hidden');
+        const trigger = document.querySelector('.user-nav-trigger');
+        if (trigger) {
+            trigger.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+        }
     }
 });
 

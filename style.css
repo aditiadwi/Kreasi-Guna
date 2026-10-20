@@ -1722,6 +1722,194 @@ footer { margin-top: auto; padding: 50px 0 calc(30px + env(safe-area-inset-botto
     display: none !important;
 }
 
+/* ---- User profile menu (dropdown header) ---- */
+.user-profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.user-nav-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 50px;
+    padding: 5px 10px 5px 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.user-nav-trigger:hover,
+.user-nav-trigger.open {
+    background: var(--bg-cream);
+    border-color: var(--gold-premium);
+    box-shadow: var(--shadow-subtle);
+}
+.user-nav-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--gold-premium);
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--gold-accent);
+}
+.user-nav-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.user-nav-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--coffee-black);
+    letter-spacing: 1px;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.user-nav-caret {
+    color: var(--wood-warm);
+    transition: transform 0.25s ease;
+}
+.user-nav-trigger.open .user-nav-caret {
+    transform: rotate(180deg);
+}
+
+.auth-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    box-shadow: var(--shadow-bold);
+    z-index: 1001;
+    padding: 8px;
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.auth-dropdown:not(.hidden) {
+    animation: auth-dd-in 0.18s ease both;
+}
+@keyframes auth-dd-in {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.auth-dd-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px 12px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-light);
+    background: linear-gradient(180deg, var(--bg-cream) 0%, #ffffff 100%);
+    border-radius: 10px 10px 0 0;
+}
+.auth-dd-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gold-premium);
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--gold-accent);
+}
+.auth-dd-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.auth-dd-id {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.35;
+}
+.auth-dd-id strong {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--coffee-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.auth-dd-id span {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.auth-dropdown .auth-dd-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 11px;
+    border-radius: 9px;
+    color: var(--coffee-black);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.auth-dropdown .auth-dd-item:hover {
+    background: var(--bg-cream);
+    border-left-color: var(--gold-premium);
+    color: var(--wood-warm);
+}
+.auth-dropdown .auth-dd-item.is-danger {
+    color: #dc3545;
+}
+.auth-dropdown .auth-dd-item.is-danger:hover {
+    background: #fff5f5;
+    border-left-color: #dc3545;
+    color: #c0392b;
+}
+.auth-dd-ico {
+    font-size: 0.95rem;
+    line-height: 1;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+    .auth-dropdown {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 220px;
+    }
+    .auth-dropdown:not(.hidden) {
+        animation: none;
+    }
+    .user-nav-name {
+        max-width: 90px;
+    }
+}
+
 .nav-login-btn {
     padding: 8px 16px;
     border-radius: 20px;

@@ -258,6 +258,7 @@ Hari ini bikin halaman akun user (versi basic), ngikutin 3 contoh gambar (Pesana
 - **Dropdown user di header** (`app.js`): nambah item "👤 Akun Saya" → `account.html` sebelum Logout.
 - CSS `.acc-*` di `style.css` (grid `260px 1fr`, sticky sidebar, ≤868px jadi 1 kolom + menu jadi baris wrap).
 - Cache-bust `v=1.0.54` semua HTML. `node --check app.js` lolos. Commit `247f705`.
+- **Poles dropdown user di header**: markup + style inline diganti class CSS (`.user-nav-trigger`, `.auth-dd-*`). Jadi kartu menu rapi: header gradasi cream (avatar 40px + nama + email, ellipsis kalau kepanjangan), item "👤 Akun Saya" & "🚪 Logout" dengan hover cream + border-left gold, animasi muncul 0.18s, chevron berputar pas dibuka. Tombol trigger jadi `<button>` asli (bisa keyboard/aria), `aria-expanded` ikut update, klik di luar juga reset chevron-nya. Item menu pakai selektor `.auth-dropdown .auth-dd-item` biar nggak kalah sama `.nav-links a { font-size: 1.6rem }` di drawer HP. Dropdown dipusatin (`left: 50%`) pas ≤1024px biar nggak keluar tepi. Cache-bust `v=1.0.55`. (`app.js`, `style.css`)
 
 
 ### **Catatan buat besok (lanjut)**
