@@ -1530,6 +1530,19 @@ window.handleShippingUpdate = () => {
     const feeEl = document.getElementById('shipping-fee');
     if (feeEl) feeEl.innerText = `Rp ${currentShippingFee.toLocaleString('id-ID')}`;
     
+    // Update delivery service options with prices
+    if (table) {
+        const currentVal = serviceSelect.value;
+        const labels = {
+            reg: 'Regular (J&T / JNE)',
+            sameday: 'GoSend Same Day',
+            instant: 'GoSend Instant'
+        };
+        serviceSelect.innerHTML = Object.keys(labels).map(key => 
+            `<option value="${key}" ${key === currentVal ? 'selected' : ''}>${labels[key]} — Rp ${table[key].toLocaleString('id-ID')}</option>`
+        ).join('');
+    }
+    
     saveFormData();
     renderCart();
 };
