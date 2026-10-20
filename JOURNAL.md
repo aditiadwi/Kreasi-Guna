@@ -267,7 +267,21 @@ Sisa kerjaan 20 Oktober yang dicatat minggu ini biar "Catatan 20 Oktober" fokus 
 - **Poles item menu dropdown (Akun Saya / Logout)**: emoji mentah `👤`/`🚪` diganti **SVG stroke** (`currentColor` — tampilannya konsisten antar device dan ikut warna hover). Tiap item dapat icon badge 28px (background cream → gold pas hover; variant merah buat Logout), item geser 2px halus pas hover, dan "Akun Saya" dikasih panah `›` di kanan biar kelihatan sebagai link navigasi. Border-left diganti geser halus biar lebih clean. Cache-bust `v=1.0.56`. (`app.js`, `style.css`)
 
 
-### **16. Rekap Progress (sampai 27 Oktober 2026)**
+### **16. Catatan 28 Oktober 2026**
+
+Hari ini fokus Track Order sama halaman akun, ngejar 3 contoh gambar (hasil track, detail pesanan, hero track):
+
+- **Track Order auto-track + status badge**: `handleTrackOrder()` di `app.js` (query Supabase by `order_id`, render hasil + item + timeline + struk) supaya `track.html?id=...` langsung nampilin hasil — dipakai juga dari tombol Lacak di halaman akun. Status chip (PENDING/SHIPPED/COMPLETED/CANCELLED) nempel di hasil cari. Commit `32b47e2`. (`track.html`, `app.js`, `style.css`)
+- **Redesign Track Order sesuai contoh** (`Images/Contoh Tampilan Tract Order.png`): hero pakai `Images/Header Tract Order.png` sebagai background + overlay gelap, form cari dengan ikon, hasil pencarian (info order, timeline 5 langkah hijau, daftar item + struk + tombol Buy Again), section bantuan WhatsApp. Semua emoji diganti **ikon SVG stroke gaya Feather** (`.tico`) biar seragam antar device. Commit `d7feb72`, `0d97993`, `f9430fe`, `30153c2`. (`track.html`, `style.css`, `app.js`)
+- **Fix mojibake masif**: emoji di banyak file HTML rusak jadi karakter `â`/`ðŸ` (encoding ketuker cp1252→UTF-8). Dibetulin bulk pakai script Node roundtrip per-baris — `admin.html` (43 baris) + semua halaman root (133 baris: account, history, brew, checkout, index, about, contact, cart, products). Sambil jalan, `rp()` di `account.html` dipagari kayak app.js biar nggak balik `Rp NaN`. Commit `21c994c`, `9cf8db6`. (`admin.html` + semua `*.html`, `account.html`)
+- **Badge ikon emoji di account**: menu sidebar & judul section dikasih badge rounded (`.acc-ico` 26px cream, aktif → gold + shadow, logout merah; `.acc-ico-lg` 34px gradasi gold buat judul). Gate login 🔒 jadi lingkaran gold 76px, empty state pakai lingkaran dashed gold. Commit `b95375e`. (`account.html`, `style.css`)
+- **Pesanan selesai: Beri Ulasan + Beli Lagi per item** (ngikutin `Images/Contoh Tampilan Halaman User bagian Pesanan Saya.jpeg`): tiap item punya thumbnail, harga × qty, subtotal, tombol ★ Beri Ulasan (modal bintang, simpan ke `feedback` terikat `order_id`+`product_id`, kalau udah pernah jadi "★ n · Rated") dan 🛒 Beli Lagi (cek stok, masuk keranjang). Fungsi rating dipindah ke `app.js` (`rateOrderProduct`, `markRatedOrderButtons`, modal) biar dipakai bareng Track & Account — tombol rate di Track sempat hilang pas redesign, balik lagi. Commit `2547c99`. (`account.html`, `app.js`, `style.css`, `track.html`)
+- **Emoji account diganti SVG Feather total**: 🔒📅⭐📍🚪📦⚠️🛒🧾🚚🔁 semua jadi SVG stroke custom (papan ikon `ACC_ICONS` + helper `accIco()`), warna ngikutin konteks (badge aktif putih, tombol gold putih). Karakter `★`/`✓` dibiarkan (dingbat teks, tampil konsisten). Commit `2a6d12b`. (`account.html`, `style.css`)
+- **Halaman Detail Pesanan full-page** sesuai `Images/Contoh Tampilan Halaman User Setelah Menekan Detail Pesanan bagian Pesanan Saya.jpeg`: tombol Detail nyembunyiin daftar order, buka halaman sendiri — link "← Kembali ke Pesanan Saya", judul + chip status, nomor & tanggal order, tombol atas (Lihat Struk, Pesan Ulang, Hubungi Kami, Beri Ulasan emas), timeline 5 langkah (Dibuat → Pembayaran Berhasil → Diproses → Dikirim → Selesai, lingkaran hijau + ikon + tanggal), kolom kiri produk (foto, nama, qty, subtotal + aksi per item) + Ringkasan Pembayaran, kolom kanan Informasi Pengiriman & Pembayaran (chip Berhasil/Menunggu), banner "Butuh Bantuan?" WhatsApp. Status CONFIRMED/PAID/DELIVERED nambah di `STATUS_STYLES`. Sidebar akun tetap sticky (udah dari sononya, dipertahankan). Commit `9003b84`. (`account.html`, `style.css`)
+- Cache-bust `app.js`/`style.css` account & track sampai `v=1.0.65`. `node -c app.js` + cek inline script lolos tiap commit. Semua push ke main, Vercel auto-deploy.
+
+
+### **17. Rekap Progress (sampai 28 Oktober 2026)**
 
 Daftar progress yang udah kelar, urut tanggal — ringkas doang, detailnya tetap ada di catatan harian masing-masing:
 
@@ -281,13 +295,15 @@ Daftar progress yang udah kelar, urut tanggal — ringkas doang, detailnya tetap
 - **19 Oktober 2026** — Cart & gerbang checkout: skor bintang nongol di Track, cart dirombak (qty outline, foto membulat, swipe hapus di HP), gerbang Login / Lanjut sebagai Tamu sebelum bayar, thumbnail baris checkout, fix centang modal sukses.
 - **20 Oktober 2026** — Batch checkout sesuai contoh: Bekasi masuk + ongkir per-opsi, form alamat dipecah (Data Penerima + Alamat Pengiriman), auto-fill provinsi & kode pos dari deteksi lokasi, modal sukses + nomor pesanan bold/copy/⧉, ringkasan pesanan & empty cart dirapikan.
 - **27 Oktober 2026** — Halaman akun user (`account.html`: Pesanan Saya, Ulasan Saya, Alamat Pengiriman), lacak otomatis dari URL `?id=`, poles dropdown header (kartu menu rapi + icon SVG), address book restyle, polesan mikro HP (toast tengah, burger menu, layout checkout). **Perbaiki Track Order**: Enter key submit, error handling bedakan network/not found, loading state tombol. Cache aset terakhir `v=1.0.57`.
+- **28 Oktober 2026** — Track Order dirombak sesuai contoh (hero gambar, ikon SVG Feather, timeline, hasil + struk + Buy Again). Fix mojibake emoji di semua halaman. Halaman akun: badge ikon di menu/judul, pesanan selesai punya tombol Beri Ulasan + Beli Lagi per item (rating tersimpan ke `feedback`), emoji account total diganti SVG custom, dan Detail Pesanan jadi halaman penuh (back link, timeline 5 langkah, produk + ringkasan, info kirim/bayar, banner bantuan). Cache aset terakhir `v=1.0.65`.
 
 
 ### **Catatan buat besok (lanjut)**
 
-- Tes alur akun end-to-end di HP & desktop: login → Pesanan Saya (detail expand) → Ulasan (ubah/hapus) → Alamat (tambah/ubah/hapus)
+- Tes alur akun end-to-end di HP & desktop: login → Pesanan Saya (buka Detail penuh) → Beri Ulasan/Beli Lagi di item selesai → Ulasan (ubah/hapus) → Alamat (tambah/ubah/hapus)
+- Tes halaman Detail Pesanan pakai data asli: status PENDING/SHIPPED/COMPLETED/CANCELLED masing-masing mapping timeline-nya benar, tombol Lihat Struk nongol kalau ada `receipt_url`
 - Cek RLS Supabase tabel `feedback`: kalau UPDATE/DELETE ditolak buat user biasa, tombol Ubah/Hapus ulasan bakal error — perlu policy khusus atau dipindah server-side
-- Cek hasil deploy Vercel: pastikan checkout address form tampil benar (Data Penerima + Alamat Pengiriman)
+- Cek hasil deploy Vercel: pastikan Track Order hero + halaman Detail Pesanan tampil benar di HP
 - Supabase Dashboard → Authentication → URL Configuration (Site URL + Redirect URLs) — biar OAuth Google jalan
 - Ide lanjutan halaman akun (versi lanjutan): Wishlist, Metode Pembayaran, Pengaturan Akun, timeline detail pakai timestamp asli kalau kolomnya ada
 
