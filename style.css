@@ -1587,18 +1587,17 @@ footer { margin-top: auto; padding: 50px 0 calc(30px + env(safe-area-inset-botto
     #mobile-paybar .btn-primary { padding: 12px 14px; font-size: 0.75rem; white-space: nowrap; flex-shrink: 1; min-width: 0; letter-spacing: 0; }
     body.has-paybar { padding-bottom: 76px; }
 
-    /* Toast: center di HP biar nggak geser ke kiri */
+    /* Toast: full-width tapi tetap center di HP biar nggak geser ke kiri */
     #toast-notification {
-        right: auto;
-        left: 50%;
-        transform: translateX(-50%) translateY(-20px);
-        max-width: calc(100vw - 32px);
+        right: 16px;
+        left: 16px;
+        transform: translateY(-20px);
         text-align: center;
-        font-size: 0.82rem;
-        padding: 12px 20px;
+        font-size: 0.85rem;
+        padding: 14px 20px;
     }
     #toast-notification.show {
-        transform: translateX(-50%) translateY(0);
+        transform: translateY(0);
     }
     /* Quick-add bisa dilipat di HP */
     #quick-toggle { display: inline-flex !important; }
