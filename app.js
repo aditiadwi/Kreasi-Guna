@@ -14,7 +14,7 @@ initSupabase();
 
 // USER SESSION & CART STATES (DYNAMIC PER USER ID)
 let cart = {};
-const FORM_FIELDS = ['customer-name', 'customer-phone', 'customer-email', 'shipping-city', 'delivery-service', 'customer-address'];
+const FORM_FIELDS = ['customer-name', 'customer-phone', 'customer-email', 'shipping-city', 'customer-province', 'customer-postal-code', 'delivery-service', 'customer-address'];
 
 let currentUserId = null;
 let isFirstAuthCheck = true;
@@ -1564,13 +1564,16 @@ window.setCheckoutStep = (n) => {
 
 window.handleProceedToPayment = () => {
     const name = document.getElementById('customer-name').value;
-    const phone = document.getElementById('customer-phone').value;
+    const phoneRaw = document.getElementById('customer-phone').value;
+    const phone = phoneRaw.startsWith('0') ? '+62' + phoneRaw.slice(1) : '+62' + phoneRaw;
     const email = document.getElementById('customer-email').value;
     const city = document.getElementById('shipping-city').value;
+    const province = document.getElementById('customer-province').value;
+    const postalCode = document.getElementById('customer-postal-code').value;
     const address = document.getElementById('customer-address').value;
 
-    if (!name || !phone || !email || !city || !address || Object.keys(cart).length === 0) {
-        return alert("Please fill in all required delivery details and add items to your cart!");
+    if (!name || !phone || !email || !city || !province || !postalCode || !address || Object.keys(cart).length === 0) {
+        return alert("Mohon lengkapi semua data wajib dan masukkan produk ke keranjang!");
     }
 
     const payArea = document.getElementById('payment-area');
@@ -1629,9 +1632,12 @@ window.handlePlaceOrder = async () => {
         
         const orderId = 'ORD-'+Date.now();
         const customerName = document.getElementById('customer-name').value;
-        const customerPhone = document.getElementById('customer-phone').value;
+        const phoneRaw = document.getElementById('customer-phone').value;
+        const customerPhone = phoneRaw.startsWith('0') ? '+62' + phoneRaw.slice(1) : '+62' + phoneRaw;
         const customerEmail = document.getElementById('customer-email').value;
-        const location = `${document.getElementById('shipping-city').value}, ${document.getElementById('customer-address').value}`;
+        const province = document.getElementById('customer-province').value;
+        const postalCode = document.getElementById('customer-postal-code').value;
+        const location = `${document.getElementById('shipping-city').value}, ${province}, ${postalCode}, ${document.getElementById('customer-address').value}`;
         
         // Detailed Items List
         const itemsList = Object.keys(cart).map(id => {
@@ -3512,7 +3518,7 @@ function saveAddressToBook(entry, silent) {
     }
     let book = getAddressBook();
     book = book.filter(b => !(b.email === entry.email && b.address === entry.address));
-    book.unshift({ name: entry.name, phone: entry.phone || '', email: entry.email || '', city: entry.city || '', address: entry.address });
+    book.unshift({ name: entry.name, phone: entry.phone || '', email: entry.email || '', city: entry.city || '', province: entry.province || '', postalCode: entry.postalCode || '', address: entry.address });
     if (book.length > 3) book = book.slice(0, 3);
     localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
     if (typeof window.renderAddressBook === 'function') window.renderAddressBook();
@@ -3531,6 +3537,11 @@ function applyAddressToForm(p) {
             citySelect.dispatchEvent(new Event('change'));
         }
     }
+    if (p.province) {
+        const provSelect = document.getElementById('customer-province');
+        if (provSelect) provSelect.value = p.province;
+    }
+    if (p.postalCode && document.getElementById('customer-postal-code')) document.getElementById('customer-postal-code').value = p.postalCode;
     if (p.address && document.getElementById('customer-address')) document.getElementById('customer-address').value = p.address;
     if (typeof saveFormData === 'function') saveFormData();
     if (typeof window.handleShippingUpdate === 'function') window.handleShippingUpdate();
@@ -3576,10 +3587,12 @@ window.saveCurrentFormAddress = () => {
         phone: document.getElementById('customer-phone')?.value.trim(),
         email: document.getElementById('customer-email')?.value.trim(),
         city: document.getElementById('shipping-city')?.value,
+        province: document.getElementById('customer-province')?.value,
+        postalCode: document.getElementById('customer-postal-code')?.value.trim(),
         address: document.getElementById('customer-address')?.value.trim()
     };
-    if (!entry.name || (entry.name || '').length < 3) return alert('Please enter your full name (min. 3 characters).');
-    if (!entry.address || entry.address.length < 10) return alert('Please enter a complete address (min. 10 characters).');
+    if (!entry.name || (entry.name || '').length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
+    if (!entry.address || entry.address.length < 10) return alert('Masukkan alamat lengkap (min. 10 karakter).');
     saveAddressToBook(entry);
 };
 

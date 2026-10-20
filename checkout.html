@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css?v=1.0.45">
+    <link rel="stylesheet" href="style.css?v=1.0.46">
     <script type="text/javascript" src="https://unpkg.com/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
@@ -77,7 +77,7 @@
                     </div>
                     
                     <form id="checkout-form">
-                        <h3>Shipping Destination</h3>
+                        <h3 style="margin-bottom: 16px;">Data Penerima</h3>
                         <div id="autofill-banner" class="hidden" style="background: rgba(224, 192, 151, 0.12); border: 1px dashed var(--latte-accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 0.3s ease;">
                             <div style="font-size: 0.85rem; color: var(--wood-warm); font-weight: 600;">
                                 💡 Gunakan alamat pengiriman terakhir Anda?
@@ -87,44 +87,33 @@
                             </button>
                         </div>
                         <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="customer-name" placeholder="John Doe" required minlength="3">
-                            <div class="error-message">Please enter your full name (min. 3 characters).</div>
+                            <label>Nama Lengkap *</label>
+                            <input type="text" id="customer-name" placeholder="Aditia Dwi Putra" required minlength="3">
+                            <div class="error-message">Masukkan nama lengkap (min. 3 karakter).</div>
                         </div>
                         <div class="form-group">
-                            <label>Phone Number</label>
-                            <input type="tel" id="customer-phone" placeholder="081234567890" required pattern="[0-9]{10,15}">
-                            <div class="error-message">Please enter a valid phone number (10-15 digits).</div>
+                            <label>Nomor WhatsApp *</label>
+                            <div style="display: flex; gap: 8px;">
+                                <select id="phone-prefix" style="width: 80px; flex-shrink: 0; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; cursor: pointer;">
+                                    <option value="+62" selected>+62</option>
+                                </select>
+                                <div style="flex: 1; position: relative;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.4;"><path fill="#25D366" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/></svg>
+                                    <input type="tel" id="customer-phone" placeholder="81234567890" required pattern="[0-9]{9,13}" style="padding-left: 38px;">
+                                </div>
+                            </div>
+                            <div class="error-message">Masukkan nomor WhatsApp yang valid (9-13 digit).</div>
                         </div>
                         <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="customer-email" placeholder="john@example.com" required>
-                            <div class="error-message">Please enter a valid email address.</div>
+                            <label>Email *</label>
+                            <input type="email" id="customer-email" placeholder="contoh@email.com" required>
+                            <div class="error-message">Masukkan alamat email yang valid.</div>
                         </div>
-                        <div class="form-group">
-                            <label>City/Area</label>
-                            <select id="shipping-city" required>
-                                <option value="" selected disabled>Select your city</option>
-                                <option value="jakarta" selected>Jakarta</option>
-                                <option value="bekasi">Bekasi</option>
-                                <option value="bandung">Bandung</option>
-                                <option value="surabaya">Surabaya</option>
-                                <option value="medan">Medan</option>
-                                <option value="bali">Bali</option>
-                            </select>
-                            <div class="error-message">Please select a city.</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Delivery Service</label>
-                            <select id="delivery-service" required>
-                                <option value="reg" selected>Regular (J&T / JNE) — Rp 15.000</option>
-                                <option value="sameday">GoSend Same Day — Rp 25.000</option>
-                                <option value="instant">GoSend Instant — Rp 45.000</option>
-                            </select>
-                        </div>
+
+                        <h3 style="margin: 28px 0 16px;">Alamat Pengiriman</h3>
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-                                <label style="margin: 0; padding: 0;">Complete Address</label>
+                                <label style="margin: 0; padding: 0;">Alamat Lengkap *</label>
                                 <div style="display: flex; gap: 6px;">
                                     <button type="button" id="btn-detect-location" onclick="detectUserLocationDirect()" 
                                         style="background: transparent; border: 1px solid var(--latte-accent); padding: 6px 10px; border-radius: 8px; color: var(--wood-warm); font-weight: 600; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease; outline: none;"
@@ -140,15 +129,60 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="customer-address" placeholder="Nama jalan, perumahan, gang..." required minlength="10"></textarea>
+                            <textarea id="customer-address" placeholder="Jl. Contoh No. 10, Bekasi Timur" required minlength="10"></textarea>
                             <p id="address-helper-note" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">
                                 💡 <span id="address-helper-text">Catatan: Silakan tambahkan nomor rumah/blok/RT/RW secara lengkap.</span>
                             </p>
-                            <div class="error-message">Please enter a complete address (min. 10 characters).</div>
+                            <div class="error-message">Masukkan alamat lengkap (min. 10 karakter).</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label>Kota / Kabupaten *</label>
+                                <select id="shipping-city" required>
+                                    <option value="" selected disabled>Pilih kota</option>
+                                    <option value="jakarta" selected>Jakarta</option>
+                                    <option value="bekasi">Bekasi</option>
+                                    <option value="bandung">Bandung</option>
+                                    <option value="surabaya">Surabaya</option>
+                                    <option value="medan">Medan</option>
+                                    <option value="bali">Bali</option>
+                                </select>
+                                <div class="error-message">Pilih kota.</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Provinsi *</label>
+                                <select id="customer-province" required>
+                                    <option value="" selected disabled>Pilih provinsi</option>
+                                    <option value="jakarta">DKI Jakarta</option>
+                                    <option value="jawa-barat" selected>Jawa Barat</option>
+                                    <option value="jawa-tengah">Jawa Tengah</option>
+                                    <option value="jawa-timur">Jawa Timur</option>
+                                    <option value="bali">Bali</option>
+                                    <option value="sumut">Sumatera Utara</option>
+                                </select>
+                                <div class="error-message">Pilih provinsi.</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Kode Pos *</label>
+                                <input type="text" id="customer-postal-code" placeholder="17113" required pattern="[0-9]{5}">
+                                <div class="error-message">Kode pos 5 digit.</div>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>Note for Seller (Optional)</label>
-                            <textarea id="order-note" placeholder="Example: Extra bubble wrap..."></textarea>
+                            <label>Layanan Pengiriman *</label>
+                            <select id="delivery-service" required>
+                                <option value="reg" selected>Regular (J&T / JNE) — Rp 15.000</option>
+                                <option value="sameday">GoSend Same Day — Rp 25.000</option>
+                                <option value="instant">GoSend Instant — Rp 45.000</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Catatan untuk Penjual (Opsional)</label>
+                            <textarea id="order-note" placeholder="Contoh: Extra bubble wrap..."></textarea>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="save-address" style="width: 20px; height: 20px; accent-color: var(--gold-premium); cursor: pointer;">
+                            <label for="save-address" style="margin: 0; font-weight: 600; cursor: pointer; font-size: 0.92rem;">Simpan alamat ini untuk pesanan berikutnya</label>
                         </div>
                     </form>
                 </div>
@@ -191,7 +225,7 @@
                         </div>
                         <button id="btn-place-order" class="btn-primary w-100" onclick="handlePlaceOrder()">Submit Payment & Order</button>
                     </div>
-                    <button id="btn-checkout" class="btn-primary w-100" onclick="handleProceedToPayment()">Proceed to Payment</button>
+                    <button id="btn-checkout" class="btn-primary w-100" onclick="handleProceedToPayment()">Lanjut ke Pembayaran →</button>
                 </div>
             </div>
         </section>
@@ -199,7 +233,7 @@
         <!-- Bar total fixed khusus HP -->
         <div id="mobile-paybar">
             <div class="mobile-bar-total"><small>Total</small><span id="mobile-bar-total">Rp 0</span></div>
-            <button class="btn-primary" onclick="handleProceedToPayment()">Proceed to Payment</button>
+            <button class="btn-primary" onclick="handleProceedToPayment()">Lanjut ke Pembayaran →</button>
         </div>
     </main>
 
@@ -258,6 +292,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=1.0.45"></script>
+    <script src="app.js?v=1.0.46"></script>
 </body>
 </html>
