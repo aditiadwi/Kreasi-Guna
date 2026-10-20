@@ -41,11 +41,11 @@
         <!-- Belum login -->
         <div id="account-gate" class="acc-gate hidden">
             <div class="acc-gate-card">
-                <div class="acc-gate-icon">ðŸ”’</div>
+                <div class="acc-gate-icon">🔒</div>
                 <h1>Masuk ke Akunmu</h1>
                 <p>Login untuk melihat pesanan, ulasan, dan alamat pengirimanmu.</p>
                 <button class="btn-primary" onclick="handleGoogleLogin()">Masuk dengan Google</button>
-                <a href="index.html" class="acc-gate-back">â† Kembali ke Beranda</a>
+                <a href="index.html" class="acc-gate-back">← Kembali ke Beranda</a>
             </div>
         </div>
 
@@ -55,15 +55,15 @@
                 <div class="acc-user">
                     <div class="acc-avatar" id="acc-avatar">?</div>
                     <div class="acc-user-meta">
-                        <strong id="acc-name">â€”</strong>
-                        <span id="acc-email">â€”</span>
+                        <strong id="acc-name">—</strong>
+                        <span id="acc-email">—</span>
                     </div>
                 </div>
                 <nav class="acc-menu">
-                    <button class="acc-menu-btn active" data-section="orders" onclick="switchAccountSection('orders', this)">ðŸ“… <span>Pesanan Saya</span></button>
-                    <button class="acc-menu-btn" data-section="reviews" onclick="switchAccountSection('reviews', this)">â­ <span>Ulasan Saya</span></button>
-                    <button class="acc-menu-btn" data-section="addresses" onclick="switchAccountSection('addresses', this)">ðŸ“ <span>Alamat Pengiriman</span></button>
-                    <button class="acc-menu-btn acc-logout" onclick="handleLogout()">ðŸšª <span>Keluar</span></button>
+                    <button class="acc-menu-btn active" data-section="orders" onclick="switchAccountSection('orders', this)">📅 <span>Pesanan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="reviews" onclick="switchAccountSection('reviews', this)">⭐ <span>Ulasan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="addresses" onclick="switchAccountSection('addresses', this)">📍 <span>Alamat Pengiriman</span></button>
+                    <button class="acc-menu-btn acc-logout" onclick="handleLogout()">🚪 <span>Keluar</span></button>
                 </nav>
             </aside>
 
@@ -71,33 +71,33 @@
                 <!-- ============ PESANAN SAYA ============ -->
                 <section id="section-orders" class="acc-section">
                     <div class="acc-section-head">
-                        <h2>ðŸ“… Pesanan Saya</h2>
+                        <h2>📅 Pesanan Saya</h2>
                         <span class="acc-section-sub">Riwayat semua pesananmu di sini.</span>
                     </div>
                     <div id="orders-list">
-                        <div class="acc-loading">Memuat pesananâ€¦</div>
+                        <div class="acc-loading">Memuat pesanan…</div>
                     </div>
                 </section>
 
                 <!-- ============ ULASAN SAYA ============ -->
                 <section id="section-reviews" class="acc-section hidden">
                     <div class="acc-section-head">
-                        <h2>â­ Ulasan Saya</h2>
+                        <h2>⭐ Ulasan Saya</h2>
                         <span class="acc-section-sub">Bintang & komentar yang pernah kamu berikan.</span>
                     </div>
                     <div id="reviews-list">
-                        <div class="acc-loading">Memuat ulasanâ€¦</div>
+                        <div class="acc-loading">Memuat ulasan…</div>
                     </div>
                 </section>
 
                 <!-- ============ ALAMAT PENGIRIMAN ============ -->
                 <section id="section-addresses" class="acc-section hidden">
                     <div class="acc-section-head">
-                        <h2>ðŸ“ Alamat Pengiriman</h2>
-                        <span class="acc-section-sub">Daftar alamat tersimpan <small>(maks. 3)</small> â€” checkout jadi lebih cepat.</span>
+                        <h2>📍 Alamat Pengiriman</h2>
+                        <span class="acc-section-sub">Daftar alamat tersimpan <small>(maks. 3)</small> — checkout jadi lebih cepat.</span>
                     </div>
 
-                    <div id="address-list"><div class="acc-loading">Memuat alamatâ€¦</div></div>
+                    <div id="address-list"><div class="acc-loading">Memuat alamat…</div></div>
 
                     <button type="button" class="acc-btn-ghost" id="btn-toggle-addr-form" onclick="toggleAddrForm()">+ Tambah Alamat Baru</button>
 
@@ -165,7 +165,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Smart Drip Coffee â€” Kreasi Guna. All rights reserved.</p>
+            <p>&copy; 2026 Smart Drip Coffee — Kreasi Guna. All rights reserved.</p>
         </div>
     </footer>
 
@@ -194,9 +194,9 @@
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
-        function rp(v) { return 'Rp ' + (parseInt(v || 0)).toLocaleString('id-ID'); }
+        function rp(v) { const d = String(v ?? '').replace(/[^\d]/g, ''); if (!d) return String(v ?? '-').trim() || '-'; return 'Rp ' + parseInt(d, 10).toLocaleString('id-ID'); }
         function fmtDate(iso) {
-            if (!iso) return 'â€”';
+            if (!iso) return '—';
             try { return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); }
             catch (e) { return iso; }
         }
@@ -225,7 +225,7 @@
                 accOrders = data || [];
                 if (!accOrders.length) {
                     box.innerHTML = `<div class="acc-empty">
-                        <div class="acc-empty-icon">ðŸ“¦</div>
+                        <div class="acc-empty-icon">📦</div>
                         <p>Belum ada pesanan.</p>
                         <a href="products.html" class="btn-primary">Mulai Belanja</a>
                     </div>`;
@@ -233,7 +233,7 @@
                 }
                 box.innerHTML = accOrders.map((o, i) => {
                     const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
-                    const preview = items.slice(0, 2).map(it => esc(it.name) + (it.qty > 1 ? ` Ã—${it.qty}` : '')).join(', ');
+                    const preview = items.slice(0, 2).map(it => esc(it.name) + (it.qty > 1 ? ` ×${it.qty}` : '')).join(', ');
                     const more = items.length > 2 ? ` <span class="acc-more">+${items.length - 2} lainnya</span>` : '';
                     return `<div class="acc-order-card">
                         <div class="acc-order-top">
@@ -244,7 +244,7 @@
                             ${statusChip(o.status)}
                         </div>
                         <div class="acc-order-mid">
-                            <span class="acc-order-items">${preview || 'â€”'}${more}</span>
+                            <span class="acc-order-items">${preview || '—'}${more}</span>
                             <span class="acc-order-total">${rp(o.total_amount)}</span>
                         </div>
                         <div class="acc-order-actions">
@@ -256,7 +256,7 @@
                 }).join('');
             } catch (e) {
                 console.error('Gagal memuat pesanan:', e);
-                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">âš ï¸</div><p>Gagal memuat pesanan. Muat ulang halaman untuk coba lagi.</p></div>`;
+                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">⚠️</div><p>Gagal memuat pesanan. Muat ulang halaman untuk coba lagi.</p></div>`;
             }
         }
 
@@ -288,14 +288,14 @@
                 if (o.status === 'COMPLETED') { doneCount = 4; currentIdx = -1; }
                 timeline = `<div class="acc-timeline">` + steps.map((s, si) => {
                     const cls = si < doneCount ? 'done' : (si === currentIdx ? 'current' : '');
-                    return `<div class="acc-step ${cls}"><span class="acc-step-dot">${si < doneCount ? 'âœ“' : (si + 1)}</span><span class="acc-step-label">${s}</span></div>`;
+                    return `<div class="acc-step ${cls}"><span class="acc-step-dot">${si < doneCount ? '✓' : (si + 1)}</span><span class="acc-step-label">${s}</span></div>`;
                 }).join('') + `</div>`;
             }
 
             const rows = items.map(it => `
                 <div class="acc-item-row">
-                    <span>â€¢ ${esc(it.name)}${it.qty > 1 ? ` Ã—${it.qty}` : ''}</span>
-                    <span>${it.subtotal ? rp(it.subtotal) : 'â€”'}</span>
+                    <span>• ${esc(it.name)}${it.qty > 1 ? ` ×${it.qty}` : ''}</span>
+                    <span>${it.subtotal ? rp(it.subtotal) : '—'}</span>
                 </div>`).join('');
 
             box.innerHTML = `
@@ -304,19 +304,19 @@
                     ${o.status === 'CANCELLED' ? `<div class="acc-note acc-note-danger">Pesanan ini dibatalkan. Hubungi kami untuk info lebih lanjut.</div>` : `<div class="acc-note">${esc(noteMap[o.status] || 'Pesanan sedang diproses.')}</div>`}
                     <div class="acc-detail-grid">
                         <div class="acc-detail-box">
-                            <h4>ðŸ§¾ Ringkasan Produk</h4>
+                            <h4>🧾 Ringkasan Produk</h4>
                             ${rows || '<p class="acc-muted">Tidak ada rincian produk.</p>'}
                             <div class="acc-sum-row"><span>Subtotal</span><span>${rp(o.subtotal)}</span></div>
                             <div class="acc-sum-row"><span>Ongkos Kirim</span><span>${rp(o.shipping_fee)}</span></div>
                             <div class="acc-sum-row acc-sum-total"><span>Total</span><span>${rp(o.total_amount)}</span></div>
                         </div>
                         <div class="acc-detail-box">
-                            <h4>ðŸšš Informasi Pengiriman</h4>
+                            <h4>🚚 Informasi Pengiriman</h4>
                             <p><strong>Nama:</strong> ${esc(o.customer_name)}</p>
-                            <p><strong>Telepon:</strong> ${esc(o.customer_phone || 'â€”')}</p>
-                            <p><strong>Alamat:</strong> ${esc(o.address || 'â€”')}</p>
-                            <p><strong>Pengiriman:</strong> ${esc(o.delivery_method || 'â€”')}</p>
-                            <p><strong>Pembayaran:</strong> ${esc(o.payment_method || 'â€”')}</p>
+                            <p><strong>Telepon:</strong> ${esc(o.customer_phone || '—')}</p>
+                            <p><strong>Alamat:</strong> ${esc(o.address || '—')}</p>
+                            <p><strong>Pengiriman:</strong> ${esc(o.delivery_method || '—')}</p>
+                            <p><strong>Pembayaran:</strong> ${esc(o.payment_method || '—')}</p>
                             ${o.receipt_url ? `<div class="acc-receipt"><span>Bukti Pembayaran:</span><img src="${esc(o.receipt_url)}" alt="Bukti pembayaran" loading="lazy" onclick="window.open(this.src)"></div>` : ''}
                         </div>
                     </div>
@@ -355,7 +355,7 @@
 
                 if (!accReviews.length) {
                     box.innerHTML = `<div class="acc-empty">
-                        <div class="acc-empty-icon">â­</div>
+                        <div class="acc-empty-icon">⭐</div>
                         <p>Belum ada ulasan. Nilai pesananmu lewat halaman Track Order.</p>
                         <a href="track.html" class="btn-primary">Beri Ulasan</a>
                     </div>`;
@@ -373,7 +373,7 @@
                     const img = p && p.image_url ? p.image_url : 'Images/My Product.png';
                     const pname = p ? p.name : 'Ulasan Umum';
                     const rating = parseInt(f.rating || 0, 10);
-                    const stars = [1, 2, 3, 4, 5].map(n => `<span class="${n <= rating ? 'acc-star on' : 'acc-star'}">â˜…</span>`).join('');
+                    const stars = [1, 2, 3, 4, 5].map(n => `<span class="${n <= rating ? 'acc-star on' : 'acc-star'}">★</span>`).join('');
                     return `<div class="acc-review-card">
                         <img class="acc-review-img" src="${esc(img)}" alt="${esc(pname)}" loading="lazy" onerror="this.src='Images/My Product.png'">
                         <div class="acc-review-body">
@@ -392,7 +392,7 @@
                 }).join('');
             } catch (e) {
                 console.error('Gagal memuat ulasan:', e);
-                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">âš ï¸</div><p>Gagal memuat ulasan. Muat ulang halaman untuk coba lagi.</p></div>`;
+                box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">⚠️</div><p>Gagal memuat ulasan. Muat ulang halaman untuk coba lagi.</p></div>`;
             }
         }
 
@@ -429,7 +429,7 @@
             const box = document.getElementById('address-list');
             const book = getAddressBook();
             if (!book.length) {
-                box.innerHTML = `<div class="acc-empty acc-empty-compact"><div class="acc-empty-icon">ðŸ“</div><p>Belum ada alamat tersimpan.</p></div>`;
+                box.innerHTML = `<div class="acc-empty acc-empty-compact"><div class="acc-empty-icon">📍</div><p>Belum ada alamat tersimpan.</p></div>`;
                 return;
             }
             box.innerHTML = book.map((b, i) => `
@@ -438,7 +438,7 @@
                         <strong>${esc(b.name)}</strong>
                         ${b.phone ? `<span class="acc-addr-phone">${esc(b.phone)}</span>` : ''}
                         <p>${esc(b.address)}</p>
-                        <span class="acc-addr-region">${esc(CITY_LABELS[b.city] || b.city || '')}${b.province ? ' Â· ' + esc(PROVINCE_LABELS[b.province] || b.province) : ''}${b.postalCode ? ' ' + esc(b.postalCode) : ''}</span>
+                        <span class="acc-addr-region">${esc(CITY_LABELS[b.city] || b.city || '')}${b.province ? ' · ' + esc(PROVINCE_LABELS[b.province] || b.province) : ''}${b.postalCode ? ' ' + esc(b.postalCode) : ''}</span>
                     </div>
                     <div class="acc-addr-actions">
                         <button class="acc-btn-ghost" onclick="editAddress(${i})">Ubah</button>
