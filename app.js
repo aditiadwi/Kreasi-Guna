@@ -159,8 +159,15 @@ async function updateAuthUI() {
                                 <span title="${user.email}">${user.email}</span>
                             </span>
                         </div>
-                        <a href="account.html" class="auth-dd-item"><span class="auth-dd-ico">👤</span>Akun Saya</a>
-                        <a href="javascript:void(0)" onclick="handleLogout()" class="auth-dd-item is-danger"><span class="auth-dd-ico">🚪</span>Logout</a>
+                        <a href="account.html" class="auth-dd-item">
+                            <span class="auth-dd-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                            <span class="auth-dd-label">Akun Saya</span>
+                            <span class="auth-dd-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                        </a>
+                        <a href="javascript:void(0)" onclick="handleLogout()" class="auth-dd-item is-danger">
+                            <span class="auth-dd-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+                            <span class="auth-dd-label">Logout</span>
+                        </a>
                     </div>
                 </div>
             `;

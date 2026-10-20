@@ -1861,9 +1861,9 @@ footer { margin-top: auto; padding: 50px 0 calc(30px + env(safe-area-inset-botto
 .auth-dropdown .auth-dd-item {
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding: 9px 11px;
-    border-radius: 9px;
+    gap: 10px;
+    padding: 8px 11px;
+    border-radius: 10px;
     color: var(--coffee-black);
     text-decoration: none;
     font-size: 0.82rem;
@@ -1871,28 +1871,73 @@ footer { margin-top: auto; padding: 50px 0 calc(30px + env(safe-area-inset-botto
     text-transform: uppercase;
     letter-spacing: 1px;
     white-space: nowrap;
-    border-left: 3px solid transparent;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .auth-dropdown .auth-dd-item:hover {
     background: var(--bg-cream);
-    border-left-color: var(--gold-premium);
     color: var(--wood-warm);
+    transform: translateX(2px);
 }
 .auth-dropdown .auth-dd-item.is-danger {
     color: #dc3545;
 }
 .auth-dropdown .auth-dd-item.is-danger:hover {
     background: #fff5f5;
-    border-left-color: #dc3545;
     color: #c0392b;
 }
+
+/* Icon badge (SVG, ikut warna teks via currentColor) */
 .auth-dd-ico {
-    font-size: 0.95rem;
-    line-height: 1;
-    width: 18px;
-    text-align: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--bg-cream);
+    color: var(--wood-warm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.auth-dd-ico svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+}
+.auth-dropdown .auth-dd-item:hover .auth-dd-ico {
+    background: var(--gold-premium);
+    color: var(--white);
+}
+.auth-dropdown .auth-dd-item.is-danger .auth-dd-ico {
+    background: #fdecea;
+    color: #dc3545;
+}
+.auth-dropdown .auth-dd-item.is-danger:hover .auth-dd-ico {
+    background: #dc3545;
+    color: var(--white);
+}
+
+.auth-dd-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.auth-dd-arrow {
+    display: inline-flex;
+    align-items: center;
+    color: #c9beb0;
+    flex-shrink: 0;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+.auth-dd-arrow svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+}
+.auth-dropdown .auth-dd-item:hover .auth-dd-arrow {
+    color: var(--gold-premium);
+    transform: translateX(2px);
 }
 
 @media (max-width: 1024px) {
