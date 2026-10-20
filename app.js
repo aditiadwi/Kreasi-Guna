@@ -2431,9 +2431,12 @@ let modalOpenTime = 0; // Menghindari ketukan ganda / click-through di mobile
 function matchShippingCity(detectedCityOrState, currentSelection) {
     const text = (detectedCityOrState || '').toLowerCase();
     
-    // 1. Jabodetabek (Jakarta, Bogor, Depok, Tangerang, Bekasi) dipetakan ke Jakarta
+    // 1. Bekasi punya option sendiri (harga = Jakarta)
+    if (text.includes('bekasi')) {
+        return 'bekasi';
+    }
+    // 2. Jabodetabek lain (Jakarta, Bogor, Depok, Tangerang) → Jakarta
     if (text.includes('jakarta') || 
-        text.includes('bekasi') || 
         text.includes('tangerang') || 
         text.includes('depok') || 
         text.includes('bogor')) {
