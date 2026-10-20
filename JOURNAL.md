@@ -237,20 +237,18 @@ Hari ini ngerapatin cart, checkout, sama gerbang login sebelum bayar:
 - Fix centang hijau terpotong: SVG viewBox diperbesar 52→64, radius 25→28, path diperpanjang, dasharray disesuaikan. Commit `95bbe96`. (`app.js`, `style.css`)
 - Bekasi masuk jadi kota pengiriman (fee sama Jakarta: 15k/25k/45k), `matchShippingCity()` deteksi "bekasi" → return `'bekasi'`, Jabodetabek lain tetap `'jakarta'`. Commit `fd04c8b`, `9c466eb`. (`app.js`)
 - Label dropdown Layanan Pengiriman sekarang nampilin harga per opsi (mis. `Regular (J&T / JNE) — Rp 15.000`), harga ikut berubah pas ganti kota lewat `handleShippingUpdate()`. Default Jakarta terpilih. Commit `f50a04e`. (`app.js`)
-- **Redesign alamat pengiriman checkout** sesuai referensi `Images/Contoh Tampilan  Alamat Pengiriman Halaman Checkout.jpeg`: form dipecah jadi dua section — **Data Penerima** (Nama Lengkap, Nomor WhatsApp dengan prefix +62 & ikon WA, Email) dan **Alamat Pengiriman** (Alamat Lengkap + tombol deteksi lokasi, Kota/Kabupaten, Provinsi dropdown, Kode Pos). Nambah checkbox "Simpan alamat ini untuk pesanan berikutnya", tombol jadi "Lanjut ke Pembayaran →". `handleProceedToPayment()` validasi provinsi & kode pos juga; nomor HP otomatis prepend `+62` sebelum disimpan. Address book nyimpen province & postalCode. Cache-bust `v=1.0.46`. (`checkout.html`, `app.js`)
-- Tombol **Lokasi Terkini** & **Pilih di Peta** sekarang auto-fill **Provinsi** (dropdown, lewat helper baru `matchProvince()`) dan **Kode Pos** dari data Nominatim — user nggak perlu isi manual lagi setelah detect lokasi. `matchShippingCity()` valid list juga ditambah `'bekasi'`. Cache-bust `v=1.0.47`. (`app.js`)
-- **Address book di-restyle** biar matching desain checkout baru: container jadi kartu putih bersudut bundar (hapus border dashed), item alamat pakai background `#fafafa` + hover gold, tombol hapus merah, tombol "Simpan alamat ini" full-width gold outline. Teks di-Indonesikan ("Alamat Tersimpan", "maks. 3"). Cache-bust `v=1.0.48`. (`style.css`, `app.js`)
+- **Redesign alamat pengiriman checkout** sesuai referensi `Images/Contoh Tampilan  Alamat Pengiriman Halaman Checkout.jpeg`: form dipecah jadi dua section — **Data Penerima** (Nama Lengkap, Nomor WhatsApp dengan prefix +62 & ikon WA, Email) dan **Alamat Pengiriman** (Alamat Lengkap + tombol deteksi lokasi, Kota/Kabupaten, Provinsi dropdown, Kode Pos). Nambah checkbox "Simpan alamat ini untuk pesanan berikutnya", tombol jadi "Lanjut ke Pembayaran →". `handleProceedToPayment()` validasi provinsi & kode pos juga; nomor HP otomatis prepend `+62` sebelum disimpan. Address book nyimpen province & postalCode. Commit `8130089`. Cache-bust `v=1.0.46`. (`checkout.html`, `app.js`)
+- Tombol **Lokasi Terkini** & **Pilih di Peta** sekarang auto-fill **Provinsi** (dropdown, lewat helper baru `matchProvince()`) dan **Kode Pos** dari data Nominatim — user nggak perlu isi manual lagi setelah detect lokasi. `matchShippingCity()` valid list juga ditambah `'bekasi'`. Commit `e57e292`. Cache-bust `v=1.0.47`. (`app.js`)
+- **Address book di-restyle** biar matching desain checkout baru: container jadi kartu putih bersudut bundar (hapus border dashed), item alamat pakai background `#fafafa` + hover gold, tombol hapus merah, tombol "Simpan alamat ini" full-width gold outline. Teks di-Indonesikan ("Alamat Tersimpan", "maks. 3"). Commit `0f6b0b1`. Cache-bust `v=1.0.48`. (`style.css`, `app.js`)
+- Dropdown Layanan Pengiriman (native `<select>`) tetap pakai styling bawaan browser untuk popup opsi-nya — nggak bisa di-style pakai CSS. Sudah diputuskan biarkan saja (opsi paling aman).
 
 
-### **Catatan buat besok (20 Oktober 2026)**
+### **Catatan buat besok (lanjut)**
 
-- Heading alignment, gold buttons, rounded btn-primary
-- Modal sukses redesign (referensi gambar) + fix total Rp 0
-- Bold order number + copy + icon ⧉
-- Centered order number, hijau checkmark circle animasi, confetti
-- Hide order summary when cart empty
-- Empty cart centered full-width
-- Cache v=1.0.40
+- Cek hasil deploy Vercel: pastikan checkout address form tampil benar (Data Penerima + Alamat Pengiriman)
+- Tes alur lengkap: detect lokasi terkini → pastikan provinsi & kode pos keisi otomatis
+- Supabase Dashboard → Authentication → URL Configuration (Site URL + Redirect URLs) — biar OAuth Google jalan
+- Ide berikutnya: rating bintang per produk di katalog (dijadwalkan Jumat)
 
 
 
