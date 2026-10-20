@@ -2456,10 +2456,21 @@ function matchShippingCity(detectedCityOrState, currentSelection) {
     if (text.includes('bali') || text.includes('denpasar') || text.includes('badung')) return 'bali';
     
     // 3. Jika di luar kota utama tapi user sudah memilih kota secara manual yang valid, pertahankan pilihan tersebut!
-    if (currentSelection && ['jakarta', 'bandung', 'surabaya', 'medan', 'bali'].includes(currentSelection)) {
+    if (currentSelection && ['jakarta', 'bekasi', 'bandung', 'surabaya', 'medan', 'bali'].includes(currentSelection)) {
         return currentSelection;
     }
     
+    return '';
+}
+
+function matchProvince(detectedState) {
+    const text = (detectedState || '').toLowerCase();
+    if (text.includes('jakarta')) return 'jakarta';
+    if (text.includes('jawa barat') || text.includes('west java')) return 'jawa-barat';
+    if (text.includes('jawa tengah') || text.includes('central java')) return 'jawa-tengah';
+    if (text.includes('jawa timur') || text.includes('east java')) return 'jawa-timur';
+    if (text.includes('bali')) return 'bali';
+    if (text.includes('sumatera utara') || text.includes('north sumatra')) return 'sumut';
     return '';
 }
 
@@ -2944,6 +2955,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         citySelect.dispatchEvent(new Event('change'));
                     }
+                    
+                    // Auto-fill provinsi & kode pos
+                    const stateName = addr.state || addr.province || '';
+                    const matchedProvince = matchProvince(stateName);
+                    const provSelect = document.getElementById('customer-province');
+                    if (provSelect && matchedProvince) {
+                        provSelect.value = matchedProvince;
+                    }
+                    const postalInput = document.getElementById('customer-postal-code');
+                    if (postalInput && postcode) {
+                        postalInput.value = postcode;
+                    }
                 } else {
                     alert("Alamat tidak ditemukan untuk koordinat ini.");
                 }
@@ -3123,6 +3146,18 @@ window.detectUserLocationDirect = () => {
                         alert("Lokasi Anda terdeteksi di luar area pengiriman utama kami (Jakarta, Bandung, Surabaya, Medan, Bali). Silakan pilih kota pengiriman terdekat secara manual.");
                     }
                     citySelect.dispatchEvent(new Event('change'));
+                }
+                
+                // Auto-fill provinsi & kode pos
+                const stateName = addr.state || addr.province || '';
+                const matchedProvince = matchProvince(stateName);
+                const provSelect = document.getElementById('customer-province');
+                if (provSelect && matchedProvince) {
+                    provSelect.value = matchedProvince;
+                }
+                const postalInput = document.getElementById('customer-postal-code');
+                if (postalInput && postcode) {
+                    postalInput.value = postcode;
                 }
             } else {
                 alert("Alamat tidak ditemukan untuk koordinat ini.");

@@ -238,6 +238,7 @@ Hari ini ngerapatin cart, checkout, sama gerbang login sebelum bayar:
 - Bekasi masuk jadi kota pengiriman (fee sama Jakarta: 15k/25k/45k), `matchShippingCity()` deteksi "bekasi" → return `'bekasi'`, Jabodetabek lain tetap `'jakarta'`. Commit `fd04c8b`, `9c466eb`. (`app.js`)
 - Label dropdown Layanan Pengiriman sekarang nampilin harga per opsi (mis. `Regular (J&T / JNE) — Rp 15.000`), harga ikut berubah pas ganti kota lewat `handleShippingUpdate()`. Default Jakarta terpilih. Commit `f50a04e`. (`app.js`)
 - **Redesign alamat pengiriman checkout** sesuai referensi `Images/Contoh Tampilan  Alamat Pengiriman Halaman Checkout.jpeg`: form dipecah jadi dua section — **Data Penerima** (Nama Lengkap, Nomor WhatsApp dengan prefix +62 & ikon WA, Email) dan **Alamat Pengiriman** (Alamat Lengkap + tombol deteksi lokasi, Kota/Kabupaten, Provinsi dropdown, Kode Pos). Nambah checkbox "Simpan alamat ini untuk pesanan berikutnya", tombol jadi "Lanjut ke Pembayaran →". `handleProceedToPayment()` validasi provinsi & kode pos juga; nomor HP otomatis prepend `+62` sebelum disimpan. Address book nyimpen province & postalCode. Cache-bust `v=1.0.46`. (`checkout.html`, `app.js`)
+- Tombol **Lokasi Terkini** & **Pilih di Peta** sekarang auto-fill **Provinsi** (dropdown, lewat helper baru `matchProvince()`) dan **Kode Pos** dari data Nominatim — user nggak perlu isi manual lagi setelah detect lokasi. `matchShippingCity()` valid list juga ditambah `'bekasi'`. Cache-bust `v=1.0.47`. (`app.js`)
 
 
 ### **Catatan buat besok (20 Oktober 2026)**
