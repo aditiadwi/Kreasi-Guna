@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.57">
+    <link rel="stylesheet" href="style.css?v=1.0.62">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -60,10 +60,10 @@
                     </div>
                 </div>
                 <nav class="acc-menu">
-                    <button class="acc-menu-btn active" data-section="orders" onclick="switchAccountSection('orders', this)">📅 <span>Pesanan Saya</span></button>
-                    <button class="acc-menu-btn" data-section="reviews" onclick="switchAccountSection('reviews', this)">⭐ <span>Ulasan Saya</span></button>
-                    <button class="acc-menu-btn" data-section="addresses" onclick="switchAccountSection('addresses', this)">📍 <span>Alamat Pengiriman</span></button>
-                    <button class="acc-menu-btn acc-logout" onclick="handleLogout()">🚪 <span>Keluar</span></button>
+<button class="acc-menu-btn active" data-section="orders" onclick="switchAccountSection('orders', this)"><span class="acc-ico">📅</span> <span>Pesanan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="reviews" onclick="switchAccountSection('reviews', this)"><span class="acc-ico">⭐</span> <span>Ulasan Saya</span></button>
+                    <button class="acc-menu-btn" data-section="addresses" onclick="switchAccountSection('addresses', this)"><span class="acc-ico">📍</span> <span>Alamat Pengiriman</span></button>
+                    <button class="acc-menu-btn acc-logout" onclick="handleLogout()"><span class="acc-ico">🚪</span> <span>Keluar</span></button>
                 </nav>
             </aside>
 
@@ -71,7 +71,7 @@
                 <!-- ============ PESANAN SAYA ============ -->
                 <section id="section-orders" class="acc-section">
                     <div class="acc-section-head">
-                        <h2>📅 Pesanan Saya</h2>
+                        <h2><span class="acc-ico acc-ico-lg">📅</span> Pesanan Saya</h2>
                         <span class="acc-section-sub">Riwayat semua pesananmu di sini.</span>
                     </div>
                     <div id="orders-list">
@@ -82,7 +82,7 @@
                 <!-- ============ ULASAN SAYA ============ -->
                 <section id="section-reviews" class="acc-section hidden">
                     <div class="acc-section-head">
-                        <h2>⭐ Ulasan Saya</h2>
+                        <h2><span class="acc-ico acc-ico-lg">⭐</span> Ulasan Saya</h2>
                         <span class="acc-section-sub">Bintang & komentar yang pernah kamu berikan.</span>
                     </div>
                     <div id="reviews-list">
@@ -93,7 +93,7 @@
                 <!-- ============ ALAMAT PENGIRIMAN ============ -->
                 <section id="section-addresses" class="acc-section hidden">
                     <div class="acc-section-head">
-                        <h2>📍 Alamat Pengiriman</h2>
+                        <h2><span class="acc-ico acc-ico-lg">📍</span> Alamat Pengiriman</h2>
                         <span class="acc-section-sub">Daftar alamat tersimpan <small>(maks. 3)</small> — checkout jadi lebih cepat.</span>
                     </div>
 
@@ -176,7 +176,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.57"></script>
+    <script src="app.js?v=1.0.62"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
