@@ -628,11 +628,13 @@ window.updateQty = (id, delta) => {
 };
 
 function updateCartBadge() {
-    const badge = document.getElementById('cart-badge');
-    if (!badge) return;
     const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
-    badge.innerText = totalItems;
-    badge.style.display = totalItems > 0 ? 'flex' : 'none';
+    ['cart-badge', 'mm-cart-badge'].forEach((id) => {
+        const badge = document.getElementById(id);
+        if (!badge) return;
+        badge.innerText = totalItems;
+        badge.style.display = totalItems > 0 ? 'flex' : 'none';
+    });
     if (typeof renderCartPreview === 'function') renderCartPreview();
 }
 
@@ -3459,42 +3461,84 @@ function trackPageView(sb, pageName) {
     } catch (e) { /* abaikan */ }
 }
 
+/** MOBILE DRAWER MENU (di-inject, tiru contoh: section Jelajahi / Pesanan & Akun) */
+function buildMobileMenu(currentName) {
+    const I = {
+        home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+        info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+        book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+        coffee: '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+        dripper: '<path d="M3 3h18l-6 9v8h-6v-8z"/><line x1="12" y1="14" x2="12" y2="17"/>',
+        mail: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+        package: '<line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+        user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+        cart: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
+        arrow: '<polyline points="9 18 15 12 9 6"/>',
+        close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+    };
+    const svg = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+    const item = (href, ico, label, opts = {}) => {
+        const page = (href.split('?')[0].split('#')[0].split('/').pop() || 'index').replace(/\.html$/, '') || 'index';
+        const active = page === currentName ? ' active' : '';
+        const badge = opts.badge ? '<span class="mm-badge" id="mm-cart-badge">0</span>' : '';
+        const arrow = opts.arrow ? `<span class="mm-arrow">${svg(I.arrow)}</span>` : '';
+        return `<a href="${href}" class="mm-item${active}"><span class="mm-ico">${svg(I[ico])}</span><span class="mm-label">${label}</span>${badge}${arrow}</a>`;
+    };
+    const drawer = document.createElement('aside');
+    drawer.id = 'mm-drawer';
+    drawer.className = 'mm-drawer';
+    drawer.innerHTML = `
+        <div class="mm-head">
+            <div class="mm-logo"><span>KG</span><div class="mm-logo-sub">Kreasi Guna</div></div>
+            <button class="mm-close" aria-label="Tutup menu">${svg(I.close)}</button>
+        </div>
+        <nav class="mm-nav">
+            <p class="mm-section-title">Jelajahi</p>
+            ${item('index.html', 'home', 'Beranda')}
+            ${item('about.html', 'info', 'Tentang Kami')}
+            ${item('history.html', 'book', 'Sejarah Kami')}
+            ${item('products.html', 'coffee', 'Produk')}
+            ${item('brew.html', 'dripper', 'Panduan Brew')}
+            ${item('contact.html', 'mail', 'Kontak')}
+            <p class="mm-section-title">Pesanan &amp; Akun</p>
+            ${item('track.html', 'package', 'Lacak Pesanan', { arrow: true })}
+            ${item('account.html', 'user', 'Akun Saya', { arrow: true })}
+            ${item('cart.html', 'cart', 'Keranjang', { badge: true, arrow: true })}
+        </nav>`;
+    document.body.appendChild(drawer);
+    return drawer;
+}
+
 /** INITIALIZE */
 document.addEventListener('DOMContentLoaded', async () => {
     const menuToggle = document.getElementById('menu-toggle');
     const navLinks = document.getElementById('nav-links');
-    if (menuToggle && navLinks) {
-        menuToggle.addEventListener('click', () => { 
-            const isActive = menuToggle.classList.toggle('active'); 
-            navLinks.classList.toggle('active'); 
-            document.body.classList.toggle('menu-open', isActive);
-        });
-        navLinks.querySelectorAll('a').forEach(link => { 
-            link.addEventListener('click', () => { 
-                menuToggle.classList.remove('active'); 
-                navLinks.classList.remove('active'); 
-                document.body.classList.remove('menu-open');
-            }); 
-        });
+    const getPageName = (path) => {
+        if (!path) return 'index';
+        let clean = path.split('/').pop().split('?')[0].split('#')[0];
+        if (clean.endsWith('.html')) clean = clean.slice(0, -5);
+        return (!clean || clean === '') ? 'index' : clean;
+    };
+    const currentName = getPageName(window.location.pathname);
 
-        // Highlight Active Page Link Automatically (Robust URL & Clean URL matching)
-        const getPageName = (path) => {
-            if (!path) return 'index';
-            let clean = path.split('/').pop().split('?')[0].split('#')[0];
-            if (clean.endsWith('.html')) clean = clean.slice(0, -5);
-            return (!clean || clean === '' || clean === 'index') ? 'index' : clean;
-        };
-
-        const currentName = getPageName(window.location.pathname);
+    if (navLinks) {
         navLinks.querySelectorAll('a').forEach(link => {
-            const href = link.getAttribute('href');
-            const linkName = getPageName(href);
-            if (linkName === currentName) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
+            const linkName = getPageName(link.getAttribute('href'));
+            link.classList.toggle('active', linkName === currentName);
         });
+    }
+
+    if (menuToggle) {
+        const mmDrawer = buildMobileMenu(currentName);
+        const setMenu = (open) => {
+            menuToggle.classList.toggle('active', open);
+            mmDrawer.classList.toggle('active', open);
+            document.body.classList.toggle('menu-open', open);
+        };
+        menuToggle.addEventListener('click', () => setMenu(!mmDrawer.classList.contains('active')));
+        mmDrawer.querySelector('.mm-close').addEventListener('click', () => setMenu(false));
+        mmDrawer.querySelectorAll('.mm-item').forEach(a => a.addEventListener('click', () => setMenu(false)));
+        updateCartBadge();
     }
 
     // Initialize EmailJS globally if loaded
