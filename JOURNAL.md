@@ -227,7 +227,7 @@ Hari ini ngerapatin cart, checkout, sama gerbang login sebelum bayar:
 
 ### **14. Catatan 20 Oktober 2026**
 
-Checkout & cart dirapatin sesuai contoh. Sambil lihat beberapa referensi gambar, muncul juga ide fitur halaman user: bikin halaman akun sendiri berisi **Pesanan Saya, Ulasan Saya, dan Alamat Pengiriman** — baru dieksekusi tanggal 27 (lihat Catatan 15):
+Checkout & cart dirapatin sesuai contoh. Sambil lihat beberapa referensi gambar, muncul juga ide fitur halaman user: bikin halaman akun sendiri berisi **Pesanan Saya, Ulasan Saya, dan Alamat Pengiriman** — baru dieksekusi siang 20 Oktober juga (lihat Catatan 15):
 
 - Bekasi masuk jadi kota pengiriman (fee sama Jakarta: 15k/25k/45k), `matchShippingCity()` deteksi "bekasi" → return `'bekasi'`, Jabodetabek lain tetap `'jakarta'`. Commit `fd04c8b`, `9c466eb`. (`app.js`)
 - Label dropdown Layanan Pengiriman sekarang nampilin harga per opsi (mis. `Regular (J&T / JNE) — Rp 15.000`), harga ikut berubah pas ganti kota lewat `handleShippingUpdate()`. Default Jakarta terpilih. Commit `f50a04e`. (`app.js`)
@@ -247,9 +247,9 @@ Checkout & cart dirapatin sesuai contoh. Sambil lihat beberapa referensi gambar,
 - Cache-bust sampai `v=1.0.40`. Semua push ke main, Vercel auto-deploy.
 
 
-### **15. Catatan 27 Oktober 2026**
+### **15. Catatan 20 Oktober 2026 (lanjutan siang)**
 
-Sisa kerjaan 20 Oktober yang dicatat minggu ini biar "Catatan 20 Oktober" fokus ke batch checkout: polesan UI pagi plus **eksekusi ide halaman akun** (versi basic, ide-nya dari 20 Oktober), ngikutin 3 contoh gambar (Pesanan Saya, Ulasan Saya, Alamat Pengiriman):
+Lanjutan sesi pagi (Catatan 14): polesan UI plus **eksekusi ide halaman akun** (versi basic, ide-nya dari sesi sebelumnya), ngikutin 3 contoh gambar (Pesanan Saya, Ulasan Saya, Alamat Pengiriman):
 
 - **Address book di-restyle** biar matching desain checkout baru: container jadi kartu putih bersudut bundar (hapus border dashed), item alamat pakai background `#fafafa` + hover gold, tombol hapus merah, tombol "Simpan alamat ini" full-width gold outline. Teks di-Indonesikan ("Alamat Tersimpan", "maks. 3"). Commit `0f6b0b1`. Cache-bust `v=1.0.48`. (`style.css`, `app.js`)
 - Perapian mikro: tombol "See Description" di produk nggak pecah dua baris (`white-space: nowrap`), header quick-add checkout nggak numpuk di HP, layout alamat checkout jadi satu kolom penuh di HP (class `.address-grid`), Total di paybar nggak ikut nge-wrap. Commits `4fe3b7b`, `7a8f2a8`, `340bc19`.
@@ -267,7 +267,7 @@ Sisa kerjaan 20 Oktober yang dicatat minggu ini biar "Catatan 20 Oktober" fokus 
 - **Poles item menu dropdown (Akun Saya / Logout)**: emoji mentah `👤`/`🚪` diganti **SVG stroke** (`currentColor` — tampilannya konsisten antar device dan ikut warna hover). Tiap item dapat icon badge 28px (background cream → gold pas hover; variant merah buat Logout), item geser 2px halus pas hover, dan "Akun Saya" dikasih panah `›` di kanan biar kelihatan sebagai link navigasi. Border-left diganti geser halus biar lebih clean. Cache-bust `v=1.0.56`. (`app.js`, `style.css`)
 
 
-### **16. Catatan 28 Oktober 2026**
+### **16. Catatan 20 Oktober 2026 (lanjutan sore)**
 
 Hari ini fokus Track Order sama halaman akun, ngejar 3 contoh gambar (hasil track, detail pesanan, hero track):
 
@@ -282,7 +282,7 @@ Hari ini fokus Track Order sama halaman akun, ngejar 3 contoh gambar (hasil trac
 - **Rollback sementara**: halaman Detail Pesanan full-page (commit `9003b84`) di-undo (`ffca10a`) karena tampilannya amburadul di browser. Tombol Detail balik jadi accordion "Lihat Detail" lama, CSS halaman detail baru ikut ditarik, cache-bust ke `v=1.0.66`. Commit aslinya masih ada di git — kalau mau dikerjain ulang tinggal dari nol atau cherry-pick. Fitur lain (ikon SVG, Beri Ulasan/Beli Lagi, Track redesign) tetap.
 
 
-### **17. Catatan 29 Oktober 2026**
+### **17. Catatan 21 Oktober 2026**
 
 Lanjutan halaman akun, fokus tampilan HP dari screenshot `Images/Contoh Tampilan HP di Halaman Account Yang HArus Diperbaiki.png`:
 
@@ -296,7 +296,7 @@ Lanjutan halaman akun, fokus tampilan HP dari screenshot `Images/Contoh Tampilan
 - **Fix encoding mojibake emoji**: perintah PowerShell `Set-Content` tanpa `-Encoding UTF8` merusak emoji di 11 halaman (jadi `?` / belah ketupat ). Ditulis ulang via Node dengan UTF-8 encoding benar. Emoji dipulihkan: ⚡🏆✨ (advantage cards), ➔ (banner arrow), 🌍☕ (about features), ★ (star rating account), 🛒 (empty cart), 👤 (guest button), ✓ (checkout step), ✕ (admin sidebar), «‹» (admin pagination), 🌋🌿⛰🌺🏝 (history regions), ✉️ (contact email button). Cache `v=1.0.76` → `v=1.0.78`. (`index.html`, `about.html`, `account.html`, `admin.html`, `brew.html`, `cart.html`, `checkout.html`, `contact.html`, `history.html`)
 
 
-### **18. Rekap Progress (sampai 29 Oktober 2026)**
+### **18. Rekap Progress (sampai 21 Oktober 2026)**
 
 Daftar progress yang udah kelar, urut tanggal — ringkas doang, detailnya tetap ada di catatan harian masing-masing:
 
@@ -308,10 +308,8 @@ Daftar progress yang udah kelar, urut tanggal — ringkas doang, detailnya tetap
 - **16 September 2026** — Testimoni home jadi marquee yang ngalir (diam 3 detik kalo diseret manual), checkout opsi 3 (ringkasan sticky di desktop + bar total di HP), foto profil nongol di ulasan (avatar Google / inisial gold).
 - **14 Oktober 2026** — SEO kelar: `robots.txt`, `sitemap.xml`, meta description + Open Graph di semua halaman publik, verifikasi Google Search Console, sitemap resmi kebaca (6 halaman).
 - **19 Oktober 2026** — Cart & gerbang checkout: skor bintang nongol di Track, cart dirombak (qty outline, foto membulat, swipe hapus di HP), gerbang Login / Lanjut sebagai Tamu sebelum bayar, thumbnail baris checkout, fix centang modal sukses.
-- **20 Oktober 2026** — Batch checkout sesuai contoh: Bekasi masuk + ongkir per-opsi, form alamat dipecah (Data Penerima + Alamat Pengiriman), auto-fill provinsi & kode pos dari deteksi lokasi, modal sukses + nomor pesanan bold/copy/⧉, ringkasan pesanan & empty cart dirapikan. Plus ide awal halaman akun (Pesanan Saya / Ulasan Saya / Alamat Pengiriman) yang dieksekusi 27 Oktober.
-- **27 Oktober 2026** — Halaman akun user (`account.html`: Pesanan Saya, Ulasan Saya, Alamat Pengiriman), lacak otomatis dari URL `?id=`, poles dropdown header (kartu menu rapi + icon SVG), address book restyle, polesan mikro HP (toast tengah, burger menu, layout checkout). **Perbaiki Track Order**: Enter key submit, error handling bedakan network/not found, loading state tombol. Cache aset terakhir `v=1.0.57`.
-- **28 Oktober 2026** — Track Order dirombak sesuai contoh (hero gambar, ikon SVG Feather, timeline, hasil + struk + Buy Again). Fix mojibake emoji di semua halaman. Halaman akun: badge ikon di menu/judul, pesanan selesai punya tombol Beri Ulasan + Beli Lagi per item (rating tersimpan ke `feedback`), emoji account total diganti SVG custom. Detail Pesanan full-page sempat dibuat tapi di-rollback (amburadul), balik ke accordion lama. Cache aset terakhir `v=1.0.66`.
-- **29 Oktober 2026** — Polesan tampilan HP halaman akun: menu sidebar jadi daftar vertikal 1 baris penuh (bukan 2 kolom kekerempet), avatar Google dipertahankan + dipaksa bulat (`flex-shrink: 0`). Burger menu mobile dirombak jadi drawer sectioned (Jelajahi / Pesanan & Akun) meniru contoh, ikon SVG Feather. Insiden link aset `.0.70` (seluruh situs tanpa CSS) difix + hardening `check-assets.js`. Burger menu restyle: bg biji kopi dihapus, item full-width rata kiri `min-height: 56px`. Fix encoding mojibake emoji di semua halaman (⚡🏆✨➔🌍☕🛒👤✓✕★ «‹» 🌋🌿⛰🌺🏝✉️). Cache aset terakhir `v=1.0.78`.
+- **20 Oktober 2026** — Batch checkout sesuai contoh: Bekasi masuk + ongkir per-opsi, form alamat dipecah (Data Penerima + Alamat Pengiriman), auto-fill provinsi & kode pos dari deteksi lokasi, modal sukses + nomor pesanan bold/copy/⧉, ringkasan pesanan & empty cart dirapikan. Siang–sore: halaman akun user (`account.html`: Pesanan Saya, Ulasan Saya, Alamat Pengiriman), lacak otomatis dari URL `?id=`, poles dropdown header (kartu menu rapi + icon SVG), address book restyle, polesan mikro HP (toast tengah, burger menu, layout checkout), **perbaiki Track Order** (Enter/err/loading). Sore: Track Order dirombak sesuai contoh (hero gambar, ikon SVG Feather, timeline, hasil + struk + Buy Again), fix mojibake emoji di semua halaman, halaman akun: badge ikon di menu/judul, pesanan selesai punya tombol Beri Ulasan + Beli Lagi per item (rating tersimpan ke `feedback`), emoji account total diganti SVG custom. Detail Pesanan full-page sempat dibuat tapi di-rollback (amburadul), balik ke accordion lama. Cache aset terakhir `v=1.0.66`.
+- **21 Oktober 2026** — Polesan tampilan HP halaman akun: menu sidebar jadi daftar vertikal 1 baris penuh (bukan 2 kolom kekerempet), avatar Google dipertahankan + dipaksa bulat (`flex-shrink: 0`). Burger menu mobile dirombak jadi drawer sectioned (Jelajahi / Pesanan & Akun) meniru contoh, ikon SVG Feather. Insiden link aset `.0.70` (seluruh situs tanpa CSS) difix + hardening `check-assets.js`. Burger menu restyle: bg biji kopi dihapus, item full-width rata kiri `min-height: 56px`. Fix encoding mojibake emoji di semua halaman (⚡🏆✨➔🌍☕🛒👤✓✕★ «‹» 🌋🌿⛰🌺🏝✉️). Cache aset terakhir `v=1.0.78`.
 
 
 ### **Catatan buat besok (lanjut)**
