@@ -3415,8 +3415,8 @@ a:active {
     .acc-sidebar { position: static; padding: 18px 14px; }
     .acc-user { flex-direction: row; text-align: left; align-items: center; }
     .acc-user-meta { align-items: flex-start; }
-    .acc-menu { flex-direction: row; flex-wrap: wrap; }
-    .acc-menu-btn { width: auto; flex: 1 1 auto; justify-content: center; }
+    .acc-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .acc-menu-btn { width: 100%; justify-content: flex-start; padding: 10px 11px; font-size: 0.8rem; }
     .acc-menu-btn.acc-logout { margin-top: 0; }
     .acc-form-row { grid-template-columns: 1fr; }
     .acc-timeline { flex-wrap: wrap; gap: 10px; }
