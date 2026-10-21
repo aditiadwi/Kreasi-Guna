@@ -2919,6 +2919,8 @@ a:active {
 .acc-avatar {
     width: 72px;
     height: 72px;
+    min-width: 72px;
+    flex-shrink: 0;
     border-radius: 50%;
     background: var(--gold-premium);
     color: white;
