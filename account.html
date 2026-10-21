@@ -1,4 +1,4 @@
-Ôªø<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <script src="env.js"></script>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.70">
+    <link rel="stylesheet" href="style.css?v=1.0.71">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -45,7 +45,7 @@
                 <h1>Masuk ke Akunmu</h1>
                 <p>Login untuk melihat pesanan, ulasan, dan alamat pengirimanmu.</p>
                 <button class="btn-primary" onclick="handleGoogleLogin()">Masuk dengan Google</button>
-                <a href="index.html" class="acc-gate-back">‚Üê Kembali ke Beranda</a>
+                <a href="index.html" class="acc-gate-back">? Kembali ke Beranda</a>
             </div>
         </div>
 
@@ -55,8 +55,8 @@
                 <div class="acc-user">
                     <div class="acc-avatar" id="acc-avatar">?</div>
                     <div class="acc-user-meta">
-                        <strong id="acc-name">‚Äî</strong>
-                        <span id="acc-email">‚Äî</span>
+                        <strong id="acc-name">ó</strong>
+                        <span id="acc-email">ó</span>
                     </div>
                 </div>
                 <nav class="acc-menu">
@@ -75,7 +75,7 @@
                         <span class="acc-section-sub">Riwayat semua pesananmu di sini.</span>
                     </div>
                     <div id="orders-list">
-                        <div class="acc-loading">Memuat pesanan‚Ä¶</div>
+                        <div class="acc-loading">Memuat pesananÖ</div>
                     </div>
                 </section>
 
@@ -86,7 +86,7 @@
                         <span class="acc-section-sub">Bintang & komentar yang pernah kamu berikan.</span>
                     </div>
                     <div id="reviews-list">
-                        <div class="acc-loading">Memuat ulasan‚Ä¶</div>
+                        <div class="acc-loading">Memuat ulasanÖ</div>
                     </div>
                 </section>
 
@@ -94,10 +94,10 @@
                 <section id="section-addresses" class="acc-section hidden">
                     <div class="acc-section-head">
                         <h2><span class="acc-ico acc-ico-lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span> Alamat Pengiriman</h2>
-                        <span class="acc-section-sub">Daftar alamat tersimpan <small>(maks. 3)</small> ‚Äî checkout jadi lebih cepat.</span>
+                        <span class="acc-section-sub">Daftar alamat tersimpan <small>(maks. 3)</small> ó checkout jadi lebih cepat.</span>
                     </div>
 
-                    <div id="address-list"><div class="acc-loading">Memuat alamat‚Ä¶</div></div>
+                    <div id="address-list"><div class="acc-loading">Memuat alamatÖ</div></div>
 
                     <button type="button" class="acc-btn-ghost" id="btn-toggle-addr-form" onclick="toggleAddrForm()">+ Tambah Alamat Baru</button>
 
@@ -165,7 +165,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 Smart Drip Coffee ‚Äî Kreasi Guna. All rights reserved.</p>
+            <p>&copy; 2026 Smart Drip Coffee ó Kreasi Guna. All rights reserved.</p>
         </div>
     </footer>
 
@@ -176,7 +176,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.70"></script>
+    <script src="app.js?v=1.0.71"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -209,7 +209,7 @@
         const accIco = (name, cls) => `<span class="${cls || 'acc-h4-ico'}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ACC_ICONS[name] || ''}</svg></span>`;
         function rp(v) { const d = String(v ?? '').replace(/[^\d]/g, ''); if (!d) return String(v ?? '-').trim() || '-'; return 'Rp ' + parseInt(d, 10).toLocaleString('id-ID'); }
         function fmtDate(iso) {
-            if (!iso) return '‚Äî';
+            if (!iso) return 'ó';
             try { return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); }
             catch (e) { return iso; }
         }
@@ -246,7 +246,7 @@
                 }
                 box.innerHTML = accOrders.map((o, i) => {
                     const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
-                    const preview = items.slice(0, 2).map(it => esc(it.name) + (it.qty > 1 ? ` √ó${it.qty}` : '')).join(', ');
+                    const preview = items.slice(0, 2).map(it => esc(it.name) + (it.qty > 1 ? ` ◊${it.qty}` : '')).join(', ');
                     const more = items.length > 2 ? ` <span class="acc-more">+${items.length - 2} lainnya</span>` : '';
                     return `<div class="acc-order-card">
                         <div class="acc-order-top">
@@ -257,7 +257,7 @@
                             ${statusChip(o.status)}
                         </div>
                         <div class="acc-order-mid">
-                            <span class="acc-order-items">${preview || '‚Äî'}${more}</span>
+                            <span class="acc-order-items">${preview || 'ó'}${more}</span>
                             <span class="acc-order-total">${rp(o.total_amount)}</span>
                         </div>
                         <div class="acc-order-actions">
@@ -310,15 +310,15 @@
                 if (o.status === 'COMPLETED') { doneCount = 4; currentIdx = -1; }
                 timeline = `<div class="acc-timeline">` + steps.map((s, si) => {
                     const cls = si < doneCount ? 'done' : (si === currentIdx ? 'current' : '');
-                    return `<div class="acc-step ${cls}"><span class="acc-step-dot">${si < doneCount ? '‚úì' : (si + 1)}</span><span class="acc-step-label">${s}</span></div>`;
+                    return `<div class="acc-step ${cls}"><span class="acc-step-dot">${si < doneCount ? '?' : (si + 1)}</span><span class="acc-step-label">${s}</span></div>`;
                 }).join('') + `</div>`;
             }
 
             const rows = items.map((it, k) => {
                 if (!isDone) {
                     return `<div class="acc-item-row">
-                        <span>‚Ä¢ ${esc(it.name)}${it.qty > 1 ? ` √ó${it.qty}` : ''}</span>
-                        <span>${it.subtotal ? rp(it.subtotal) : '‚Äî'}</span>
+                        <span>ï ${esc(it.name)}${it.qty > 1 ? ` ◊${it.qty}` : ''}</span>
+                        <span>${it.subtotal ? rp(it.subtotal) : 'ó'}</span>
                     </div>`;
                 }
                 const prod = (typeof findProductByName === 'function') ? findProductByName(it.name) : null;
@@ -353,10 +353,10 @@
                         <div class="acc-detail-box">
                             <h4>${accIco('truck')} Informasi Pengiriman</h4>
                             <p><strong>Nama:</strong> ${esc(o.customer_name)}</p>
-                            <p><strong>Telepon:</strong> ${esc(o.customer_phone || '‚Äî')}</p>
-                            <p><strong>Alamat:</strong> ${esc(o.address || '‚Äî')}</p>
-                            <p><strong>Pengiriman:</strong> ${esc(o.delivery_method || '‚Äî')}</p>
-                            <p><strong>Pembayaran:</strong> ${esc(o.payment_method || '‚Äî')}</p>
+                            <p><strong>Telepon:</strong> ${esc(o.customer_phone || 'ó')}</p>
+                            <p><strong>Alamat:</strong> ${esc(o.address || 'ó')}</p>
+                            <p><strong>Pengiriman:</strong> ${esc(o.delivery_method || 'ó')}</p>
+                            <p><strong>Pembayaran:</strong> ${esc(o.payment_method || 'ó')}</p>
                             ${o.receipt_url ? `<div class="acc-receipt"><span>Bukti Pembayaran:</span><img src="${esc(o.receipt_url)}" alt="Bukti pembayaran" loading="lazy" onclick="window.open(this.src)"></div>` : ''}
                         </div>
                     </div>
@@ -398,10 +398,10 @@
             if (qty <= 0) return alert('Stok tidak mencukupi (sudah penuh di keranjang).');
             cart[p.id] = (cart[p.id] || 0) + qty;
             renderCart();
-            if (typeof showToast === 'function') showToast(`"${p.name}" √ó ${qty} ditambahkan ke keranjang`);
+            if (typeof showToast === 'function') showToast(`"${p.name}" ◊ ${qty} ditambahkan ke keranjang`);
             if (btn) {
                 const orig = btn.innerHTML;
-                btn.innerHTML = '‚úì Ditambahkan';
+                btn.innerHTML = '? Ditambahkan';
                 btn.disabled = true;
                 setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
             }
@@ -458,7 +458,7 @@
                     const img = p && p.image_url ? p.image_url : 'Images/My Product.png';
                     const pname = p ? p.name : 'Ulasan Umum';
                     const rating = parseInt(f.rating || 0, 10);
-                    const stars = [1, 2, 3, 4, 5].map(n => `<span class="${n <= rating ? 'acc-star on' : 'acc-star'}">‚òÖ</span>`).join('');
+                    const stars = [1, 2, 3, 4, 5].map(n => `<span class="${n <= rating ? 'acc-star on' : 'acc-star'}">?</span>`).join('');
                     return `<div class="acc-review-card">
                         <img class="acc-review-img" src="${esc(img)}" alt="${esc(pname)}" loading="lazy" onerror="this.src='Images/My Product.png'">
                         <div class="acc-review-body">
@@ -523,7 +523,7 @@
                         <strong>${esc(b.name)}</strong>
                         ${b.phone ? `<span class="acc-addr-phone">${esc(b.phone)}</span>` : ''}
                         <p>${esc(b.address)}</p>
-                        <span class="acc-addr-region">${esc(CITY_LABELS[b.city] || b.city || '')}${b.province ? ' ¬∑ ' + esc(PROVINCE_LABELS[b.province] || b.province) : ''}${b.postalCode ? ' ' + esc(b.postalCode) : ''}</span>
+                        <span class="acc-addr-region">${esc(CITY_LABELS[b.city] || b.city || '')}${b.province ? ' ∑ ' + esc(PROVINCE_LABELS[b.province] || b.province) : ''}${b.postalCode ? ' ' + esc(b.postalCode) : ''}</span>
                     </div>
                     <div class="acc-addr-actions">
                         <button class="acc-btn-ghost" onclick="editAddress(${i})">Ubah</button>
