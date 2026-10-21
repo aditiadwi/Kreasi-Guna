@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <script src="env.js"></script>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.76">
+    <link rel="stylesheet" href="style.css?v=1.0.77">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/chart.js"></script>
     <style>
@@ -127,7 +127,7 @@
         <aside class="sidebar">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin:0; border:none; padding:0;">KG SMART DRIP</h2>
-                <button class="admin-menu-btn" style="display: none;" id="close-sidebar">?</button>
+                <button class="admin-menu-btn" style="display: none;" id="close-sidebar">✕</button>
             </div>
             <ul class="sidebar-nav">
                 <li onclick="toggleSidebarAndShow('stats')" id="nav-stats" class="active">?? Statistics</li>
@@ -468,7 +468,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.76"></script>
+    <script src="app.js?v=1.0.77"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
@@ -1066,8 +1066,8 @@
                     pageBtns.innerHTML = '';
                 } else {
                     let btnsHTML = '';
-                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(1)" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>??</button>`;
-                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage - 1})" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>? Prev</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(1)" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>«</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage - 1})" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>‹ Prev</button>`;
 
                     let startP = Math.max(1, currentFbPage - 2);
                     let endP = Math.min(totalPages, currentFbPage + 2);
@@ -1076,7 +1076,7 @@
                     }
 
                     btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage + 1})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>Next ?</button>`;
-                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${totalPages})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>??</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${totalPages})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>»</button>`;
                     pageBtns.innerHTML = btnsHTML;
                 }
             }
