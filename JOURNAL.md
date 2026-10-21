@@ -310,6 +310,15 @@ Daftar progress yang udah kelar, urut tanggal — ringkas doang, detailnya tetap
 - **29 Oktober 2026** — Polesan tampilan HP halaman akun: menu sidebar jadi daftar vertikal 1 baris penuh (bukan 2 kolom kekerempet), avatar Google dipertahankan + dipaksa bulat (`flex-shrink: 0`). Burger menu mobile dirombak jadi drawer sectioned (Jelajahi / Pesanan & Akun) meniru contoh, ikon SVG Feather, bg biji kopi. Cache aset terakhir `v=1.0.70`.
 
 
+### **19. Catatan 21 Oktober 2026**
+
+Pagi ini aduan "burger menu nggak ada CSS-nya, berantakan" — screenshot `Images/Tampilan Burger Menu yang Harus Diperbaiki.png` nunjukin item menu ngalir horizontal, background biji kopi nutupin teks, tombol ✕ ilang. Ternyata bukan cuma burger menunya:
+
+- **Akar masalah**: commit burger menu (`bd3f5b5`) salah ngedit link aset di **semua 11 halaman** — `style.css?v=1.0.70` berubah jadi `.0.70`, `app.js?v=1.0.70` juga ikut jadi `.0.70`. Browser nggak nemu file `.0.70`, jadi CSS & JS gagal load total di seluruh situs. Drawer-nya sendiri sebenarnya dirender bener sama JS, cuma tampil tanpa styling sama sekali (makanya berantakan).
+- **Fix**: commit `4aea56e` (11:02) balikin `style.css?v=1.0.70` + `app.js?v=1.0.70` di 11 halaman. Udah diverifikasi: file lokal bersih, live di Vercel juga ikut bener (CSS termuat, aturan `.mm-drawer` lengkap). Kalau di HP masih kelihatan rusak setelah itu, itu cache browser — tinggal hard-refresh / clear data situs.
+- **Biar nggak kejadian lagi**: bikin `check-assets.js` — script validasi yang cek tiap `*.html` di root wajib punya link `style.css?v=X.Y.Z` & `app.js?v=X.Y.Z` dengan format versi bener, versinya harus sama antar halaman, plus deteksi link rusak gaya `href="."` kayak insiden `.0.70`. Jalankan `npm run check:assets` sebelum push; kalau ada yang salah, script keluarin kode 1 plus daftar file bermasalah. (`check-assets.js`, `package.json`)
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (bg biji kopi kanan, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
