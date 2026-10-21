@@ -825,6 +825,8 @@ body.menu-open {
 .mm-close:hover { color: var(--gold-premium); transform: rotate(90deg); }
 .mm-close svg { width: 26px; height: 26px; display: block; }
 .mm-nav {
+    display: flex;
+    flex-direction: column;
     padding: 6px 20px 40px;
     max-width: min(420px, 66%);
 }
