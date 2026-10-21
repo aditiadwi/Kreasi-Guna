@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <script src="env.js"></script>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.75">
+    <link rel="stylesheet" href="style.css?v=1.0.76">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/chart.js"></script>
     <style>
@@ -103,7 +103,7 @@
             </div>
             <div style="text-align: left; margin-bottom: 25px;">
                 <label style="font-weight: 600; font-size: 0.9rem;">Admin Password</label>
-                <input type="password" id="admin-pass" placeholder="••••••••" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                <input type="password" id="admin-pass" placeholder="" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
             </div>
             <button class="btn-primary w-100" style="padding: 15px; font-weight: 700;" onclick="handleAdminLogin()">Open Dashboard</button>
             <div style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -468,7 +468,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.75"></script>
+    <script src="app.js?v=1.0.76"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
@@ -1290,7 +1290,7 @@
                         <p>?? Note: ${data.note || '-'}</p>
                     </div>
                     <div style="background:white;padding:10px;border-radius:10px;border:1px solid #eee;">
-                        <p>?? Items:<br>• ${data.items.split(', ').join('<br>• ')}</p>
+                        <p>?? Items:<br> ${data.items.split(', ').join('<br> ')}</p>
                         <p style="font-size:1.2rem;font-weight:800;border-top:1px dashed #ccc;margin-top:10px;padding-top:10px;">Total: ${data.total_amount}</p>
                     </div>
                     <p style="margin-top: 15px;">?? Receipt:</p>
