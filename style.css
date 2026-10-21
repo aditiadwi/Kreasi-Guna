@@ -828,7 +828,7 @@ body.menu-open {
     display: flex;
     flex-direction: column;
     padding: 6px 20px 40px;
-    max-width: min(420px, 66%);
+    width: 100%;
 }
 .mm-section { margin-bottom: 8px; }
 .mm-section-title {
