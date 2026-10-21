@@ -853,13 +853,16 @@ body.menu-open {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 13px 10px;
+    padding: 16px 20px;
+    width: 100%;
+    min-height: 56px;
     border-radius: 12px;
     text-decoration: none;
     color: var(--coffee-dark);
     font-weight: 600;
-    font-size: 1.02rem;
+    font-size: 1.05rem;
     transition: background 0.2s ease, color 0.2s ease;
+    box-sizing: border-box;
 }
 .mm-item:hover, .mm-item:active { background: rgba(197,160,89,0.12); }
 .mm-item.active { color: var(--gold-premium); }
