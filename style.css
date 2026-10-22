@@ -3168,6 +3168,7 @@ a:active {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
+    margin-left: auto;
 }
 .acc-order-mid {
     display: flex;
