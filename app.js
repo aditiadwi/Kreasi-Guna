@@ -1520,8 +1520,10 @@ function injectRateModal() {
 
                 <p class="rm-q">Ulasan kamu (opsional)</p>
                 <textarea id="rate-message" class="rm-textarea" maxlength="500" oninput="rateCountChars()" placeholder="Bagaimana rasa, aroma, dan produk ini?..."></textarea>
-                <div class="rm-charwrap"><span id="rate-charcount" class="rm-charcount">0/500</span></div>
-                <p class="rm-help">Ceritakan pengalamanmu agar membantu pembeli lain.</p>
+                <div class="rm-helprow">
+                    <p class="rm-help">Ceritakan pengalamanmu agar membantu pembeli lain.</p>
+                    <span id="rate-charcount" class="rm-charcount">0/500</span>
+                </div>
 
                 <p class="rm-q">Tambah foto (opsional, maksimal 3)</p>
                 <div id="rate-photos" class="rm-photos"></div>
@@ -1628,7 +1630,7 @@ window.rateRenderPhotos = function () {
         </div>`).join('');
     if (_ratePhotos.length < 3) {
         html += `<button type="button" class="rm-thumb-add" onclick="rateTriggerPhoto()">
-            <span class="rm-cam">&#128247;</span><span>Tambah Foto</span></button>`;
+            <span class="rm-cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span>Tambah Foto</span></button>`;
     }
     wrap.innerHTML = html;
 };
