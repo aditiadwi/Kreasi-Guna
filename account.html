@@ -310,7 +310,7 @@
                 if (o.status === 'COMPLETED') { doneCount = 4; currentIdx = -1; }
                 timeline = `<div class="acc-timeline">` + steps.map((s, si) => {
                     const cls = si < doneCount ? 'done' : (si === currentIdx ? 'current' : '');
-                    return `<div class="acc-step ${cls}"><span class="acc-step-dot">${si < doneCount ? '?' : (si + 1)}</span><span class="acc-step-label">${s}</span></div>`;
+                    return `<div class="acc-step ${cls}"><span class="acc-step-dot">${si < doneCount ? '&#10003;' : (si + 1)}</span><span class="acc-step-label">${s}</span></div>`;
                 }).join('') + `</div>`;
             }
 
