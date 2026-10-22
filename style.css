@@ -3369,7 +3369,7 @@ a:active {
 .rm-box { position: relative; background: #fff; border-radius: 16px; padding: 24px; max-width: 440px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-bold); }
 .rm-close { position: absolute; top: 10px; right: 12px; border: none; background: transparent; font-size: 1.6rem; line-height: 1; color: #9c8f7d; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
 .rm-close:hover { background: #f4efe7; color: var(--coffee-dark); }
-.rm-title { margin: 0 0 14px; padding-right: 28px; color: var(--coffee-dark); font-size: 1.15rem; font-weight: 800; }
+.rm-title { margin: 0 0 14px; padding-right: 28px; color: var(--coffee-dark); font-size: 1.05rem; line-height: 1.35; font-weight: 800; }
 
 /* Kartu produk */
 .rm-card { display: flex; gap: 12px; align-items: center; background: #faf7f1; border: 1px solid #efe7d8; border-radius: 12px; padding: 12px; }
@@ -3388,16 +3388,17 @@ a:active {
 .rm-star-col:hover { background: #faf7f1; }
 #rate-stars .rate-star { font-size: 2rem; line-height: 1; display: inline-block; transition: transform 0.15s ease, color 0.15s ease; }
 #rate-stars .rate-star.lit { color: #f1c40f; text-shadow: 0 2px 10px rgba(241, 196, 15, 0.45); }
-#rate-stars .rate-star.dim { color: #e3ddd2; }
+#rate-stars .rate-star.dim { color: #d6cfbf; }
 #rate-stars .rate-star.pop { animation: rate-pop 0.3s ease; }
 @keyframes rate-pop { 0% { transform: scale(1); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
 .rm-star-cap { font-size: 0.62rem; line-height: 1.15; color: #9c8f7d; text-align: center; font-weight: 600; }
 .rm-star-col.picked .rm-star-cap { color: var(--coffee-dark); font-weight: 800; }
 
-/* Pill label terpilih */
-.rm-pill-wrap { display: flex; justify-content: center; margin-top: 8px; min-height: 30px; }
-.rm-pill { opacity: 0; transform: translateY(4px); transition: 0.18s ease; background: linear-gradient(135deg, var(--gold-accent), var(--gold-premium)); color: #fff; font-weight: 800; font-size: 0.85rem; padding: 5px 16px; border-radius: 20px; box-shadow: 0 3px 8px rgba(197,160,89,0.35); }
-.rm-pill.on { opacity: 1; transform: translateY(0); }
+/* Pill label terpilih — tampil hanya saat ada pilihan, tanpa jeda kosong */
+.rm-pill-wrap { display: flex; justify-content: center; }
+.rm-pill { display: none; background: linear-gradient(135deg, var(--gold-accent), var(--gold-premium)); color: #fff; font-weight: 800; font-size: 0.85rem; padding: 5px 16px; border-radius: 20px; box-shadow: 0 3px 8px rgba(197,160,89,0.35); }
+.rm-pill.on { display: inline-block; margin: 10px 0 2px; animation: rm-pill-in 0.18s ease; }
+@keyframes rm-pill-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Textarea + counter + help */
 .rm-textarea { width: 100%; min-height: 88px; resize: vertical; border: 1px solid #e6ded1; border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; font-family: inherit; color: var(--coffee-dark); }
@@ -3441,6 +3442,8 @@ a:active {
 .rm-success-sub { margin: 0 0 16px; font-size: 0.85rem; color: #777; line-height: 1.5; }
 .rm-succ-summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #faf7f1; border: 1px solid #efe7d8; border-radius: 12px; padding: 12px 14px; margin-top: 12px; }
 .rm-succ-stars { display: flex; gap: 3px; }
+.rm-succ-stars .rate-star { font-size: 1.15rem; color: #f1c40f; text-shadow: 0 2px 8px rgba(241, 196, 15, 0.4); }
+.rm-succ-stars .rate-star.dim { color: #d6cfbf; text-shadow: none; }
 .rm-succ-label { font-weight: 800; color: var(--wood-warm); font-size: 0.9rem; }
 .rm-succ-msg { text-align: left; background: #faf7f1; border: 1px solid #efe7d8; border-radius: 12px; padding: 12px 14px; margin: 10px 0 0; font-size: 0.88rem; color: var(--wood-warm); line-height: 1.5; }
 .rm-succ-photos { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
