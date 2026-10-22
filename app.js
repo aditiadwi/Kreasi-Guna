@@ -1487,21 +1487,66 @@ window.reorderTrackItems = (btn) => reorderItemsList(window._trackItemsRaw, btn)
 // ===== Modal rating produk terikat order (dipakai track.html & account.html) =====
 let _ratePending = null;
 let _rateValue = 0;
-const RATE_LABELS = ['', 'Kurang cocok', 'Lumayan', 'Enak', 'Mantap', 'Luar biasa!'];
+const RATE_LABELS = ['', 'Sangat buruk', 'Kurang baik', 'Cukup', 'Bagus', 'Sangat puas'];
+let _ratePhotos = []; // { file, url } untuk foto yang dipilih
+
+function _rmEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
 function injectRateModal() {
     if (document.getElementById('rate-modal')) return;
     document.body.insertAdjacentHTML('beforeend', `
     <div id="rate-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 15px;">
-        <div style="background: white; border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; box-shadow: var(--shadow-bold);">
-            <h3 id="rate-modal-title" style="margin: 0 0 5px; color: var(--coffee-dark);">Kasih Bintang</h3>
-            <p id="rate-modal-sub" style="font-size: 0.85rem; color: #777; margin: 0 0 15px;"></p>
-            <div id="rate-stars" onmouseleave="previewRateStars(0)" style="font-size: 2.6rem; letter-spacing: 8px; cursor: pointer; margin-bottom: 4px; user-select: none; -webkit-tap-highlight-color: transparent;"></div>
-            <p id="rate-label"></p>
-            <textarea id="rate-message" placeholder="Ceritakan rasanya (opsional)..." style="width: 100%; min-height: 70px; border: 1px solid #eee; border-radius: 10px; padding: 10px; font-size: 0.9rem; margin-bottom: 15px; font-family: inherit;"></textarea>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="closeRateModal()" style="flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #ccc; background: white; font-weight: 700; cursor: pointer;">Batal</button>
-                <button onclick="submitRateModal()" style="flex: 1; padding: 12px; border-radius: 30px; border: none; background: var(--gold-premium); color: white; font-weight: 800; cursor: pointer;">Kirim ★</button>
+        <div class="rm-box">
+            <button class="rm-close" onclick="closeRateModal()" aria-label="Tutup">&times;</button>
+
+            <!-- VIEW: FORM -->
+            <div id="rate-view-form">
+                <h3 id="rate-modal-title" class="rm-title">Beri Ulasan</h3>
+                <div id="rate-card" class="rm-card">
+                    <img id="rate-card-img" class="rm-card-img" src="Images/My Product.png" alt="">
+                    <div class="rm-card-info">
+                        <strong id="rate-card-name" class="rm-card-name"></strong>
+                        <span id="rate-card-order" class="rm-card-order"></span>
+                        <span id="rate-card-price" class="rm-card-price"></span>
+                    </div>
+                </div>
+                <div id="rate-verified" class="rm-verified"><span class="rm-check-sm">&#10003;</span> Pembelian terverifikasi</div>
+
+                <p class="rm-q">Bagaimana pengalamanmu?</p>
+                <div id="rate-stars" class="rm-stars" onmouseleave="previewRateStars(0)"></div>
+                <div class="rm-pill-wrap"><span id="rate-label-pill" class="rm-pill"></span></div>
+
+                <p class="rm-q">Ulasan kamu (opsional)</p>
+                <textarea id="rate-message" class="rm-textarea" maxlength="500" oninput="rateCountChars()" placeholder="Bagaimana rasa, aroma, dan produk ini?..."></textarea>
+                <div class="rm-charwrap"><span id="rate-charcount" class="rm-charcount">0/500</span></div>
+                <p class="rm-help">Ceritakan pengalamanmu agar membantu pembeli lain.</p>
+
+                <p class="rm-q">Tambah foto (opsional, maksimal 3)</p>
+                <div id="rate-photos" class="rm-photos"></div>
+                <input type="file" id="rate-photo-input" accept="image/*" multiple style="display:none" onchange="rateAddPhoto(this)">
+
+                <div class="rm-actions">
+                    <button onclick="closeRateModal()" class="rm-btn rm-btn-cancel">Batal</button>
+                    <button id="rate-submit-btn" onclick="submitRateModal()" class="rm-btn rm-btn-submit" disabled>Kirim Ulasan &#9733;</button>
+                </div>
+            </div>
+
+            <!-- VIEW: LOADING -->
+            <div id="rate-view-loading" style="display:none;">
+                <div class="rm-spinner"></div>
+                <p class="rm-load-title">Mengirim ulasan...</p>
+                <p class="rm-load-sub">Mohon tunggu sebentar.</p>
+            </div>
+
+            <!-- VIEW: SUCCESS -->
+            <div id="rate-view-success" style="display:none;">
+                <div class="rm-bigcheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <h3 class="rm-success-title">Ulasan Berhasil Dikirim!</h3>
+                <p class="rm-success-sub">Terima kasih telah berbagi pengalamanmu. Ulasanmu sangat berarti bagi kami dan pembeli lainnya.</p>
+                <div id="rate-success-body"></div>
+                <button onclick="closeRateModal()" class="rm-btn rm-btn-submit rm-btn-full">Tutup</button>
             </div>
         </div>
     </div>`);
@@ -1517,22 +1562,33 @@ function findProductByName(name) {
 window.previewRateStars = function (n) {
     const box = document.getElementById('rate-stars');
     if (!box) return;
-    // Render bintang sekali saja; hover cukup ganti class, jangan ganti elemen
+    // Render bintang+label sekali saja; hover cukup ganti class, jangan ganti elemen
     // (render ulang innerHTML saat onmouseenter menghancurkan elemen yang mau diklik di desktop)
     if (!box.dataset.ready) {
-        box.innerHTML = [1, 2, 3, 4, 5].map(i =>
-            `<span class="rate-star dim" data-val="${i}" onclick="setRateValue(${i}, this)" onmouseenter="previewRateStars(${i})">★</span>`
-        ).join('');
+        box.innerHTML = [1, 2, 3, 4, 5].map(i => `
+            <div class="rm-star-col" data-col="${i}" onclick="setRateValue(${i})" onmouseenter="previewRateStars(${i})">
+                <span class="rate-star dim" data-val="${i}">&#9733;</span>
+                <span class="rm-star-cap">${RATE_LABELS[i]}</span>
+            </div>`).join('');
         box.dataset.ready = '1';
     }
     const shown = n || _rateValue;
-    box.querySelectorAll('.rate-star').forEach((el) => {
-        const i = +el.dataset.val;
-        el.classList.toggle('lit', i <= shown);
-        el.classList.toggle('dim', i > shown);
+    box.querySelectorAll('.rm-star-col').forEach((col) => {
+        const i = +col.dataset.col;
+        const st = col.querySelector('.rate-star');
+        st.classList.toggle('lit', i <= shown);
+        st.classList.toggle('dim', i > shown);
+        col.classList.toggle('picked', i === _rateValue);
     });
-    const label = document.getElementById('rate-label');
-    if (label) label.innerText = RATE_LABELS[shown] || 'Ketuk bintang untuk menilai';
+    const pill = document.getElementById('rate-label-pill');
+    if (pill) {
+        if (_rateValue > 0) { pill.textContent = RATE_LABELS[_rateValue]; pill.classList.add('on'); }
+        else { pill.textContent = ''; pill.classList.remove('on'); }
+    }
+    const sub = document.getElementById('rate-modal-sub');
+    const sb = document.getElementById('rate-submit-btn');
+    if (sb) sb.disabled = _rateValue < 1;
+    if (sub) sub.textContent = _rateValue > 0 ? 'Kamu memilih: ' + RATE_LABELS[_rateValue] : '';
 };
 
 window.setRateValue = function (i) {
@@ -1543,10 +1599,76 @@ window.setRateValue = function (i) {
     if (el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
 };
 
+// ===== Helpers baru: view, char counter, foto =====
+window.rateShowView = function (which) {
+    ['form', 'loading', 'success'].forEach(v => {
+        const el = document.getElementById('rate-view-' + v);
+        if (el) el.style.display = (v === which) ? '' : 'none';
+    });
+};
+
+window.rateCountChars = function () {
+    const ta = document.getElementById('rate-message');
+    const cc = document.getElementById('rate-charcount');
+    if (ta && cc) cc.textContent = (ta.value || '').length + '/500';
+};
+
+window.rateTriggerPhoto = function () {
+    const inp = document.getElementById('rate-photo-input');
+    if (inp) inp.click();
+};
+
+window.rateRenderPhotos = function () {
+    const wrap = document.getElementById('rate-photos');
+    if (!wrap) return;
+    let html = _ratePhotos.map((p, i) => `
+        <div class="rm-thumb">
+            <img src="${p.url}" alt="">
+            <button type="button" class="rm-thumb-x" onclick="rateRemovePhoto(${i})" aria-label="Hapus">&times;</button>
+        </div>`).join('');
+    if (_ratePhotos.length < 3) {
+        html += `<button type="button" class="rm-thumb-add" onclick="rateTriggerPhoto()">
+            <span class="rm-cam">&#128247;</span><span>Tambah Foto</span></button>`;
+    }
+    wrap.innerHTML = html;
+};
+
+window.rateAddPhoto = function (input) {
+    const files = Array.from(input.files || []);
+    input.value = '';
+    for (const f of files) {
+        if (_ratePhotos.length >= 3) { alert('Maksimal 3 foto.'); break; }
+        if (!/^image\//.test(f.type)) { alert('File harus berupa gambar.'); continue; }
+        if (f.size > 5 * 1024 * 1024) { alert('Ukuran foto maksimal 5MB: ' + f.name); continue; }
+        _ratePhotos.push({ file: f, url: URL.createObjectURL(f) });
+    }
+    rateRenderPhotos();
+};
+
+window.rateRemovePhoto = function (i) {
+    const p = _ratePhotos[i];
+    if (p && p.url) URL.revokeObjectURL(p.url);
+    _ratePhotos.splice(i, 1);
+    rateRenderPhotos();
+};
+
+function rateUploadToCloudinary(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', 'unsigned_123');
+    return fetch('https://api.cloudinary.com/v1_1/dzwv7azwx/image/upload', { method: 'POST', body: fd })
+        .then(r => { if (!r.ok) throw new Error('Cloudinary upload failed'); return r.json(); })
+        .then(d => d.secure_url);
+}
+
 window.closeRateModal = function () {
     const m = document.getElementById('rate-modal');
     if (m) m.classList.add('hidden');
     _ratePending = null;
+    _rateValue = 0;
+    _ratePhotos.forEach(p => { if (p.url) URL.revokeObjectURL(p.url); });
+    _ratePhotos = [];
+    rateShowView('form');
 };
 
 window.rateOrderProduct = async function (orderId, itemsRaw, itemName, btn) {
@@ -1564,12 +1686,30 @@ window.rateOrderProduct = async function (orderId, itemsRaw, itemName, btn) {
             return alert(`Kamu sudah kasih ${'★'.repeat(data[0].rating || 0)} (${data[0].rating || '?'}/5) untuk produk ini. Terima kasih!`);
         }
     } catch (e) {}
-    _ratePending = { orderId, productId: prod.id, productName: prod.name, btn };
+
+    // Cari item ini di order untuk harga & qty
+    const items = (typeof parseTrackItems === 'function') ? parseTrackItems(itemsRaw) : [];
+    const it = items.find(x => x.name === itemName) || items.find(x => itemName.includes(x.name) || x.name.includes(itemName)) || null;
+    const unitPrice = (it && it.price) || prod.price || 0;
+    const qty = (it && it.qty) || 1;
+
+    _ratePending = { orderId, productId: prod.id, productName: prod.name, btn, unitPrice, qty, image: prod.image_url || 'Images/My Product.png' };
     _rateValue = 0;
+    _ratePhotos.forEach(p => { if (p.url) URL.revokeObjectURL(p.url); });
+    _ratePhotos = [];
+
     document.getElementById('rate-modal-title').innerText = 'Beri Ulasan: ' + prod.name;
-    document.getElementById('rate-modal-sub').innerText = 'Order ' + orderId + ' · rating terverifikasi dari pembeli';
+    const subEl = document.getElementById('rate-modal-sub');
+    if (subEl) subEl.innerText = '';
+    document.getElementById('rate-card-img').src = _ratePending.image;
+    document.getElementById('rate-card-name').innerText = prod.name;
+    document.getElementById('rate-card-order').innerText = 'Order ' + orderId;
+    document.getElementById('rate-card-price').innerText = 'Rp ' + unitPrice.toLocaleString('id-ID') + ' \u00d7 ' + qty;
     document.getElementById('rate-message').value = '';
+    rateCountChars();
+    rateRenderPhotos();
     previewRateStars(0);
+    rateShowView('form');
     document.getElementById('rate-modal').classList.remove('hidden');
 };
 
@@ -1583,57 +1723,107 @@ window.rateTrackItem = function (itemIdx, btn) {
 window.submitRateModal = async function () {
     if (!_ratePending) return;
     if (_rateValue < 1) return alert('Pilih dulu bintangnya (1-5).');
-    let sessionName = '', sessionAvatar = '';
+    const msg = (document.getElementById('rate-message').value || '').trim();
+    const pending = _ratePending;
+    const chosenValue = _rateValue;
+
+    // ===== View loading =====
+    const sb = document.getElementById('rate-submit-btn');
+    if (sb) sb.disabled = true;
+    rateShowView('loading');
+
     try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session && session.user) {
-            sessionName = session.user.user_metadata.full_name || session.user.email || '';
-            sessionAvatar = session.user.user_metadata.avatar_url || '';
+        let sessionName = '', sessionAvatar = '';
+        try {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                sessionName = session.user.user_metadata.full_name || session.user.email || '';
+                sessionAvatar = session.user.user_metadata.avatar_url || '';
+            }
+        } catch (e) {}
+        if (!sessionName && typeof accSession !== 'undefined' && accSession && accSession.user) {
+            const md = accSession.user.user_metadata || {};
+            sessionName = md.full_name || accSession.user.email || '';
+            sessionAvatar = md.avatar_url || sessionAvatar;
         }
-    } catch (e) {}
-    if (!sessionName && typeof accSession !== 'undefined' && accSession && accSession.user) {
-        const md = accSession.user.user_metadata || {};
-        sessionName = md.full_name || accSession.user.email || '';
-        sessionAvatar = md.avatar_url || sessionAvatar;
-    }
-    if (!sessionName) {
-        const el = document.getElementById('res-name');
-        if (el && el.innerText && el.innerText.trim() && el.innerText.trim() !== '-') sessionName = el.innerText.trim();
-    }
-    const row = {
-        customer_name: sessionName || 'Anonymous',
-        rating: _rateValue,
-        message: document.getElementById('rate-message').value || '',
-        product_id: _ratePending.productId,
-        order_id: _ratePending.orderId,
-        is_approved: true // terikat order asli, langsung tampil
-    };
-    if (sessionAvatar && /^https?:\/\//i.test(sessionAvatar)) row.avatar_url = sessionAvatar;
-    try {
+        if (!sessionName) {
+            const el = document.getElementById('res-name');
+            if (el && el.innerText && el.innerText.trim() && el.innerText.trim() !== '-') sessionName = el.innerText.trim();
+        }
+
+        // ===== Upload foto (maks 3) ke Cloudinary =====
+        const photoUrls = [];
+        for (const p of _ratePhotos) {
+            const u = await rateUploadToCloudinary(p.file);
+            if (u) photoUrls.push(u);
+        }
+
+        const row = {
+            customer_name: sessionName || 'Anonymous',
+            rating: chosenValue,
+            message: msg,
+            product_id: pending.productId,
+            order_id: pending.orderId,
+            is_approved: true // terikat order asli, langsung tampil
+        };
+        if (photoUrls.length) row.photos = photoUrls.join(',');
+        if (sessionAvatar && /^https?:\/\//i.test(sessionAvatar)) row.avatar_url = sessionAvatar;
+
         let { error } = await supabaseClient.from('feedback').insert([row]);
+        if (error && /photos/i.test(error.message || '')) {
+            // Kolom photos belum ada di DB: ulangi tanpa foto
+            delete row.photos;
+            ({ error } = await supabaseClient.from('feedback').insert([row]));
+        }
         if (error && /product_id|order_id|column/i.test(error.message || '')) {
             // Kolom rating produk belum ada di DB: fallback jadi ulasan umum
-            delete row.product_id; delete row.order_id; delete row.avatar_url;
+            delete row.product_id; delete row.order_id; delete row.avatar_url; delete row.photos;
             row.is_approved = false;
             ({ error } = await supabaseClient.from('feedback').insert([row]));
             if (error) throw error;
-            alert('Tersimpan sebagai ulasan umum (kolom rating produk belum ada di database).');
         } else if (error) {
             throw error;
-        } else {
-            alert('Makasih! Rating-mu langsung tampil di katalog.');
         }
+
         PRODUCT_RATINGS = null;
-        if (_ratePending.btn) {
-            _ratePending.btn.disabled = true;
-            _ratePending.btn.textContent = `★ ${_rateValue} · Rated`;
-            _ratePending.btn.style.opacity = '0.5';
+        if (pending.btn) {
+            pending.btn.disabled = true;
+            pending.btn.textContent = `★ ${chosenValue} · Rated`;
+            pending.btn.style.opacity = '0.5';
         }
-        closeRateModal();
+
+        // ===== View sukses =====
+        rateRenderSuccess(pending, chosenValue, msg, photoUrls);
+        rateShowView('success');
     } catch (err) {
+        rateShowView('form');
+        if (sb) sb.disabled = false;
         alert('Gagal menyimpan rating. Coba lagi.');
     }
 };
+
+function rateRenderSuccess(pending, value, msg, photoUrls) {
+    const body = document.getElementById('rate-success-body');
+    if (!body) return;
+    const stars = [1, 2, 3, 4, 5].map(i =>
+        `<span class="rate-star ${i <= value ? 'lit' : 'dim'}" style="font-size:1.3rem;">&#9733;</span>`).join('');
+    const imgs = (photoUrls || []).map(u => `<img class="rm-succ-photo" src="${_rmEsc(u)}" alt="" loading="lazy">`).join('');
+    body.innerHTML = `
+        <div class="rm-card">
+            <img class="rm-card-img" src="${_rmEsc(pending.image)}" alt="" onerror="this.src='Images/My Product.png'">
+            <div class="rm-card-info">
+                <strong class="rm-card-name">${_rmEsc(pending.productName)}</strong>
+                <span class="rm-card-order">Order ${_rmEsc(pending.orderId)}</span>
+                <span class="rm-card-price">Rp ${(pending.unitPrice || 0).toLocaleString('id-ID')} &times; ${pending.qty || 1}</span>
+            </div>
+        </div>
+        <div class="rm-succ-summary">
+            <div class="rm-succ-stars">${stars}</div>
+            <div class="rm-succ-label">${_rmEsc(RATE_LABELS[value])}</div>
+        </div>
+        ${msg ? `<p class="rm-succ-msg">${_rmEsc(msg)}</p>` : ''}
+        ${imgs ? `<div class="rm-succ-photos">${imgs}</div>` : ''}`;
+}
 
 // Tandai tombol rate yang sudah pernah diberi rating (scope: container)
 window.markRatedOrderButtons = async function (orderId, itemsRaw, container) {

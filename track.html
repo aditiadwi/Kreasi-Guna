@@ -5,16 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.78">
+    <link rel="stylesheet" href="style.css?v=1.0.79">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        #rate-stars .rate-star { display: inline-block; transition: transform 0.15s ease; }
-        #rate-stars .rate-star.lit { color: #f1c40f; text-shadow: 0 2px 10px rgba(241, 196, 15, 0.45); }
-        #rate-stars .rate-star.dim { color: #e3ddd2; }
-        #rate-stars .rate-star.pop { animation: rate-pop 0.3s ease; }
-        @keyframes rate-pop { 0% { transform: scale(1); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
-        #rate-label { min-height: 1.4em; font-weight: 800; font-size: 0.9rem; color: var(--wood-warm); margin: -8px 0 12px; }
-
         /* Feather-style SVG icons */
         .tico { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--gold-premium); vertical-align: middle; }
         .tico svg { display: block; }
@@ -511,21 +504,8 @@
         </svg>
     </a>
 
-    <!-- Modal rating produk terikat order -->
-    <div id="rate-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 15px;">
-        <div style="background: white; border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; box-shadow: var(--shadow-bold);">
-            <h3 id="rate-modal-title" style="margin: 0 0 5px; color: var(--coffee-dark);">Kasih Bintang</h3>
-            <p id="rate-modal-sub" style="font-size: 0.85rem; color: #777; margin: 0 0 15px;"></p>
-            <div id="rate-stars" onmouseleave="previewRateStars(0)" style="font-size: 2.6rem; letter-spacing: 8px; cursor: pointer; margin-bottom: 4px; user-select: none; -webkit-tap-highlight-color: transparent;"></div>
-            <p id="rate-label"></p>
-            <textarea id="rate-message" placeholder="Ceritakan rasanya (opsional)..." style="width: 100%; min-height: 70px; border: 1px solid #eee; border-radius: 10px; padding: 10px; font-size: 0.9rem; margin-bottom: 15px; font-family: inherit;"></textarea>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="closeRateModal()" style="flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #ccc; background: white; font-weight: 700; cursor: pointer;">Batal</button>
-                <button onclick="submitRateModal()" style="flex: 1; padding: 12px; border-radius: 30px; border: none; background: var(--gold-premium); color: white; font-weight: 800; cursor: pointer;"><span class="tico-btn"><span class="tico tico-md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>Kirim</span></button>
-            </div>
-        </div>
-    </div>
+    <!-- Modal rating produk terikat order disuntik oleh app.js (injectRateModal) -->
 
-    <script src="app.js?v=1.0.79"></script>
+    <script src="app.js?v=1.0.80"></script>
 </body>
 </html>
