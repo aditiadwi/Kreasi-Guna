@@ -3173,15 +3173,16 @@ a:active {
 .acc-order-mid {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     flex-wrap: wrap;
     font-size: 0.88rem;
     margin-bottom: 12px;
 }
-.acc-order-items { color: var(--text-muted); min-width: 0; }
-.acc-more { color: var(--gold-premium); font-weight: 700; font-size: 0.8rem; }
-.acc-order-total { font-weight: 800; color: var(--coffee-dark); white-space: nowrap; }
+.acc-order-items { color: var(--text-muted); min-width: 0; line-height: 1.5; }
+.acc-item-line { display: block; }
+.acc-more { display: block; color: var(--gold-premium); font-weight: 700; font-size: 0.8rem; }
+.acc-order-total { margin-left: auto; font-weight: 800; color: var(--coffee-dark); white-space: nowrap; }
 .acc-order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* Tombol kecil */
