@@ -3589,9 +3589,8 @@ a:active {
     .acc-menu-btn { width: 100%; justify-content: flex-start; padding: 12px 14px; background: #fafafa; border-color: var(--border-light); }
     .acc-menu-btn.acc-logout { margin-top: 4px; }
     .acc-form-row { grid-template-columns: 1fr; }
-    .acc-timeline { flex-wrap: wrap; gap: 10px; }
-    .acc-step { flex: 1 1 40%; }
-    .acc-step::after { display: none; }
+    .acc-timeline { gap: 2px; padding: 12px 5px; }
+    .acc-step { flex: 1 1 0; }
 }
 @media (max-width: 480px) {
     .acc-order-actions .acc-btn-ghost,
