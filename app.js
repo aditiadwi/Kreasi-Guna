@@ -1517,17 +1517,29 @@ function findProductByName(name) {
 window.previewRateStars = function (n) {
     const box = document.getElementById('rate-stars');
     if (!box) return;
+    // Render bintang sekali saja; hover cukup ganti class, jangan ganti elemen
+    // (render ulang innerHTML saat onmouseenter menghancurkan elemen yang mau diklik di desktop)
+    if (!box.dataset.ready) {
+        box.innerHTML = [1, 2, 3, 4, 5].map(i =>
+            `<span class="rate-star dim" data-val="${i}" onclick="setRateValue(${i}, this)" onmouseenter="previewRateStars(${i})">★</span>`
+        ).join('');
+        box.dataset.ready = '1';
+    }
     const shown = n || _rateValue;
-    box.innerHTML = [1, 2, 3, 4, 5].map(i =>
-        `<span class="rate-star ${i <= shown ? 'lit' : 'dim'}" onclick="setRateValue(${i}, this)" onmouseenter="previewRateStars(${i})">★</span>`
-    ).join('');
+    box.querySelectorAll('.rate-star').forEach((el) => {
+        const i = +el.dataset.val;
+        el.classList.toggle('lit', i <= shown);
+        el.classList.toggle('dim', i > shown);
+    });
     const label = document.getElementById('rate-label');
     if (label) label.innerText = RATE_LABELS[shown] || 'Ketuk bintang untuk menilai';
 };
 
-window.setRateValue = function (i, el) {
+window.setRateValue = function (i) {
     _rateValue = i;
     previewRateStars(0);
+    const box = document.getElementById('rate-stars');
+    const el = box && box.querySelector(`.rate-star[data-val="${i}"]`);
     if (el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
 };
 
