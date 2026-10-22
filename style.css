@@ -3161,7 +3161,7 @@ a:active {
 .acc-order-id { display: block; font-size: 0.95rem; color: var(--coffee-dark); letter-spacing: 0.5px; }
 .acc-order-date { display: block; font-size: 0.78rem; color: var(--text-muted); }
 .acc-status-chip {
-    padding: 5px 14px;
+    padding: 5px 12px;
     border-radius: 50px;
     font-size: 0.72rem;
     font-weight: 800;
