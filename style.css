@@ -3182,7 +3182,7 @@ a:active {
 .acc-order-items { color: var(--text-muted); min-width: 0; line-height: 1.5; }
 .acc-item-line { display: block; }
 .acc-more { display: block; color: var(--gold-premium); font-weight: 700; font-size: 0.8rem; }
-.acc-order-total { margin-left: auto; font-weight: 800; color: var(--coffee-dark); white-space: nowrap; }
+.acc-order-total { align-self: flex-end; margin-left: auto; font-weight: 800; color: var(--coffee-dark); white-space: nowrap; }
 .acc-order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* Tombol kecil */
