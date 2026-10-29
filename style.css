@@ -2928,7 +2928,7 @@ a:active {
 
 /* ================= HALAMAN AKUN (account.html) ================= */
 .account-main {
-    max-width: 1080px;
+    max-width: 1200px;
     padding-top: clamp(30px, 5vh, 60px);
     padding-bottom: clamp(40px, 6vh, 80px);
     width: 100%;
