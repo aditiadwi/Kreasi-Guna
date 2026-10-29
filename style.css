@@ -3259,6 +3259,8 @@ a:active {
     position: relative;
     z-index: 1;
 }
+.acc-step-dot .acc-step-ico { display: flex; align-items: center; justify-content: center; }
+.acc-step-dot .acc-step-ico svg { width: 13px; height: 13px; display: block; }
 .acc-step.done .acc-step-dot { background: var(--gold-premium); color: white; }
 .acc-step.current .acc-step-dot {
     background: white;
