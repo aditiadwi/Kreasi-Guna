@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.91">
+    <link rel="stylesheet" href="style.css?v=1.0.92">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -176,7 +176,42 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.91"></script>
+    <!-- Modal edit ulasan -->
+    <div id="acc-edit-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 15px;">
+        <div class="rm-box">
+            <button class="rm-close" onclick="closeAccEditModal()" aria-label="Tutup">&times;</button>
+            <div id="acc-edit-view-form">
+                <h3 class="rm-title">Ubah Ulasan</h3>
+                <div class="rm-card">
+                    <img id="acc-edit-img" class="rm-card-img" src="Images/My Product.png" alt="">
+                    <div class="rm-card-info">
+                        <strong id="acc-edit-pname" class="rm-card-name"></strong>
+                        <span id="acc-edit-order" class="rm-card-order"></span>
+                    </div>
+                </div>
+                <div class="rm-verified"><span class="rm-check-sm">&#10003;</span> Pembelian terverifikasi</div>
+                <p class="rm-q">Rating kamu</p>
+                <div id="acc-edit-stars" class="rm-stars" style="pointer-events: none;"></div>
+                <p class="rm-q">Ulasan kamu</p>
+                <textarea id="acc-edit-msg" class="rm-textarea" maxlength="500" oninput="document.getElementById('acc-edit-count').textContent = this.value.length + '/500'" placeholder="Bagaimana rasa, aroma, dan produk ini?..."></textarea>
+                <div class="rm-helprow">
+                    <p class="rm-help">Ceritakan pengalamanmu agar membantu pembeli lain.</p>
+                    <span id="acc-edit-count" class="rm-charcount">0/500</span>
+                </div>
+                <div class="rm-actions">
+                    <button onclick="closeAccEditModal()" class="rm-btn rm-btn-cancel">Batal</button>
+                    <button id="acc-edit-save-btn" onclick="saveAccEditReview()" class="rm-btn rm-btn-submit">Simpan Perubahan</button>
+                </div>
+            </div>
+            <div id="acc-edit-view-loading" style="display:none;">
+                <div class="rm-spinner"></div>
+                <p class="rm-load-title">Menyimpan ulasan...</p>
+                <p class="rm-load-sub">Mohon tunggu sebentar.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=1.0.92"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -491,17 +526,68 @@
             }
         }
 
+        let _accEditIdx = -1;
+
         window.editReview = async function (idx) {
             const f = accReviews[idx];
             if (!f) return;
-            const msg = prompt('Ubah komentar ulasanmu:', f.message || '');
-            if (msg === null) return;
+            _accEditIdx = idx;
+            // Cari info produk untuk tampilan kartu
+            if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
+                try { await fetchProducts(); } catch (e) {}
+            }
+            const prodMap = {};
+            (DYNAMIC_PRODUCTS || []).forEach(p => { prodMap[p.id] = p; });
+            const p = f.product_id ? prodMap[f.product_id] : null;
+            const img = p && p.image_url ? p.image_url : 'Images/My Product.png';
+            const pname = p ? p.name : 'Ulasan Umum';
+            const rating = parseInt(f.rating || 0, 10);
+            document.getElementById('acc-edit-img').src = img;
+            document.getElementById('acc-edit-pname').textContent = pname;
+            document.getElementById('acc-edit-order').textContent = f.order_id ? 'Order ' + f.order_id : '';
+            document.getElementById('acc-edit-stars').innerHTML = [1, 2, 3, 4, 5].map(n =>
+                `<span class="rate-star ${n <= rating ? 'lit' : 'dim'}">&#9733;</span>`
+            ).join('');
+            const msgEl = document.getElementById('acc-edit-msg');
+            msgEl.value = f.message || '';
+            document.getElementById('acc-edit-count').textContent = (f.message || '').length + '/500';
+            document.getElementById('acc-edit-view-form').style.display = '';
+            document.getElementById('acc-edit-view-loading').style.display = 'none';
+            document.getElementById('acc-edit-modal').classList.remove('hidden');
+            msgEl.focus();
+        };
+
+        window.closeAccEditModal = function () {
+            document.getElementById('acc-edit-modal').classList.add('hidden');
+            _accEditIdx = -1;
+        };
+
+        // Klik backdrop / Escape untuk tutup modal edit ulasan
+        document.getElementById('acc-edit-modal').addEventListener('click', function (e) {
+            if (e.target === this) closeAccEditModal();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !document.getElementById('acc-edit-modal').classList.contains('hidden')) closeAccEditModal();
+        });
+
+        window.saveAccEditReview = async function () {
+            const f = accReviews[_accEditIdx];
+            if (!f) return;
+            const msg = document.getElementById('acc-edit-msg').value.trim();
+            const btn = document.getElementById('acc-edit-save-btn');
+            btn.disabled = true;
+            document.getElementById('acc-edit-view-form').style.display = 'none';
+            document.getElementById('acc-edit-view-loading').style.display = '';
             try {
-                const { error } = await supabaseClient.from('feedback').update({ message: msg.trim() }).eq('id', f.id);
+                const { error } = await supabaseClient.from('feedback').update({ message: msg }).eq('id', f.id);
                 if (error) throw error;
-                f.message = msg.trim();
+                f.message = msg;
+                closeAccEditModal();
                 loadReviews();
             } catch (e) {
+                document.getElementById('acc-edit-view-form').style.display = '';
+                document.getElementById('acc-edit-view-loading').style.display = 'none';
+                btn.disabled = false;
                 alert('Gagal mengubah ulasan: ' + (e.message || 'coba lagi nanti.'));
             }
         };
