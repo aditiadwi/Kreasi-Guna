@@ -3582,6 +3582,53 @@ a:active {
 .acc-field select:focus,
 .acc-field textarea:focus { border-color: var(--gold-premium); }
 .acc-field textarea { resize: vertical; }
+
+/* Dropdown kustom pengganti <select> native (bisa membulat, gaya konsisten) */
+.acc-sel { position: relative; min-width: 0; }
+.acc-sel-btn {
+    width: 100%;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 11px 13px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: white;
+    font-size: 0.9rem; font-family: inherit; color: var(--coffee-dark);
+    cursor: pointer; text-align: left;
+    transition: border-color 0.2s ease;
+}
+.acc-sel-btn:hover { border-color: #cfc4b2; }
+.acc-sel-btn:focus-visible, .acc-sel.open .acc-sel-btn { outline: none; border-color: var(--gold-premium); }
+.acc-sel-arrow { width: 14px; height: 14px; flex-shrink: 0; color: #9c8f7d; transition: transform 0.2s ease; }
+.acc-sel.open .acc-sel-arrow { transform: rotate(180deg); }
+.acc-sel-val { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-sel-val.placeholder { color: #9c8f7d; }
+.acc-sel-menu {
+    display: none;
+    position: absolute; z-index: 60; top: calc(100% + 6px); left: 0; right: 0;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(44, 30, 18, 0.16);
+    padding: 6px;
+    max-height: 236px; overflow-y: auto;
+    list-style: none; margin: 0;
+    scrollbar-width: none;
+}
+.acc-sel-menu::-webkit-scrollbar { display: none; }
+.acc-sel.open .acc-sel-menu { display: block; }
+.acc-sel-opt {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.88rem; color: var(--coffee-dark);
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+.acc-sel-opt:hover { background: #faf7f1; }
+.acc-sel-opt.active { background: #fffbf2; color: var(--gold-premium); font-weight: 800; }
+.acc-sel-opt .acc-sel-check { width: 14px; height: 14px; flex-shrink: 0; }
+.acc-sel-opt .acc-sel-check.hidden { visibility: hidden; }
+
 .acc-form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .acc-form-actions .btn-primary { padding: 11px 26px; border-radius: 12px; }
 

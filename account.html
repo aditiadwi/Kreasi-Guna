@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.93">
+    <link rel="stylesheet" href="style.css?v=1.0.94">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -126,27 +126,39 @@
                         <div class="acc-form-row">
                             <label class="acc-field">
                                 <span>Kota / Kabupaten <span class="req">*</span></span>
-                                <select id="acc-addr-city" required>
-                                    <option value="" disabled selected>Pilih kota/kabupaten</option>
-                                    <option value="jakarta">Jakarta</option>
-                                    <option value="bekasi">Bekasi</option>
-                                    <option value="bandung">Bandung</option>
-                                    <option value="surabaya">Surabaya</option>
-                                    <option value="medan">Medan</option>
-                                    <option value="bali">Bali</option>
-                                </select>
+                                <div class="acc-sel" id="acc-addr-city" data-label="Pilih kota/kabupaten">
+                                    <input type="hidden" id="acc-addr-city-val" value="">
+                                    <button type="button" class="acc-sel-btn" onclick="toggleAccSel(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAccSel(this)}">
+                                        <span class="acc-sel-val placeholder">Pilih kota/kabupaten</span>
+                                        <svg class="acc-sel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </button>
+                                    <ul class="acc-sel-menu" role="listbox">
+                                        <li class="acc-sel-opt" role="option" data-val="jakarta" onclick="pickAccSel(this)">Jakarta <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="bekasi" onclick="pickAccSel(this)">Bekasi <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="bandung" onclick="pickAccSel(this)">Bandung <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="surabaya" onclick="pickAccSel(this)">Surabaya <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="medan" onclick="pickAccSel(this)">Medan <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="bali" onclick="pickAccSel(this)">Bali <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                    </ul>
+                                </div>
                             </label>
                             <label class="acc-field">
                                 <span>Provinsi <span class="req">*</span></span>
-                                <select id="acc-addr-province" required>
-                                    <option value="" disabled selected>Pilih provinsi</option>
-                                    <option value="jakarta">DKI Jakarta</option>
-                                    <option value="jawa-barat">Jawa Barat</option>
-                                    <option value="jawa-tengah">Jawa Tengah</option>
-                                    <option value="jawa-timur">Jawa Timur</option>
-                                    <option value="bali">Bali</option>
-                                    <option value="sumut">Sumatera Utara</option>
-                                </select>
+                                <div class="acc-sel" id="acc-addr-province" data-label="Pilih provinsi">
+                                    <input type="hidden" id="acc-addr-province-val" value="">
+                                    <button type="button" class="acc-sel-btn" onclick="toggleAccSel(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAccSel(this)}">
+                                        <span class="acc-sel-val placeholder">Pilih provinsi</span>
+                                        <svg class="acc-sel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </button>
+                                    <ul class="acc-sel-menu" role="listbox">
+                                        <li class="acc-sel-opt" role="option" data-val="jakarta" onclick="pickAccSel(this)">DKI Jakarta <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jawa-barat" onclick="pickAccSel(this)">Jawa Barat <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jawa-tengah" onclick="pickAccSel(this)">Jawa Tengah <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jawa-timur" onclick="pickAccSel(this)">Jawa Timur <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="bali" onclick="pickAccSel(this)">Bali <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="sumut" onclick="pickAccSel(this)">Sumatera Utara <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                    </ul>
+                                </div>
                             </label>
                         </div>
                         <label class="acc-field">
@@ -221,7 +233,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.93"></script>
+    <script src="app.js?v=1.0.94"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -253,6 +265,59 @@
             repeat: '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'
         };
         const accIco = (name, cls) => `<span class="${cls || 'acc-h4-ico'}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ACC_ICONS[name] || ''}</svg></span>`;
+        /* ===== Dropdown kustom (pengganti <select> native) ===== */
+        window.toggleAccSel = function (btn) {
+            const box = btn.closest('.acc-sel');
+            const wasOpen = box.classList.contains('open');
+            closeAllAccSel();
+            if (!wasOpen) box.classList.add('open');
+        };
+        window.pickAccSel = function (opt) {
+            const box = opt.closest('.acc-sel');
+            const val = opt.dataset.val || '';
+            box.querySelector('input[type="hidden"]').value = val;
+            const valEl = box.querySelector('.acc-sel-val');
+            valEl.textContent = opt.textContent.trim();
+            valEl.classList.remove('placeholder');
+            box.querySelectorAll('.acc-sel-opt').forEach(o => {
+                const on = o === opt;
+                o.classList.toggle('active', on);
+                o.querySelector('.acc-sel-check').classList.toggle('hidden', !on);
+            });
+            box.classList.remove('open');
+            box.dataset.filled = '1';
+        };
+        function setAccSel(id, value) {
+            const box = document.getElementById(id);
+            if (!box) return;
+            box.querySelector('input[type="hidden"]').value = value || '';
+            const valEl = box.querySelector('.acc-sel-val');
+            const opt = value ? box.querySelector(`.acc-sel-opt[data-val="${CSS.escape(value)}"]`) : null;
+            if (opt) {
+                valEl.textContent = opt.textContent.trim();
+                valEl.classList.remove('placeholder');
+            } else {
+                valEl.textContent = box.dataset.label || '';
+                valEl.classList.add('placeholder');
+            }
+            box.querySelectorAll('.acc-sel-opt').forEach(o => {
+                const on = opt && o === opt;
+                o.classList.toggle('active', on);
+                o.querySelector('.acc-sel-check').classList.toggle('hidden', !on);
+            });
+            box.classList.toggle('open', false);
+        }
+        function closeAllAccSel() {
+            document.querySelectorAll('.acc-sel.open').forEach(b => b.classList.remove('open'));
+        }
+        // Tutup saat klik di luar dropdown / tekan Escape
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.acc-sel')) closeAllAccSel();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeAllAccSel();
+        });
+
         function rp(v) { const d = String(v ?? '').replace(/[^\d]/g, ''); if (!d) return String(v ?? '-').trim() || '-'; return 'Rp ' + parseInt(d, 10).toLocaleString('id-ID'); }
         function fmtDate(iso) {
             if (!iso) return '';
@@ -650,6 +715,8 @@
         window.resetAddrForm = function () {
             const form = document.getElementById('acc-addr-form');
             form.reset();
+            setAccSel('acc-addr-city', '');
+            setAccSel('acc-addr-province', '');
             document.getElementById('acc-addr-edit-index').value = '-1';
             document.getElementById('btn-acc-addr-save').textContent = 'Simpan Alamat';
             form.classList.add('hidden');
@@ -663,8 +730,8 @@
             document.getElementById('acc-addr-phone').value = b.phone || '';
             document.getElementById('acc-addr-kelurahan').value = b.kelurahan || '';
             document.getElementById('acc-addr-kecamatan').value = b.kecamatan || '';
-            document.getElementById('acc-addr-city').value = b.city || '';
-            document.getElementById('acc-addr-province').value = b.province || '';
+            setAccSel('acc-addr-city', b.city || '');
+            setAccSel('acc-addr-province', b.province || '');
             document.getElementById('acc-addr-postal').value = b.postalCode || '';
             document.getElementById('acc-addr-address').value = b.address || '';
             document.getElementById('btn-acc-addr-save').textContent = 'Simpan Perubahan';
@@ -689,8 +756,8 @@
                 email: (accSession && accSession.user.email) || '',
                 kelurahan: document.getElementById('acc-addr-kelurahan').value.trim(),
                 kecamatan: document.getElementById('acc-addr-kecamatan').value.trim(),
-                city: document.getElementById('acc-addr-city').value,
-                province: document.getElementById('acc-addr-province').value,
+                city: document.getElementById('acc-addr-city-val').value,
+                province: document.getElementById('acc-addr-province-val').value,
                 postalCode: document.getElementById('acc-addr-postal').value.trim(),
                 address: document.getElementById('acc-addr-address').value.trim()
             };
