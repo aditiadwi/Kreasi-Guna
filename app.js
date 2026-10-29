@@ -3989,8 +3989,15 @@ function saveAddressToBook(entry, silent) {
         return false;
     }
     let book = getAddressBook();
+    // Pertahankan kelurahan/kecamatan lama jika entry baru (dari checkout) tidak membawanya
+    const prev = book.find(b => b.email === entry.email && b.address === entry.address);
     book = book.filter(b => !(b.email === entry.email && b.address === entry.address));
-    book.unshift({ name: entry.name, phone: entry.phone || '', email: entry.email || '', city: entry.city || '', province: entry.province || '', postalCode: entry.postalCode || '', address: entry.address });
+    book.unshift({
+        name: entry.name, phone: entry.phone || '', email: entry.email || '',
+        kelurahan: entry.kelurahan || (prev ? prev.kelurahan : '') || '',
+        kecamatan: entry.kecamatan || (prev ? prev.kecamatan : '') || '',
+        city: entry.city || '', province: entry.province || '', postalCode: entry.postalCode || '', address: entry.address
+    });
     if (book.length > 3) book = book.slice(0, 3);
     localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
     if (typeof window.renderAddressBook === 'function') window.renderAddressBook();
@@ -4014,7 +4021,15 @@ function applyAddressToForm(p) {
         if (provSelect) provSelect.value = p.province;
     }
     if (p.postalCode && document.getElementById('customer-postal-code')) document.getElementById('customer-postal-code').value = p.postalCode;
-    if (p.address && document.getElementById('customer-address')) document.getElementById('customer-address').value = p.address;
+    if (p.address && document.getElementById('customer-address')) {
+        // Sisipkan kelurahan/kecamatan ke teks alamat checkout (checkout tak punya field terpisah)
+        let addr = p.address;
+        const detail = [p.kelurahan ? 'Kel. ' + p.kelurahan : '', p.kecamatan ? 'Kec. ' + p.kecamatan : ''].filter(Boolean).join(', ');
+        if (detail && !addr.toLowerCase().includes(String(p.kelurahan || '').toLowerCase())) {
+            addr = addr + (addr.endsWith(',') ? '' : ',') + ' ' + detail;
+        }
+        document.getElementById('customer-address').value = addr;
+    }
     if (typeof saveFormData === 'function') saveFormData();
     if (typeof window.handleShippingUpdate === 'function') window.handleShippingUpdate();
 }

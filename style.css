@@ -3564,6 +3564,7 @@ a:active {
 }
 .acc-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .acc-field > span { font-size: 0.78rem; font-weight: 700; color: var(--wood-warm); }
+.acc-field .req { color: #c0392b; }
 .acc-field input,
 .acc-field select,
 .acc-field textarea {

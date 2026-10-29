@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.92">
+    <link rel="stylesheet" href="style.css?v=1.0.93">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -115,9 +115,19 @@
                         </div>
                         <div class="acc-form-row">
                             <label class="acc-field">
-                                <span>Kota / Wilayah Pengiriman</span>
+                                <span>Kelurahan <span class="req">*</span></span>
+                                <input type="text" id="acc-addr-kelurahan" placeholder="Nama kelurahan/desa" maxlength="80" required>
+                            </label>
+                            <label class="acc-field">
+                                <span>Kecamatan <span class="req">*</span></span>
+                                <input type="text" id="acc-addr-kecamatan" placeholder="Nama kecamatan" maxlength="80" required>
+                            </label>
+                        </div>
+                        <div class="acc-form-row">
+                            <label class="acc-field">
+                                <span>Kota / Kabupaten <span class="req">*</span></span>
                                 <select id="acc-addr-city" required>
-                                    <option value="" disabled selected>Pilih kota</option>
+                                    <option value="" disabled selected>Pilih kota/kabupaten</option>
                                     <option value="jakarta">Jakarta</option>
                                     <option value="bekasi">Bekasi</option>
                                     <option value="bandung">Bandung</option>
@@ -127,7 +137,7 @@
                                 </select>
                             </label>
                             <label class="acc-field">
-                                <span>Provinsi</span>
+                                <span>Provinsi <span class="req">*</span></span>
                                 <select id="acc-addr-province" required>
                                     <option value="" disabled selected>Pilih provinsi</option>
                                     <option value="jakarta">DKI Jakarta</option>
@@ -140,12 +150,12 @@
                             </label>
                         </div>
                         <label class="acc-field">
-                            <span>Kode Pos</span>
-                            <input type="text" id="acc-addr-postal" placeholder="12345" maxlength="10">
+                            <span>Kode Pos <span class="req">*</span></span>
+                            <input type="text" id="acc-addr-postal" placeholder="12345" maxlength="10" required>
                         </label>
                         <label class="acc-field">
-                            <span>Alamat Lengkap</span>
-                            <textarea id="acc-addr-address" placeholder="Jalan, nomor rumah, kelurahan, kecamatan" rows="3" maxlength="300" required></textarea>
+                            <span>Alamat Lengkap (Jalan &amp; Nomor Rumah) <span class="req">*</span></span>
+                            <textarea id="acc-addr-address" placeholder="Jl. Contoh No. 10, RT 002/RW 005" rows="3" maxlength="300" required></textarea>
                         </label>
                         <div class="acc-form-actions">
                             <button type="submit" class="btn-primary" id="btn-acc-addr-save">Simpan Alamat</button>
@@ -211,7 +221,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.92"></script>
+    <script src="app.js?v=1.0.93"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -619,7 +629,7 @@
                         <strong>${esc(b.name)}</strong>
                         ${b.phone ? `<span class="acc-addr-phone">${esc(b.phone)}</span>` : ''}
                         <p>${esc(b.address)}</p>
-                        <span class="acc-addr-region">${esc(CITY_LABELS[b.city] || b.city || '')}${b.province ? '  ' + esc(PROVINCE_LABELS[b.province] || b.province) : ''}${b.postalCode ? ' ' + esc(b.postalCode) : ''}</span>
+                        <span class="acc-addr-region">${[b.kelurahan ? 'Kel. ' + esc(b.kelurahan) : '', b.kecamatan ? 'Kec. ' + esc(b.kecamatan) : '', esc(CITY_LABELS[b.city] || b.city || ''), b.province ? esc(PROVINCE_LABELS[b.province] || b.province) : '', b.postalCode ? esc(b.postalCode) : ''].filter(Boolean).join(', ')}</span>
                     </div>
                     <div class="acc-addr-actions">
                         <button class="acc-btn-ghost" onclick="editAddress(${i})">Ubah</button>
@@ -651,6 +661,8 @@
             document.getElementById('acc-addr-edit-index').value = String(i);
             document.getElementById('acc-addr-name').value = b.name || '';
             document.getElementById('acc-addr-phone').value = b.phone || '';
+            document.getElementById('acc-addr-kelurahan').value = b.kelurahan || '';
+            document.getElementById('acc-addr-kecamatan').value = b.kecamatan || '';
             document.getElementById('acc-addr-city').value = b.city || '';
             document.getElementById('acc-addr-province').value = b.province || '';
             document.getElementById('acc-addr-postal').value = b.postalCode || '';
@@ -675,12 +687,19 @@
                 name: document.getElementById('acc-addr-name').value.trim(),
                 phone: document.getElementById('acc-addr-phone').value.trim(),
                 email: (accSession && accSession.user.email) || '',
+                kelurahan: document.getElementById('acc-addr-kelurahan').value.trim(),
+                kecamatan: document.getElementById('acc-addr-kecamatan').value.trim(),
                 city: document.getElementById('acc-addr-city').value,
                 province: document.getElementById('acc-addr-province').value,
                 postalCode: document.getElementById('acc-addr-postal').value.trim(),
                 address: document.getElementById('acc-addr-address').value.trim()
             };
             if (!entry.name || entry.name.length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
+            if (!entry.kelurahan || entry.kelurahan.length < 2) return alert('Masukkan nama kelurahan.');
+            if (!entry.kecamatan || entry.kecamatan.length < 2) return alert('Masukkan nama kecamatan.');
+            if (!entry.city) return alert('Pilih kota/kabupaten.');
+            if (!entry.province) return alert('Pilih provinsi.');
+            if (!/^\d{5}$/.test(entry.postalCode)) return alert('Kode pos harus 5 angka.');
             if (!entry.address || entry.address.length < 10) return alert('Masukkan alamat lengkap (min. 10 karakter).');
 
             const editIdx = parseInt(document.getElementById('acc-addr-edit-index').value, 10);
