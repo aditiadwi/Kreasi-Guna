@@ -3303,10 +3303,12 @@ a:active {
 }
 .acc-detail-box p { margin: 5px 0; }
 .acc-item-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 5px 0;
+    display: grid;
+    grid-template-columns: 46px 1fr auto;
+    grid-template-areas: 'thumb main sub';
+    align-items: center;
+    column-gap: 12px;
+    padding: 8px 0;
     border-bottom: 1px dashed #eee;
     font-size: 0.86rem;
 }
@@ -3606,6 +3608,14 @@ a:active {
             'thumb sub'
             'actions actions';
     }
+    .acc-item-row:not(.acc-item-done) {
+        grid-template-columns: 46px 1fr;
+        grid-template-areas:
+            'thumb main'
+            'thumb sub';
+        align-items: start;
+    }
+    .acc-item-row:not(.acc-item-done) .acc-item-sub { justify-self: start; }
     .acc-item-done .acc-item-sub { justify-self: start; }
     .acc-item-actions { justify-content: stretch; }
     .acc-item-actions .acc-btn-rate,

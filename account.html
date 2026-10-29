@@ -299,7 +299,7 @@
             };
 
             // Katalog untuk thumbnail & tombol beli lagi/ulasan
-            if (isDone && (!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
+            if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
                 try { await fetchProducts(); } catch (e) {}
             }
 
@@ -322,15 +322,19 @@
             }
 
             const rows = items.map((it, k) => {
-                if (!isDone) {
-                    return `<div class="acc-item-row">
-                        <span> ${esc(it.name)}${it.qty > 1 ? ` ${it.qty}` : ''}</span>
-                        <span>${it.subtotal ? rp(it.subtotal) : ''}</span>
-                    </div>`;
-                }
                 const prod = (typeof findProductByName === 'function') ? findProductByName(it.name) : null;
                 const img = (prod && prod.image_url) ? prod.image_url : 'Images/My Product.png';
                 const unit = parseInt(it.price || (prod ? prod.price : 0) || 0);
+                if (!isDone) {
+                    return `<div class="acc-item-row">
+                        <img class="acc-item-thumb" src="${esc(img)}" alt="" onerror="this.src='Images/My Product.png'" loading="lazy">
+                        <div class="acc-item-main">
+                            <strong>${esc(it.name)}</strong>
+                            <span>Rp ${unit.toLocaleString('id-ID')} &times; ${it.qty}</span>
+                        </div>
+                        <span class="acc-item-sub">${it.subtotal ? rp(it.subtotal) : rp(unit * (it.qty || 1))}</span>
+                    </div>`;
+                }
                 return `<div class="acc-item-row acc-item-done">
                     <img class="acc-item-thumb" src="${esc(img)}" alt="" onerror="this.src='Images/My Product.png'" loading="lazy">
                     <div class="acc-item-main">
