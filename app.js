@@ -4078,9 +4078,24 @@ window.saveCurrentFormAddress = () => {
         postalCode: document.getElementById('customer-postal-code')?.value.trim(),
         address: document.getElementById('customer-address')?.value.trim()
     };
-    if (!entry.name || (entry.name || '').length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
-    if (!entry.address || entry.address.length < 10) return alert('Masukkan alamat lengkap (min. 10 karakter).');
-    saveAddressToBook(entry);
+    if (!entry.name || (entry.name || '').length < 3) { alert('Masukkan nama lengkap (min. 3 karakter).'); return false; }
+    if (!entry.address || entry.address.length < 10) { alert('Masukkan alamat lengkap (min. 10 karakter).'); return false; }
+    return saveAddressToBook(entry);
+};
+
+window.checkoutSaveAddress = (btn) => {
+    if (!btn || !window.saveCurrentFormAddress()) return;
+    if (btn.dataset.t) clearTimeout(Number(btn.dataset.t));
+    if (!btn.dataset.label) btn.dataset.label = btn.innerHTML;
+    btn.innerHTML = 'Tersimpan &#10003;';
+    btn.style.background = 'var(--gold-premium)';
+    btn.style.color = '#fff';
+    btn.dataset.t = setTimeout(() => {
+        btn.innerHTML = btn.dataset.label;
+        btn.style.background = '';
+        btn.style.color = '';
+        delete btn.dataset.t;
+    }, 1800);
 };
 
 window.applyBookAddress = (i) => {
