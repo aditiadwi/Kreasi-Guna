@@ -365,6 +365,16 @@ Fokus: restyle footer statis (10 halaman) mengikuti referensi `Images/Contoh Tam
 - Verifikasi: screenshot headless 1280px + 360px (trik iframe temp, file temp sudah dihapus) — desktop & HP rapi, link admin sesuai varian lama; `npm run check:assets` OK (11 halaman konsisten). Cache `v=1.0.96` → `v=1.0.97` (22 referensi). CRLF dipertahankan.
 
 
+### **23. Catatan 2 November 2026 (footer: heading sejajar + judul track di HP)**
+
+Fokus: dua perbaikan UI dari screenshot user (`Images/Tampilan Footer yang Harus diperbaiki bagian Jelajahi dan Hubungi kami tidak sejajar. Buat terbagi rata 3.png` dan `Images/Tulisan Hasil Pelacakan Pesanan di halaman Tract Harus Diperbaiki.png`).
+
+- **Heading kolom footer disamakan dengan brand + sejajar baseline** (`style.css`: `.ft-grid`, `.ft-logo`, `.ft-grid h4`): `.ft-grid` tetap `repeat(3, 1fr)` (terbagi rata 3) ditambah `align-items: baseline` → "Kreasi Guna." / "Jelajahi" / "Hubungi kami" duduk di garis yang sama (sebelumnya brand tampak lebih rendah karena heading cuma 0.8rem). Ukuran heading dinaikkan ke `clamp(1.35rem, 2.6vw, 1.65rem)` — nilai clamp yang sama persis dengan `.ft-logo` supaya tak pernah beda lagi, `line-height: 1.2` untuk keduanya, `.ft-logo` jadi `display: block`, `margin-bottom` heading 18 → 20px. **Letter-spacing 2.5px → 1px**: di ukuran baru "HUBUNGI KAMI" ≈ 209px masih muat di kolom ±350px (1200 − padding − 2×gap ÷ 3), kalau 2.5px tetap dipakai luber.
+- **Judul "Hasil Pelacakan Pesanan" satu baris di HP** (`track.html`, `@media (max-width: 560px)`): `h3 { flex: 1 }` sebelumnya terjepit di antara tombol Kembali & Cetak Struk jadi pecah 2–3 baris. Diganti `order: -1; flex: 0 0 100%` (dapat barisnya sendiri) + `text-align: left` + `font-size: 1.15rem`; tombol turun ke baris kedua dengan `justify-content: space-between; gap: 12px`. **Di atas 560px tampilan tidak berubah.** Percobaan awal `text-align: center; font-size: 1.05rem` ditinggalkan karena judul justru tampak menggantung di tengah.
+- Verifikasi: Chrome headless lewat iframe sementara di 1280px / 820px / 390px — desktop & tablet 3 kolom rata dengan heading sebaseline, HP stack rapi; before/after track disimpan di `scratch/shot-track-before.png` & `scratch/shot-track-after.png`. Harness iframe dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.97` → `v=1.0.98`.
+
+
+
 
 ### **Catatan buat besok (lanjut)**
 
