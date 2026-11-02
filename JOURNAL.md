@@ -354,6 +354,17 @@ Fokus: perbaikan tampilan Track Order di HP sesuai screenshot user (`Images/Tamp
 - **Tooling testing**: Chrome headless `--window-size=360` ternyata di-clamp ke ~512px (lebar minimum window) → screenshot mobile diuji lewat iframe 360px sementara; metrik layout diukur dari DOM (title/postMessage) karena lampiran gambar dari read tool tidak selalu konsisten. Hook uji `?test=1` dan file iframe sementara dihapus sebelum commit.
 - **Verifikasi**: desktop 1280px before/after pixel-identik (sisa beda = region animasi FAB yang memang beda antar run identik); mobile 360px: chip rata kanan atas, kartu info & area di atas item tidak berubah (diff mulai y=1238), fade terlihat di baris timeline (1132–1169); `node --check app.js` OK; `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.95` → `v=1.0.96`.
 
+### **22. Catatan 2 November 2026 (footer baru)**
+
+Fokus: restyle footer statis (10 halaman) mengikuti referensi `Images/Contoh Tampilan Footer biar bagus.png` — struktur disalin dari referensi, palet tetap brand (cokelat `#2c1e12` + emas `#c5a059` + krem).
+
+- **Footer tiga bagian**: (1) CTA hero — eyebrow "PUNYA IDE? BAWA KE SINI." + judul Playfair "Satu cangkir, / *sejuta cerita.*" (baris 2 emas italic) + subteks + tombol krem "Diskusi via WhatsApp ↗" (`wa.me/6281219092900`); watermark SVG daun kiri–kanan (`opacity .07`, disembunyi ≤600px); (2) 3 kolom — brand + tagline | "Jelajahi" 7 nav (Home…Track Order) | "Hubungi kami" (ikon inline IG/Email/WA + catatan saran lewat email); (3) bottom bar — copyright | tagline "Seduh lebih mudah, cerita lebih hangat." | Admin Login + "Ke atas ↑" (`window.scrollTo` inline; `app.js` tak diubah). Admin Login **tetap hanya** di 5 halaman lama (index, about, products, brew, cart); account/contact/track/checkout/history tanpa. checkout & history yang dulu cuma 1 baris copyright ikut footer penuh (disengaja, sudah diberi tahu user).
+- **2 bug CSS saat dev**: (a) `.footer-bottom p { margin: 0 }` (spesifitas 0,1,1) mengalahkan `.ft-right { margin-right: 72px }` (0,1,0) → "Ke atas" tertimpa WA float → dibetulkan jadi `.footer-bottom .ft-right`; (b) aturan global `nav { align-items: center }` menyejajarkan isi kolom Jelajahi ke tengah → `.ft-links { align-items: flex-start; text-align: left }`.
+- **Font**: link Google Fonts kini nambah `family=Playfair+Display:ital,wght@0,700;1,700` (10 halaman; `admin.html` memang tak punya link font, tak disentuh). Efek samping: pemakaian `'Playfair Display'` di `style.css` (nominal pembayaran checkout) yang selama ini fallback serif ikut tampil Playfair — itu memang maksud desain awal. `account.html` & `track.html` ternyata **tak load font sama sekali** → link font disisipkan sebelum `style.css`.
+- **Layout responsive**: `.ft-cta` flex → stack ≤900px; `.ft-grid` 3 kolom → 2 (≤900) → 1 (≤600, tombol full-width); `.footer-bottom .ft-right { margin-right: 72px }` biar bebas WA float (reset ≤600). `.footer-socials`/`.footer-content` dihapus dari CSS; aturan `.social-icon` bodi tetap utuh (dipakai halaman contact).
+- Verifikasi: screenshot headless 1280px + 360px (trik iframe temp, file temp sudah dihapus) — desktop & HP rapi, link admin sesuai varian lama; `npm run check:assets` OK (11 halaman konsisten). Cache `v=1.0.96` → `v=1.0.97` (22 referensi). CRLF dipertahankan.
+
+
 
 ### **Catatan buat besok (lanjut)**
 
