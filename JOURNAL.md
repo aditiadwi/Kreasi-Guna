@@ -396,6 +396,17 @@ Fokus: copy "What Our Brewers Say" → "What Our Customers Say" (`index.html` �
 - Verifikasi: screenshot headless 1280px & 390px region perbatasan section (`scratch/home-journey-featured.png`, `home-m-jf.png`) — tidak ada elemen patah/overlap. Harness & screenshot sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.99` → `v=1.0.101` (1.0.100 dipakai commit judul testimoni).
 
 
+### **26. Catatan 2 November 2026 (kartu Our Coffee Origins krempet di HP)**
+
+Fokus: screenshot user — di HP dua kartu "Gayo Mountains" / "Priangan Slopes" (`about.html` ≈84) berdesakan, teksnya cuma muat 2–3 kata per baris.
+
+- **Akar masalah bukan di markup about**: `about.html` sudah menulis `style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))"` (harusnya 1 kolom di HP), tapi aturan responsif `.product-grid { grid-template-columns: repeat(2, 1fr) !important }` (`style.css` ≈1761 di ≤768px, ≈1810 di ≤480px) ikut menimpa elemen itu karena kartu origins memakai class yang sama. **`!important` di stylesheet selalu mengalahkan inline style** — itu sebabnya inline-nya tampak tidak berfungsi.
+- **Ukur sebelum** (harness iframe 390px): `gridCols "182.5px 182.5px"`, `cardW 183`, lebar teks **123px**, `h3` 2 baris, `p` 6 baris.
+- **Perbaikan** (`style.css`, blok baru `@media (max-width: 700px)` sebelum blok 480px): `.origins-section .product-grid { grid-template-columns: 1fr !important; gap: 18px }`. Butuh `!important` juga — kalau tidak, kalah oleh `!important` yang lama; setelah dua-duanya `!important` yang menentukan adalah spesifitas (`.origins-section .product-grid` 0,2,0 > `.product-grid` 0,1,0). **Breakpoint 700px, bukan 768px**, supaya tablet kecil tetap 2 kolom (di 768px teks masih 311px = nyaman) dan hanya HP yang stack.
+- **Tidak ada efek ke grid produk lain** (satu-satunya pemakai `.product-grid` selain about: `#featured-grid` di `index.html` dan `#product-grid` di `products.html`): diverifikasi `#featured-grid` di 390px tetap `"177.6px 177.6px"` (2 kolom).
+- Hasil sesudah: 390px → `cardW 375`, teks **315px**, `h3` 1 baris, `p` 2 baris; 700px 1 kolom; 768px & 1280px tidak berubah (371px / 580px). Verifikasi visual: screenshot headless about.html 390px (atas + section origins) dan index.html 390px. Harness sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.101` → `v=1.0.102`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

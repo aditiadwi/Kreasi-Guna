@@ -1796,6 +1796,14 @@ footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 ca
     }
 }
 
+/* Kartu "Our Coffee Origins" (about.html) bukan kartu produk: aturan
+   repeat(2, 1fr) !important di atas ikut memaksanya jadi 2 kolom di HP
+   sampai lebar teksnya cuma 123px. Lawan !important harus pakai !important
+   juga — yang menang lalu ditentukan spesifitas (.origins-section 0,2,0). */
+@media (max-width: 700px) {
+    .origins-section .product-grid { grid-template-columns: 1fr !important; gap: 18px; }
+}
+
 @media (max-width: 480px) {
     .hero h1 { font-size: 2.5rem; }
     .logo { font-size: 1.6rem; }
