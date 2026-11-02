@@ -385,6 +385,17 @@ Fokus: dua request user — tagline "Smart Drip Coffee — seduh kopi enak tanpa
 - Verifikasi: screenshot headless 1280px / 820px / 390px (`scratch/foot-1280.png`, `foot-820.png`, `foot-390.png`) — baris 1 & 2 sejajar di desktop, sub-kolom tetap muat di tablet dan HP. Harness iframe & script sementara dihapus. `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.98` → `v=1.0.99`.
 
 
+### **25. Catatan 2 November 2026 (judul testimoni + gap home dirapatkan)**
+
+Fokus: copy "What Our Brewers Say" → "What Our Customers Say" (`index.html` ≈226, ejaan dengan `s` jamak — "Customer says" salah secara grammar) dan request user bahwa halaman home "banyak gap", terutama *Preserving the Aroma* → *Featured Selection*.
+
+- **Penyebab gap**: semua section home dapat `padding: 96px 0` dari aturan bersama (`style.css` ≈982), jadi batas dua section = 96 + 96 = 192px whitespace. Diukur dengan harness iframe + `getBoundingClientRect()` di 1280px: jarak teks terakhir step ke-3 ke judul Featured Selection **232px**.
+- **Aturan khusus home** (`style.css`, blok baru setelah `.journey-section`): `.advantage-section { padding-bottom: 56px }`, `.mission-snippet + .testimonials-section { padding-top: 56px }`, `.journey-section { padding-top: 56px; padding-bottom: 48px }`. Selector adjacent dipakai supaya `.testimonials-section` di halaman lain tak ikut berubah — dan memang `advantage-section`/`journey-section`/`mission-snippet`/`testimonials-section` **hanya ada di `index.html`** (dicek `grep -l`), jadi aman. `index.html`: inline `padding-top` Featured Selection 96px → 48px.
+- **Blok ≤768px (`style.css` ≈1736) menimpa aturan di atas** dengan `padding: 64px 0` → ditambah override home yang sama persis pola di dalamnya (48/48/44) supaya ritmenya seragam desktop–HP.
+- Hasil (ink-to-ink, harness `getBoundingClientRect`): advantage→journey 252→172, journey→featured 192→96, mission→testimonials 206→166 (1280px). journey→featured di 390px 137→117. Tinggi total home turun ±210px. Gap hero→advantage (309px) **disengaja tidak disentuh** — itu `min-height: 100vh` hero, bukan padding.
+- Verifikasi: screenshot headless 1280px & 390px region perbatasan section (`scratch/home-journey-featured.png`, `home-m-jf.png`) — tidak ada elemen patah/overlap. Harness & screenshot sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.99` → `v=1.0.101` (1.0.100 dipakai commit judul testimoni).
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

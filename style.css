@@ -997,9 +997,14 @@ body.menu-open {
     box-shadow: var(--shadow-medium);
 }
 
+/* Home: rapatkan tumpukan padding antar-section (96px + 96px terasa bolong) */
+.advantage-section { padding-bottom: 56px; }
+.mission-snippet + .testimonials-section { padding-top: 56px; }
 .journey-section { 
     background: var(--bg-cream); 
     color: var(--coffee-black); 
+    padding-top: 56px;
+    padding-bottom: 48px;
 }
 .journey-section .section-header { color: var(--coffee-black); }
 .journey-section h3 { color: var(--coffee-black); margin-bottom: 15px; font-size: 1.8rem; }
@@ -1731,6 +1736,10 @@ footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 ca
     .advantage-section, .journey-section, .shop-section,
     .about-section, .checkout-section, .feedback-section, .testimonials-section,
     .news-section, .contact-section, .admin-section { padding: 64px 0; }
+    /* Home: ritme gap HP ikut dirapatkan, samai rapatnya dengan desktop */
+    .advantage-section { padding-bottom: 48px; }
+    .mission-snippet + .testimonials-section { padding-top: 48px; }
+    .journey-section { padding-top: 48px; padding-bottom: 44px; }
     
     .news-image { height: 250px; }
     .feedback-card { padding: 30px; }
