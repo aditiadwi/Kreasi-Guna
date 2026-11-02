@@ -4251,8 +4251,10 @@ window.handleTrackOrder = async () => {
                     <strong>${escReceipt(it.name)}</strong>
                     <span>Rp ${parseInt(it.price || 0).toLocaleString('id-ID')} &times; ${it.qty}</span>
                 </div>
-                ${canRate ? `<button class="tk-rate-btn" data-rate-item="${idx}" onclick="rateTrackItem(${idx}, this)">★ Beri Ulasan</button>` : ''}
-                <span class="tk-item-sub">Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}</span>
+                <div class="tk-item-side">
+                    ${canRate ? `<button class="tk-rate-btn" data-rate-item="${idx}" onclick="rateTrackItem(${idx}, this)">★ Beri Ulasan</button>` : ''}
+                    <span class="tk-item-sub">Rp ${parseInt(it.subtotal || 0).toLocaleString('id-ID')}</span>
+                </div>
             </div>
         `;
         const itemsHtml = items.map(renderItem).join('');

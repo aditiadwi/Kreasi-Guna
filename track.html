@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order | KG Smart Drip Coffee</title>
-    <link rel="stylesheet" href="style.css?v=1.0.95">
+    <link rel="stylesheet" href="style.css?v=1.0.96">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         /* Feather-style SVG icons */
@@ -155,6 +155,9 @@
         .status-badge.cancelled { background: #f8d7da; color: #721c24; }
 
         /* Timeline */
+        .tk-timeline-clip { position: relative; }
+        .tk-timeline-clip::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 34px; background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff); pointer-events: none; opacity: 1; z-index: 5; transition: opacity 0.2s ease; }
+        .tk-timeline-clip.at-end::after { opacity: 0; }
         .tk-timeline-wrap { padding: 26px 20px 10px; overflow-x: auto; }
         .tk-timeline { display: flex; position: relative; min-width: 620px; }
         .tk-timeline .tk-line { position: absolute; top: 17px; left: 10%; right: 10%; height: 3px; background: #e9e2d6; border-radius: 2px; }
@@ -187,6 +190,7 @@
         .tk-item-info strong { display: block; font-size: 0.88rem; color: var(--coffee-dark); }
         .tk-item-info span { font-size: 0.8rem; color: #9c8f7d; }
         .tk-item-sub { font-size: 0.88rem; font-weight: 700; color: var(--coffee-dark); white-space: nowrap; }
+        .tk-item-side { display: contents; }
         .tk-rate-btn {
             flex-shrink: 0;
             padding: 4px 12px;
@@ -287,6 +291,15 @@
         @media (max-width: 560px) {
             .tk-info { grid-template-columns: 72px 1fr; }
             .tk-info-col.status-col, .tk-info-col.kurir-col { grid-column: 2 / -1; }
+        }
+        @media (max-width: 768px) {
+            .tk-item { align-items: flex-start; }
+            .tk-item-side { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; flex-shrink: 0; }
+        }
+        @media (max-width: 480px) {
+            .tk-item { gap: 10px; }
+            .tk-item-info strong { font-size: 0.84rem; line-height: 1.4; }
+            .tk-rate-btn { padding: 4px 9px; font-size: 0.68rem; }
         }
     </style>
 </head>
@@ -390,34 +403,36 @@
                         </div>
                     </div>
 
-                    <div class="tk-timeline-wrap">
-                        <div class="tk-timeline" id="tk-timeline">
-                            <div class="tk-line"></div>
-                            <div class="tk-line-bar" id="tl-bar"></div>
-                            <div class="tk-step" id="tl-1">
-                                <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                                <span class="tk-step-label">Pesanan Dibuat</span>
-                                <span class="tk-step-date" id="tl-d1">-</span>
-                            </div>
-                            <div class="tk-step" id="tl-2">
-                                <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-                                <span class="tk-step-label">Pembayaran Berhasil</span>
-                                <span class="tk-step-date" id="tl-d2">-</span>
-                            </div>
-                            <div class="tk-step" id="tl-3">
-                                <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
-                                <span class="tk-step-label">Diproses</span>
-                                <span class="tk-step-date" id="tl-d3">-</span>
-                            </div>
-                            <div class="tk-step" id="tl-4">
-                                <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
-                                <span class="tk-step-label">Dikirim</span>
-                                <span class="tk-step-date" id="tl-d4">-</span>
-                            </div>
-                            <div class="tk-step" id="tl-5">
-                                <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                                <span class="tk-step-label">Selesai</span>
-                                <span class="tk-step-date" id="tl-d5">-</span>
+                    <div class="tk-timeline-clip">
+                        <div class="tk-timeline-wrap">
+                            <div class="tk-timeline" id="tk-timeline">
+                                <div class="tk-line"></div>
+                                <div class="tk-line-bar" id="tl-bar"></div>
+                                <div class="tk-step" id="tl-1">
+                                    <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                                    <span class="tk-step-label">Pesanan Dibuat</span>
+                                    <span class="tk-step-date" id="tl-d1">-</span>
+                                </div>
+                                <div class="tk-step" id="tl-2">
+                                    <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+                                    <span class="tk-step-label">Pembayaran Berhasil</span>
+                                    <span class="tk-step-date" id="tl-d2">-</span>
+                                </div>
+                                <div class="tk-step" id="tl-3">
+                                    <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+                                    <span class="tk-step-label">Diproses</span>
+                                    <span class="tk-step-date" id="tl-d3">-</span>
+                                </div>
+                                <div class="tk-step" id="tl-4">
+                                    <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+                                    <span class="tk-step-label">Dikirim</span>
+                                    <span class="tk-step-date" id="tl-d4">-</span>
+                                </div>
+                                <div class="tk-step" id="tl-5">
+                                    <div class="tk-dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                                    <span class="tk-step-label">Selesai</span>
+                                    <span class="tk-step-date" id="tl-d5">-</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -506,6 +521,24 @@
 
     <!-- Modal rating produk terikat order disuntik oleh app.js (injectRateModal) -->
 
-    <script src="app.js?v=1.0.95"></script>
+    <script src="app.js?v=1.0.96"></script>
+    <script>
+        (function () {
+            var wrap = document.querySelector('.tk-timeline-wrap');
+            var clip = document.querySelector('.tk-timeline-clip');
+            if (!wrap || !clip) return;
+            function upd() {
+                clip.classList.toggle('at-end', wrap.scrollWidth <= wrap.clientWidth + 1 || wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 2);
+            }
+            wrap.addEventListener('scroll', upd);
+            window.addEventListener('resize', upd);
+            window.addEventListener('load', upd);
+            var res = document.getElementById('track-result');
+            if (res && typeof MutationObserver !== 'undefined') {
+                new MutationObserver(upd).observe(res, { attributes: true, attributeFilter: ['class'] });
+            }
+            upd();
+        })();
+    </script>
 </body>
 </html>
