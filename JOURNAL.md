@@ -407,6 +407,15 @@ Fokus: screenshot user — di HP dua kartu "Gayo Mountains" / "Priangan Slopes" 
 - Hasil sesudah: 390px → `cardW 375`, teks **315px**, `h3` 1 baris, `p` 2 baris; 700px 1 kolom; 768px & 1280px tidak berubah (371px / 580px). Verifikasi visual: screenshot headless about.html 390px (atas + section origins) dan index.html 390px. Harness sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.101` → `v=1.0.102`.
 
 
+### **27. Catatan 2 November 2026 (gap brew: Hindari Ini → Latest Coffee News)**
+
+Fokus: user lihat ruang kosong besar antara kartu "Pro Tips / Hindari Ini" dan judul *Latest Coffee News & Tips* di `brew.html`.
+
+- **Tumpuk tiga sumber jarak** (`brew.html` ≈96 + `style.css` ≈984): `.hacks-container` inline `margin-bottom: 100px`, lalu `.news-section { padding: 96px 0 }` — **196px** cuma untuk satu perpindahan bagian, dan 96+96=192px lagi di batas news → feedback. Diukur pakai harness iframe: `gap: 196` (1280px), `164` (390px, margin 100px tetap jalan karena tak pernah di-override blok HP).
+- **Perbaikan**: margin inline 100px dihapus (sisa ritme dari padding section saja) + blok baru di `style.css` ≈986: `.news-section { padding-top: 56px; padding-bottom: 56px }` dan `.feedback-section { padding-top: 56px }`; override yang sama (48px) di dalam `@media (max-width: 768px)` karena blok itu men-set ulang `padding: 64px 0` untuk class yang sama. **Aman**: `.news-section` dan `.feedback-section` masing-masing cuma dipakai brew.html (dicek `grep -n` di semua HTML), beda dari `.contact-section`/`.admin-section` yang tetap 96px.
+- Hasil: Hindari Ini → judul news **196 → 56px** (1280px) dan **164 → 48px** (390px); news → feedback 218 → 138px; tinggi halaman brew turun ±220px. Verifikasi visual screenshot 1280px & 390px, harness sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.102` → `v=1.0.103`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

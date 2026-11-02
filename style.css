@@ -984,6 +984,11 @@ body.menu-open {
 .news-section, .contact-section, .admin-section { padding: 96px 0; }
 /* Halaman fungsional: kepala dirapatkan, kaki tetap lega */
 .checkout-section, .cart-section { padding-top: 48px; }
+/* Brew: .news-section & .feedback-section cuma dipakai brew.html, jadi
+   aman dirapatkan — sebelumnya 100px (margin hacks) + 96px + 96px = 296px
+   ruang kosong antara kartu "Hindari Ini" dan judul Share Your Experience */
+.news-section { padding-top: 56px; padding-bottom: 56px; }
+.feedback-section { padding-top: 56px; }
 
 .advantage-card {
     background: var(--bg-light);
@@ -1740,6 +1745,9 @@ footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 ca
     .advantage-section { padding-bottom: 48px; }
     .mission-snippet + .testimonials-section { padding-top: 48px; }
     .journey-section { padding-top: 48px; padding-bottom: 44px; }
+    /* Brew: sama seperti desktop, .news-section & .feedback-section cuma ada di brew.html */
+    .news-section { padding-top: 48px; padding-bottom: 48px; }
+    .feedback-section { padding-top: 48px; }
     
     .news-image { height: 250px; }
     .feedback-card { padding: 30px; }
