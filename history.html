@@ -17,13 +17,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.103">
+    <link rel="stylesheet" href="style.css?v=1.0.104">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         .history-content { max-width: 900px; margin: 0 auto; line-height: 1.8; color: #444; padding: 40px 20px; }
         .history-content h2 { margin-top: 60px; margin-bottom: 25px; color: var(--coffee-dark); border-bottom: 2px solid var(--gold-premium); display: inline-block; padding-bottom: 5px; font-family: 'Montserrat', sans-serif; scroll-margin-top: 150px; }
         .history-content p { margin-bottom: 20px; font-size: 1.1rem; }
         .executive-summary { background: #fef9e7; padding: 40px; border-radius: 20px; border-left: 8px solid var(--gold-premium); margin-bottom: 30px; font-style: italic; }
+
+        /* Era bernomor: tiap bagian jadi kartu dengan angka besar samar
+           (nomor diambil dari data-era, jadi tidak perlu ditulis dua kali) */
+        [data-era] { position: relative; scroll-margin-top: 150px; margin-bottom: 40px; }
+        [data-era]::before {
+            content: attr(data-era);
+            position: absolute; top: -22px; right: 10px;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 130px; line-height: 1; font-weight: 700;
+            color: rgba(197, 160, 89, 0.14);
+            pointer-events: none; user-select: none;
+        }
+        [data-era] h2 { margin-top: 0; }
+        .era-card { background: #fffdf5; border: 1px solid #f0e2b6; border-radius: 22px; padding: 34px 34px 30px; overflow: hidden; }
+        .era-card > :last-child { margin-bottom: 0 !important; }
+        .era-card img { border-radius: 16px; }
+        /* Isi di dalam kartu era pakai permukaan putih biar tidak abu-di-atas-krem */
+        .era-card .region-card { background: var(--white); }
 
         /* Reading progress */
         #read-progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%; background: linear-gradient(90deg, var(--gold-premium), var(--gold-accent)); z-index: 2000; transition: width 0.1s linear; }
@@ -49,21 +67,27 @@
         .v-item p { margin: 0; font-size: 1rem; }
         .v-item strong { color: var(--wood-warm); }
 
-        /* Stats band */
-        .stats-band { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin: 35px 0 10px; }
-        .stat-box { background: #fffdf5; border: 1px solid #f0e2b6; border-radius: 16px; padding: 22px 15px; text-align: center; }
-        .stat-box b { display: block; font-family: 'Montserrat', sans-serif; font-size: 1.7rem; color: var(--coffee-dark); }
-        .stat-box span { font-size: 0.85rem; color: #777; }
+        /* Stats band: satu pita dengan garis pemisah, bukan empat kotak mengambang */
+        .stats-band { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 0 0 40px; background: #fffdf5; border: 1px solid #f0e2b6; border-radius: 22px; overflow: hidden; }
+        .stat-box { background: none; border: 0; border-radius: 0; border-right: 1px solid #f0e2b6; padding: 26px 14px; text-align: center; }
+        .stat-box:last-child { border-right: 0; }
+        .stat-box b { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 2rem; color: var(--wood-warm); }
+        .stat-box span { display: block; margin-top: 8px; font-size: 0.76rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
 
         /* Tables */
         .table-responsive { overflow-x: auto; margin: 30px 0; border-radius: 15px; box-shadow: var(--shadow-soft); }
         .data-table { width: 100%; border-collapse: collapse; background: white; min-width: 600px; }
         .data-table th, .data-table td { padding: 18px; text-align: left; border-bottom: 1px solid #eee; }
         .data-table th { background: var(--coffee-dark); color: white; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .data-table tbody tr:nth-child(even) { background: #fffdf5; }
+        .data-table tbody tr:last-child td { border-bottom: 0; }
+        .data-table td:first-child { font-weight: 700; color: var(--coffee-dark); }
         .year-col { width: 140px; font-weight: 800; color: var(--gold-premium); }
 
         /* Grid */
         .regional-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin: 30px 0 20px; }
+        /* 5 kartu di grid 2 kolom = baris terakhir cuma satu; kartu penutup melebar penuh */
+        @media (min-width: 600px) { .region-card:last-child { grid-column: span 2; } }
         .region-card { background: #f9f9f9; padding: 30px; border-radius: 20px; border: 1px solid #eee; transition: 0.3s; display: flex; flex-direction: column; }
         .region-card:hover { transform: translateY(-5px); background: white; box-shadow: var(--shadow-soft); border-color: var(--gold-premium); }
         .region-card h4 { color: var(--wood-warm); margin-bottom: 10px; font-size: 1.3rem; margin-top: 15px; }
@@ -84,7 +108,9 @@
         .btn-ghost { border: 2px solid rgba(255,255,255,0.5); color: white; padding: 12px 26px; border-radius: 999px; font-weight: 700; text-decoration: none; transition: 0.25s; }
         .btn-ghost:hover { border-color: white; background: rgba(255,255,255,0.1); }
         
-        .ref-section { margin-top: 40px; padding: 40px; background: #fafafa; border-radius: 20px; font-size: 0.9rem; color: #666; }
+        .ref-section { margin-top: 30px; padding: 26px 4px 0; background: none; border-top: 1px solid var(--border-light); border-radius: 0; font-size: 0.85rem; color: var(--text-muted); }
+        .ref-section h3 { font-size: 0.78rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--wood-warm); margin-bottom: 12px; }
+        .ref-section li { margin-bottom: 6px; }
         
         /* Reveal: visible by default (safe if CDN/JS offline).
            Only hidden when JS confirms GSAP is ready. */
@@ -95,6 +121,15 @@
             .toc-bar { top: 76px; }
             .toc-inner { justify-content: flex-start; }
             .v-item { padding: 16px 16px; }
+            .era-card { padding: 26px 20px 20px; border-radius: 18px; }
+            [data-era]::before { font-size: 78px; top: -6px; right: 2px; color: rgba(197, 160, 89, 0.11); }
+            /* Judul pendek pun bisa jatuh di bawah angka samar di layar sempit */
+            .era-card h2 { padding-right: 74px; }
+            [data-era] { margin-bottom: 30px; }
+            .stats-band { grid-template-columns: repeat(2, 1fr); }
+            .stat-box:nth-child(2n) { border-right: 0; }
+            .stat-box:nth-child(-n+2) { border-bottom: 1px solid #f0e2b6; }
+            .stat-box b { font-size: 1.6rem; }
         }
         @media (max-width: 900px) and (min-width: 601px) {
             .toc-inner { justify-content: flex-start; }
@@ -160,32 +195,31 @@
                 <div class="stat-box"><b>#3 Dunia</b><span>Produsen kopi Indonesia</span></div>
             </div>
 
-            <section class="reveal" id="era-ethiopia">
-                <h2>1. Awal Mula di Ethiopia</h2>
+            <section class="reveal era-card" id="era-ethiopia" data-era="01">
+                <h2>Awal Mula di Ethiopia</h2>
                 <p>Kisah kopi bermula di wilayah <strong>Kaffa, Ethiopia</strong>. Menurut legenda, seorang gembala bernama <strong>Kaldi</strong> memperhatikan kambingnya yang menjadi sangat lincah setelah memakan buah kopi merah dari pohon liar. Ethiopia hingga kini dianggap sebagai "tempat kelahiran" genetik kopi Arabika dunia.</p>
                 <img src="Images/Gayo-sumatra.webp" style="width: 100%; height: 400px; object-fit: cover; border-radius: 20px; margin: 20px 0;" alt="Biji kopi Arabika Gayo Sumatra &mdash; ilustrasi warisan genetik kopi Ethiopia" loading="lazy">
             </section>
 
-            <section class="reveal" id="era-yaman">
-                <h2>2. Penyebaran ke Dunia Islam</h2>
+            <section class="reveal era-card" id="era-yaman" data-era="02">
+                <h2>Penyebaran ke Dunia Islam</h2>
                 <p>Pada abad ke-15, kopi mulai dibudidayakan di <strong>Yaman</strong> dan diekspor dari pelabuhan legendaris <strong>Mocha</strong>. Para pemuka Sufi memanfaatkan kopi sebagai stimulan untuk menjaga kewaspadaan saat beribadah malam. Menjelang 1554, kedai kopi pertama di dunia dibuka di Istanbul, Turki (Ottoman Empire).</p>
             </section>
 
-            <section class="reveal" id="era-eropa">
-                <h2>3. Masuknya Kopi ke Eropa</h2>
+            <section class="reveal era-card" id="era-eropa" data-era="03">
+                <h2>Masuknya Kopi ke Eropa</h2>
                 <p>Abad ke-17 menandai kedatangan kopi di Eropa lewat jalur perdagangan Mediterania. Kedai kopi pertama dibuka di <strong>Venesia (1645)</strong>, disusul London (1652).</p>
                 <div class="pull-quote">"Penny Universities" &mdash; seharga satu penny, orang bisa bertukar ide cerdas selama berjam-jam di kedai kopi London.<small>Kedai kopi Eropa, abad 17</small></div>
             </section>
 
-            <section class="reveal" id="era-voc">
-                <h2>4. Era Kolonial & Kopi di Indonesia</h2>
+            <section class="reveal era-card" id="era-voc" data-era="04">
+                <h2>Era Kolonial &amp; Kopi di Indonesia</h2>
                 <p>Belanda (VOC) membawa bibit Arabika ke <strong>Batavia (Jakarta)</strong> pada tahun 1696. Meskipun percobaan pertama gagal, bibit kedua pada 1699 tumbuh subur dan menjadikan Jawa sebagai pengekspor kopi utama.</p>
                 <div class="pull-quote">"Max Havelaar" &mdash; novel Eduard Douwes Dekker (1859) yang membongkar penderitaan petani akibat Cultuurstelsel.<small>Sistem Tanam Paksa, 1830-an</small></div>
             </section>
 
             <section class="reveal" id="timeline">
                 <h2>Garis Waktu (Timeline) Kopi</h2>
-                <p style="color:#777; font-size:0.95rem;">Scroll ke bawah &mdash; versi baru, gampang dibaca di HP:</p>
                 <div class="v-timeline">
                     <div class="v-item"><span class="v-year">~850 M</span><p><strong>Legenda Kaldi</strong> & kambing lincah di Ethiopia.</p></div>
                     <div class="v-item"><span class="v-year">1400-an</span><p>Budidaya pertama di <strong>Yaman (Mocha)</strong>.</p></div>
@@ -197,8 +231,8 @@
                 </div>
             </section>
 
-            <section class="reveal" id="regional">
-                <h2>5. Sejarah Regional Indonesia</h2>
+            <section class="reveal era-card" id="regional" data-era="05">
+                <h2>Sejarah Regional Indonesia</h2>
                 <p>Rincian wilayah dan sejarah lokal perkembangan kopi di Nusantara:</p>
                 <div class="regional-grid">
                     <div class="region-card">
@@ -229,8 +263,8 @@
                 </div>
             </section>
 
-            <section class="reveal" id="modern">
-                <h2>6. Gerakan Kopi Modern</h2>
+            <section class="reveal era-card" id="modern" data-era="06">
+                <h2>Gerakan Kopi Modern</h2>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
@@ -320,7 +354,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="app.js?v=1.0.103"></script>
+    <script src="app.js?v=1.0.104"></script>
     <script>
         // Reading progress bar
         const prog = document.getElementById('read-progress');

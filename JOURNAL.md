@@ -416,6 +416,21 @@ Fokus: user lihat ruang kosong besar antara kartu "Pro Tips / Hindari Ini" dan j
 - Hasil: Hindari Ini → judul news **196 → 56px** (1280px) dan **164 → 48px** (390px); news → feedback 218 → 138px; tinggi halaman brew turun ±220px. Verifikasi visual screenshot 1280px & 390px, harness sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.102` → `v=1.0.103`.
 
 
+### **28. Catatan 2 November 2026 (perbaikan tampilan halaman History, tanpa gambar baru)**
+
+Fokus: user minta halaman sejarah "diperbagus" tapi masih ragu soal aset — disepakati **pass CSS-only dulu**, urusan foto era diputuskan kemudian. Semua perubahan ada di `<style>` dan markup `history.html`; `style.css` bersama tidak disentuh jadi nol risiko ke halaman lain.
+
+- **Enam section bernomor jadi kartu era** (`.era-card` + `data-era="01..06"`): nomor diambil dari `content: attr(data-era)` jadi prefix angka di `<h2>` dihapus (tidak dobel). Angka samar 130px Playfair `rgba(197,160,89,.14)` di pojok kanan atas, `top:-22px` + `overflow:hidden` supaya terpotong sebagai bleed, bukan tempel. Selector `[data-era] h2 { margin-top: 0 }` menimpa `.history-content h2 { margin-top: 60px }` — **spesifitasnya sama (0,1,1)**, yang menang karena letaknya lebih belakang; kalau blok dipindah aturannya bisa batal.
+- **Isi di dalam kartu ikut dinaikkan ke permukaan putih**: `.era-card .region-card { background: var(--white) }` (aslinya `#f9f9f9` → jadi abu di atas krem). `.era-card > :last-child { margin-bottom: 0 !important }` — `!important` wajib karena `img` di section Ethiopia memakai `margin: 20px 0` inline.
+- **stats-band**: dari 4 kotak mengambang jadi satu pita `repeat(4,1fr)` dengan `border-right` antar sel + label uppercase 0.76px tracking; di ≤600px jadi 2×2 (`nth-child(2n)` buang border kanan, `nth-child(-n+2)` tambah garis bawah). Angka pindah dari Montserrat ke Playfair biar seirama dengan heading brand.
+- **regional-grid 5 kartu tidak yatim lagi**: `@media (min-width:600px) { .region-card:last-child { grid-column: span 2 } }`. Di kontainer 900px grid-nya 2 kolom (`auto-fit minmax(280px,1fr)`), jadi 5 item = 2+2+1; kartu penutup melebar penuh. Dibungkus `min-width` supaya di 1 kolom tidak minta track ke-2.
+- **data-table**: zebra `tbody tr:nth-child(even) { background: #fffdf5 }`, sel pertama tebal, border bawah baris terakhir dihapus. `.year-col` dibiarkan (CSS mati dari tabel lama, di luar cakupan).
+- **ref-section** jadi catatan kaki: kotak `#fafafa` → tanpa background, `border-top` + judul uppercase kecil.
+- **Bug UI yang ikut dibersihkan**: catatan development masih tampil ke pembaca di section timeline — `<p>Scroll ke bawah — versi baru, gampang dibaca di HP:</p>` (sebelumnya `history.html:188`) dihapus. Heading era-voc juga ditulis ulang `&` → `&amp;` (render identik, markup valid).
+- **Satu temuan saat verifikasi visual**: di 390px angka samar menabrak judul ("Awal Mula di Ethiopia" jatuh di bawah "01"). Solusi: numeral di HP dikecilkan ke 78px + opacity 0.11 **dan** `.era-card h2 { padding-right: 74px }` supaya judul wrap sebelum zona angka. Desktop tidak terpengaruh.
+- Verifikasi: screenshot headless 1280px (5 irisan) + 390px — reveal animation dipaksa tampil lewat `<style>` suntikan di iframe supaya tidak tertangkap fade. JS TOC aktif (`history.html` ≈337) hanya bergantung pada `href`/`id`, jadi perubahan teks heading aman. Harness sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.103` → `v=1.0.104`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
