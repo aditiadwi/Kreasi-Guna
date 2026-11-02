@@ -1635,9 +1635,10 @@ footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 ca
 .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 44px; padding: 48px 0; text-align: left; align-items: baseline; }
 .ft-logo { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.35rem, 2.6vw, 1.65rem); line-height: 1.2; font-weight: 700; color: var(--bg-cream); text-decoration: none; }
 .ft-logo span { color: var(--gold-premium); }
-.ft-brand p { margin: 12px 0 0; font-size: 0.9rem; line-height: 1.7; color: rgba(253, 245, 230, 0.6); }
+.ft-brand p { margin: 20px 0 0; font-size: 0.9rem; line-height: 1.7; color: rgba(253, 245, 230, 0.6); }
 .ft-grid h4 { margin: 0 0 20px; font-size: clamp(1.35rem, 2.6vw, 1.65rem); line-height: 1.2; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-premium); }
-.ft-links { display: flex; flex-direction: column; align-items: flex-start; gap: 11px; text-align: left; }
+.ft-links { display: block; text-align: left; }
+.ft-links-cols { display: grid; grid-template-rows: repeat(4, auto); grid-auto-flow: column; align-items: start; justify-content: start; column-gap: 18px; row-gap: 11px; text-align: left; }
 .ft-links a { width: fit-content; font-size: 0.92rem; color: rgba(253, 245, 230, 0.75); text-decoration: none; transition: all 0.25s; }
 .ft-links a:hover { color: var(--gold-premium); transform: translateX(4px); }
 .ft-contact a { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; font-size: 0.92rem; color: rgba(253, 245, 230, 0.75); text-decoration: none; overflow-wrap: anywhere; transition: color 0.25s; }

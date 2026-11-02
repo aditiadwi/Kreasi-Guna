@@ -376,6 +376,15 @@ Fokus: dua perbaikan UI dari screenshot user (`Images/Tampilan Footer yang Harus
 
 
 
+### **24. Catatan 2 November 2026 (footer: tagline sebaris + Jelajahi dua kolom)**
+
+Fokus: dua request user — tagline "Smart Drip Coffee — seduh kopi enak tanpa ribet." disejajarkan dengan "Home" dan "@kreasiguna", serta daftar Jelajahi (7 item) dibagi dua kolom biar tidak panjang ke bawah.
+
+- **Tagline sebaris dengan item pertama kolom lain** (`style.css` `.ft-brand p`): `margin-top` `12px` → `20px` supaya jarak sesudah baris pertama sama persis dengan `margin-bottom` h4 (20px). Karena `.ft-logo` dan `.ft-grid h4` sudah pakai `clamp()` + `line-height` yang sama dan `.ft-grid` sudah `align-items: baseline`, baris kedua ikut sejajar sendiri. Diukur pakai `Range` ink-box di Chrome headless 1280px: baris 1 logo y5104–5140 vs h4 y5107–5139; baris 2 tagline y5162–5179 vs Home y5163–5181 vs @kreasiguna y5163–5181 → **selisih ≤2px**.
+- **Jelajahi jadi 2 sub-kolom 4+3**: markup di 10 halaman dibungkus `<div class="ft-links-cols">` (script Node sekali pakai, sudah dihapus; indent `<nav>` sempat hilang kena regex dan dibetulkan balik). CSS: `.ft-links { display: block }` — **wajib ditulis eksplisit**, karena `nav { display: flex }` global dari header tetap apply kalau `.ft-links` tidak men-set `display`. `.ft-links-cols { display: grid; grid-template-rows: repeat(4, auto); grid-auto-flow: column; column-gap: 18px; row-gap: 11px }` → `grid-auto-flow: column` menjaga urutan baca tetap **kolom-major** (Home/About/History/Products | Brew/Contact/Track Order), bukan zig-zag seperti row-flow. Tinggi kolom turun 244px → 133px.
+- Verifikasi: screenshot headless 1280px / 820px / 390px (`scratch/foot-1280.png`, `foot-820.png`, `foot-390.png`) — baris 1 & 2 sejajar di desktop, sub-kolom tetap muat di tablet dan HP. Harness iframe & script sementara dihapus. `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.98` → `v=1.0.99`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
