@@ -431,6 +431,17 @@ Fokus: user minta halaman sejarah "diperbagus" tapi masih ragu soal aset — dis
 - Verifikasi: screenshot headless 1280px (5 irisan) + 390px — reveal animation dipaksa tampil lewat `<style>` suntikan di iframe supaya tidak tertangkap fade. JS TOC aktif (`history.html` ≈337) hanya bergantung pada `href`/`id`, jadi perubahan teks heading aman. Harness sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.103` → `v=1.0.104`.
 
 
+### **29. Catatan 2 November 2026 (History: latar krem kartu era dilepas)**
+
+Fokus: user suka penomoran eranya tapi merasa warna krem kartu bertabrakan dengan putih (`Images/...725fa1fc-...png`, kartu era 04). Ditawarkan tiga arah (lepas latar / off-white netral / putih+bayangan) dan dipilih **lepas latar krem**.
+
+- **Yang bikin aneh = layering, bukan kremnya**: badan halaman putih → kartu era krem → di dalamnya kartu region & tabel putih lagi, jadi krem-putih-krem bertumpuk. Karena itu `.era-card` kehilangan `background`, `border`, `border-radius`, `padding`, dan `overflow: hidden` — pemisahan antar era sekarang dipegang **angka samar + garis emas di bawah judul + `margin-bottom: 56px`** (44px di HP).
+- **Ikut dihapus**: `.era-card .region-card { background: var(--white) }` — override itu dulu dibuat justru supaya kartu region tidak jadi "abu di atas krem"; setelah latar krem hilang, `.region-card` asli (`#f9f9f9` + border `#eee`) malah paling jelas terbaca di atas putih. Aturan `padding` `.era-card` di blok ≤600px juga dihapus karena tanpa kartu ia jadi indentasi palsu di dalam `.container` yang sudah punya padding sendiri.
+- **Angka samar**: `top: -22px` → `-14px` (HP `-6px`). Tanpa `overflow: hidden` angka tidak terpotong lagi, jadi posisinya tidak boleh terlalu naik ke margin section sebelumnya.
+- **Tetap krem** (satu blok, tidak bertingkat): `.executive-summary` `#fef9e7` dan `.stats-band` `#fffdf5`.
+- Verifikasi: screenshot headless 1280px (3 irisan) & 390px — judul tetap wrap sebelum zona angka (`.era-card h2 { padding-right: 74px }` masih aktif di HP), tidak ada tabrakan warna. Harness sementara dihapus, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.104` → `v=1.0.105`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

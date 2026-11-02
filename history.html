@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.104">
+    <link rel="stylesheet" href="style.css?v=1.0.105">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         .history-content { max-width: 900px; margin: 0 auto; line-height: 1.8; color: #444; padding: 40px 20px; }
@@ -25,23 +25,22 @@
         .history-content p { margin-bottom: 20px; font-size: 1.1rem; }
         .executive-summary { background: #fef9e7; padding: 40px; border-radius: 20px; border-left: 8px solid var(--gold-premium); margin-bottom: 30px; font-style: italic; }
 
-        /* Era bernomor: tiap bagian jadi kartu dengan angka besar samar
-           (nomor diambil dari data-era, jadi tidak perlu ditulis dua kali) */
-        [data-era] { position: relative; scroll-margin-top: 150px; margin-bottom: 40px; }
+        /* Era bernomor: angka besar samar dari data-era (nomor tidak ditulis
+           dua kali), pemisahan antar bagian dipegang angka + garis judul + jarak.
+           Tanpa latar: kartu region, tabel, dan kutipan duduk di atas putih semua
+           supaya tidak ada layering krem-putih-krem. */
+        [data-era] { position: relative; scroll-margin-top: 150px; margin-bottom: 56px; }
         [data-era]::before {
             content: attr(data-era);
-            position: absolute; top: -22px; right: 10px;
+            position: absolute; top: -14px; right: 0;
             font-family: 'Playfair Display', Georgia, serif;
             font-size: 130px; line-height: 1; font-weight: 700;
             color: rgba(197, 160, 89, 0.14);
             pointer-events: none; user-select: none;
         }
         [data-era] h2 { margin-top: 0; }
-        .era-card { background: #fffdf5; border: 1px solid #f0e2b6; border-radius: 22px; padding: 34px 34px 30px; overflow: hidden; }
         .era-card > :last-child { margin-bottom: 0 !important; }
         .era-card img { border-radius: 16px; }
-        /* Isi di dalam kartu era pakai permukaan putih biar tidak abu-di-atas-krem */
-        .era-card .region-card { background: var(--white); }
 
         /* Reading progress */
         #read-progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%; background: linear-gradient(90deg, var(--gold-premium), var(--gold-accent)); z-index: 2000; transition: width 0.1s linear; }
@@ -121,10 +120,10 @@
             .toc-bar { top: 76px; }
             .toc-inner { justify-content: flex-start; }
             .v-item { padding: 16px 16px; }
-            .era-card { padding: 26px 20px 20px; border-radius: 18px; }
             [data-era]::before { font-size: 78px; top: -6px; right: 2px; color: rgba(197, 160, 89, 0.11); }
             /* Judul pendek pun bisa jatuh di bawah angka samar di layar sempit */
             .era-card h2 { padding-right: 74px; }
+            [data-era] { margin-bottom: 44px; }
             [data-era] { margin-bottom: 30px; }
             .stats-band { grid-template-columns: repeat(2, 1fr); }
             .stat-box:nth-child(2n) { border-right: 0; }
@@ -354,7 +353,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="app.js?v=1.0.104"></script>
+    <script src="app.js?v=1.0.105"></script>
     <script>
         // Reading progress bar
         const prog = document.getElementById('read-progress');
