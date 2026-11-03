@@ -3228,6 +3228,52 @@ a:active {
 .acc-order-total { align-self: flex-end; margin-left: auto; font-weight: 800; color: var(--coffee-dark); white-space: nowrap; }
 .acc-order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* Filter kategori pesanan */
+.acc-filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.acc-filter-bar::-webkit-scrollbar { display: none; }
+.acc-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-light);
+    background: #fafafa;
+    color: var(--coffee-dark);
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.acc-filter-btn:hover { border-color: var(--gold-premium); color: var(--gold-premium); }
+.acc-filter-btn.active {
+    background: var(--coffee-dark);
+    border-color: var(--coffee-dark);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(45, 32, 20, 0.2);
+}
+.acc-filter-count {
+    min-width: 20px;
+    padding: 1px 6px;
+    border-radius: 50px;
+    background: rgba(0, 0, 0, 0.06);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-align: center;
+}
+.acc-filter-btn.active .acc-filter-count { background: rgba(255, 255, 255, 0.2); }
+
 /* Tombol kecil */
 .acc-btn-ghost {
     background: transparent;

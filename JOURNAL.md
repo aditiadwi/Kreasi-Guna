@@ -454,6 +454,17 @@ Fokus: user minta "perbaiki pewarnaan halaman admin", scope dipilih **samakan ke
 - Verifikasi revert: `git diff --quiet 6eb55a6 -- admin.html style.css index.html` (identik), `npm run check:assets` OK (11 halaman, 22 referensi, v=1.0.107). CRLF dipertahankan. Cache `v=1.0.105` → `v=1.0.107`.
 
 
+### **31. Catatan 3 November 2026 (filter kategori pesanan di Pesanan Saya)**
+
+Fokus: user minta tombol kategori ala e-commerce ("diproses, dikirim, selesai") di halaman akun biar gampang nyari pesanan.
+
+- **Tab filter di `account.html`** (`#orders-filter`, di bawah judul section Pesanan Saya): `Semua · Menunggu · Diproses · Dikirim · Selesai · Dibatalkan`, tiap tab ada hitungan jumlah (`.acc-filter-count`) yang dihitung ulang tiap render. Gaya pill mengikuti pola `.toc-inner a` (history.html); bar di-`overflow-x:auto` jadi bisa digeser di HP dan scrollbar-nya disembunyikan. Bar `hidden` by default dan hanya diperlihatkan `loadOrders()` kalau pesanan ada — user kosong tidak melihat tab sia-sia.
+- **Filtering client-side**: `accOrders` sudah di-fetch penuh, jadi ganti tab cukup panggil `renderOrders()` ulang. Grup status di `ORDER_FILTER_GROUPS` — `PROCESSING` = `CONFIRMED`/`PAID`, `COMPLETED` = `COMPLETED`/`DELIVERED`, case-insensitive, status kosong dianggap `PENDING`. Index asli dipertahankan (`map((o,i)=>({o,i}))`), jadi `toggleOrderDetail`/`accReorder`/`accRateItem` tetap menunjuk `accOrders[idx]` yang benar walau daftar tersaring; detail yang sedang terbuka dipaksa ditutup (`accOpenIdx = -1`) saat ganti tab karena innerHTML di-render ulang. Kategori kosong → empty state "Tidak ada pesanan dengan kategori ini." + tombol Tampilkan Semua; empty state "Belum ada pesanan" (lama) pindah ke `renderOrders()` juga.
+- **Status Diproses dibuka**: `STATUS_STYLES` ditambah `CONFIRMED`/`PAID` (label "Diproses", chip `#ffe5cc`/`#92400e`) dan `DELIVERED` (label "Selesai"); timeline detail (`doneCount`/`currentIdx`) dan `noteMap` ikut menangani status itu. Admin diberi opsi `CONFIRMED` di dropdown filter **dan** dropdown ubah status, plus warna badge baris `#d35400` (putih di atasnya ≈4.1:1; `#e67e22` cuma ≈3:1) — tanpa ini tab "Diproses" mustahil terisi karena admin sebelumnya cuma punya 4 status.
+- **CSS baru `style.css`**: `.acc-filter-bar` / `.acc-filter-btn` / `.acc-filter-count` ditaruh setelah `.acc-order-actions`; tidak ada risiko spesifitas karena `.hidden` global memakai `display:none !important` (`style.css:1607`) walau aturan `.acc-filter-bar{display:flex}` ditulis setelahnya.
+- Verifikasi: sintaks inline script `account.html`+`admin.html` lewat `new Function`, brace balance `style.css` 888/888, uji logika filter terhadap 8 status contoh (semua grup sesuai harapan), `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.107` → `v=1.0.108` di 11 halaman sekaligus — `check-assets.js` menuntut versi identik antar halaman **dan** antar aset (`style.css` + `app.js`), makanya `app.js` ikut naik padahal filenya tidak diubah.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

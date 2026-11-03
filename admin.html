@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.107">
+    <link rel="stylesheet" href="style.css?v=1.0.108">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/chart.js"></script>
     <style>
@@ -234,6 +234,7 @@
                         <select id="order-filter-status" onchange="renderOrders()" style="padding: 9px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
                             <option value="all">All statuses</option>
                             <option value="PENDING">PENDING</option>
+                            <option value="CONFIRMED">CONFIRMED</option>
                             <option value="SHIPPED">SHIPPED</option>
                             <option value="COMPLETED">COMPLETED</option>
                             <option value="CANCELLED">CANCELLED</option>
@@ -457,7 +458,7 @@
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                     <label style="font-weight:600;">Status:</label>
                     <select id="update-order-status" style="flex:1; padding: 10px; border-radius: 8px;">
-                        <option value="PENDING">PENDING</option><option value="SHIPPED">SHIPPED</option><option value="COMPLETED">COMPLETED</option><option value="CANCELLED">CANCELLED</option>
+                        <option value="PENDING">PENDING</option><option value="CONFIRMED">CONFIRMED</option><option value="SHIPPED">SHIPPED</option><option value="COMPLETED">COMPLETED</option><option value="CANCELLED">CANCELLED</option>
                     </select>
                 </div>
                 <div style="display: flex; gap: 10px;">
@@ -468,7 +469,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.107"></script>
+    <script src="app.js?v=1.0.108"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
@@ -1183,6 +1184,7 @@
                     <td>${o.total_amount}</td>
                     <td><span class="status-badge" style="background:${
                         o.status === 'PENDING' ? 'var(--warning)' : 
+                        o.status === 'CONFIRMED' ? '#d35400' : 
                         o.status === 'SHIPPED' ? 'var(--primary)' : 
                         o.status === 'COMPLETED' ? 'var(--success)' : 
                         'var(--danger)'
