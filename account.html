@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.108">
+    <link rel="stylesheet" href="style.css?v=1.0.109">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -93,6 +93,11 @@
                     <div class="acc-section-head">
                         <h2><span class="acc-ico acc-ico-lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></span> Ulasan Saya</h2>
                         <span class="acc-section-sub">Bintang & komentar yang pernah kamu berikan.</span>
+                    </div>
+                    <div class="acc-filter-bar hidden" id="reviews-filter">
+                        <button class="acc-filter-btn active" data-filter="all" onclick="filterReviews('all', this)">Semua <span class="acc-filter-count" data-count="all">0</span></button>
+                        <button class="acc-filter-btn" data-filter="rated" onclick="filterReviews('rated', this)">Sudah Dibintangi <span class="acc-filter-count" data-count="rated">0</span></button>
+                        <button class="acc-filter-btn" data-filter="unrated" onclick="filterReviews('unrated', this)">Belum Dibintangi <span class="acc-filter-count" data-count="unrated">0</span></button>
                     </div>
                     <div id="reviews-list">
                         <div class="acc-loading">Memuat ulasan&hellip;</div>
@@ -275,7 +280,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.108"></script>
+    <script src="app.js?v=1.0.109"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -303,6 +308,9 @@
         let accOrders = [];
         let accReviews = [];
         let accOrderFilter = 'all';
+        let accReviewFilter = 'all';
+        let accUnrated = [];
+        let accRateFromReviews = false;
 
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -635,8 +643,137 @@
         };
 
         /* ================= ULASAN ================= */
+        /* Item pesanan Selesai (COMPLETED/DELIVERED) yang belum punya feedback */
+        function buildUnratedList() {
+            const ratedByOrder = {};
+            accReviews.forEach(f => {
+                if (f.order_id && f.product_id) {
+                    (ratedByOrder[f.order_id] = ratedByOrder[f.order_id] || {})[f.product_id] = true;
+                }
+            });
+            const out = [];
+            accOrders.forEach(o => {
+                const st = String(o.status || '').toUpperCase();
+                if (st !== 'COMPLETED' && st !== 'DELIVERED') return;
+                const rated = ratedByOrder[o.order_id] || {};
+                const seen = {};
+                const items = (typeof parseTrackItems === 'function') ? parseTrackItems(o.items) : [];
+                items.forEach(it => {
+                    const prod = (typeof findProductByName === 'function') ? findProductByName(it.name) : null;
+                    if (!prod || rated[prod.id] || seen[prod.id]) return;
+                    seen[prod.id] = true;
+                    out.push({ orderId: o.order_id, itemsRaw: o.items, createdAt: o.created_at, product: prod });
+                });
+            });
+            return out;
+        }
+
+        function updateReviewCounts() {
+            const counts = { all: accReviews.length + accUnrated.length, rated: accReviews.length, unrated: accUnrated.length };
+            document.querySelectorAll('#reviews-filter .acc-filter-count').forEach(el => {
+                el.textContent = counts[el.dataset.count] || 0;
+            });
+        }
+
+        function accReviewCard(f, i, prodMap) {
+            const p = f.product_id ? prodMap[f.product_id] : null;
+            const img = p && p.image_url ? p.image_url : 'Images/My Product.png';
+            const pname = p ? p.name : 'Ulasan Umum';
+            const rating = parseInt(f.rating || 0, 10);
+            const stars = [1, 2, 3, 4, 5].map(n => `<span class="${n <= rating ? 'acc-star on' : 'acc-star'}">★</span>`).join('');
+            return `<div class="acc-review-card">
+                <img class="acc-review-img" src="${esc(img)}" alt="${esc(pname)}" loading="lazy" onerror="this.src='Images/My Product.png'">
+                <div class="acc-review-body">
+                    <div class="acc-review-head">
+                        <strong>${esc(pname)}</strong>
+                        <span class="acc-review-date">${fmtDate(f.created_at)}</span>
+                    </div>
+                    <div class="acc-stars">${stars}</div>
+                    ${f.message ? `<p class="acc-review-msg">${esc(f.message)}</p>` : '<p class="acc-review-msg acc-muted">Tanpa komentar.</p>'}
+                    <div class="acc-review-actions">
+                        <button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>
+                        <button class="acc-btn-danger" onclick="deleteReview(${i})">Hapus</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function accUnratedCard(u, i) {
+            const img = u.product && u.product.image_url ? u.product.image_url : 'Images/My Product.png';
+            const stars = [1, 2, 3, 4, 5].map(() => '<span class="acc-star">★</span>').join('');
+            return `<div class="acc-review-card">
+                <img class="acc-review-img" src="${esc(img)}" alt="${esc(u.product.name)}" loading="lazy" onerror="this.src='Images/My Product.png'">
+                <div class="acc-review-body">
+                    <div class="acc-review-head">
+                        <strong>${esc(u.product.name)}</strong>
+                        <span class="acc-review-date">${fmtDate(u.createdAt)}</span>
+                    </div>
+                    <div class="acc-stars">${stars}</div>
+                    <p class="acc-review-msg acc-muted">Belum dibintangi &middot; Order ${esc(u.orderId)}</p>
+                    <div class="acc-review-actions">
+                        <button class="acc-btn-rate" onclick="accRateUnrated(${i}, this)">★ Beri Ulasan</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function renderReviews() {
+            const box = document.getElementById('reviews-list');
+            updateReviewCounts();
+            const showRated = accReviewFilter === 'all' || accReviewFilter === 'rated';
+            const showUnrated = accReviewFilter === 'all' || accReviewFilter === 'unrated';
+            const ratedRows = showRated ? accReviews.map((f, i) => ({ f, i })) : [];
+            const unratedRows = showUnrated ? accUnrated.map((u, i) => ({ u, i })) : [];
+
+            if (!ratedRows.length && !unratedRows.length) {
+                box.innerHTML = (!accReviews.length && !accUnrated.length)
+                    ? `<div class="acc-empty">
+                        <div class="acc-empty-icon">${accIco('star', 'acc-ico-flat')}</div>
+                        <p>Belum ada ulasan. Nilai pesananmu lewat halaman Track Order.</p>
+                        <a href="track.html" class="btn-primary">Beri Ulasan</a>
+                    </div>`
+                    : `<div class="acc-empty"><div class="acc-empty-icon">${accIco('star', 'acc-ico-flat')}</div><p>Tidak ada ulasan dengan kategori ini.</p><button class="acc-btn-ghost" onclick="filterReviews('all')">Tampilkan Semua</button></div>`;
+                return;
+            }
+
+            const prodMap = {};
+            (DYNAMIC_PRODUCTS || []).forEach(p => { prodMap[p.id] = p; });
+            const cards = ratedRows.map(r => accReviewCard(r.f, r.i, prodMap))
+                .concat(unratedRows.map(r => accUnratedCard(r.u, r.i)));
+            box.innerHTML = cards.join('');
+        }
+
+        window.filterReviews = function (filter) {
+            if (filter !== 'all' && filter !== 'rated' && filter !== 'unrated') filter = 'all';
+            accReviewFilter = filter;
+            document.querySelectorAll('#reviews-filter .acc-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+            renderReviews();
+        };
+
+        window.accRateUnrated = function (idx, btn) {
+            const u = accUnrated[idx];
+            if (!u) return;
+            accRateFromReviews = true;
+            rateOrderProduct(u.orderId, u.itemsRaw, u.product.name, btn);
+        };
+
+        /* Setelah modal rating ditutup dari tab mana pun, muat ulang daftar
+           supaya item yang baru dinilai pindah ke "Sudah Dibintangi". */
+        (function () {
+            const origCloseRateModal = window.closeRateModal;
+            if (typeof origCloseRateModal !== 'function') return;
+            window.closeRateModal = function () {
+                origCloseRateModal.apply(this, arguments);
+                if (accRateFromReviews) {
+                    accRateFromReviews = false;
+                    loadReviews();
+                }
+            };
+        })();
+
         async function loadReviews() {
             const box = document.getElementById('reviews-list');
+            const bar = document.getElementById('reviews-filter');
             try {
                 const fullName = (accSession.user.user_metadata && accSession.user.user_metadata.full_name) || '';
                 const myOrders = accOrders.map(o => o.order_id).filter(Boolean);
@@ -659,45 +796,19 @@
                 rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 accReviews = rows;
 
-                if (!accReviews.length) {
-                    box.innerHTML = `<div class="acc-empty">
-                        <div class="acc-empty-icon">${accIco('star', 'acc-ico-flat')}</div>
-                        <p>Belum ada ulasan. Nilai pesananmu lewat halaman Track Order.</p>
-                        <a href="track.html" class="btn-primary">Beri Ulasan</a>
-                    </div>`;
-                    return;
-                }
-
-                if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
+                const hasCompleted = accOrders.some(o => {
+                    const st = String(o.status || '').toUpperCase();
+                    return st === 'COMPLETED' || st === 'DELIVERED';
+                });
+                if ((accReviews.length || hasCompleted) && (!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
                     try { await fetchProducts(); } catch (e) {}
                 }
-                const prodMap = {};
-                (DYNAMIC_PRODUCTS || []).forEach(p => { prodMap[p.id] = p; });
-
-                box.innerHTML = accReviews.map((f, i) => {
-                    const p = f.product_id ? prodMap[f.product_id] : null;
-                    const img = p && p.image_url ? p.image_url : 'Images/My Product.png';
-                    const pname = p ? p.name : 'Ulasan Umum';
-                    const rating = parseInt(f.rating || 0, 10);
-                    const stars = [1, 2, 3, 4, 5].map(n => `<span class="${n <= rating ? 'acc-star on' : 'acc-star'}">★</span>`).join('');
-                    return `<div class="acc-review-card">
-                        <img class="acc-review-img" src="${esc(img)}" alt="${esc(pname)}" loading="lazy" onerror="this.src='Images/My Product.png'">
-                        <div class="acc-review-body">
-                            <div class="acc-review-head">
-                                <strong>${esc(pname)}</strong>
-                                <span class="acc-review-date">${fmtDate(f.created_at)}</span>
-                            </div>
-                            <div class="acc-stars">${stars}</div>
-                            ${f.message ? `<p class="acc-review-msg">${esc(f.message)}</p>` : '<p class="acc-review-msg acc-muted">Tanpa komentar.</p>'}
-                            <div class="acc-review-actions">
-                                <button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>
-                                <button class="acc-btn-danger" onclick="deleteReview(${i})">Hapus</button>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
+                accUnrated = buildUnratedList();
+                bar.classList.toggle('hidden', !(accReviews.length || accUnrated.length));
+                renderReviews();
             } catch (e) {
                 console.error('Gagal memuat ulasan:', e);
+                bar.classList.add('hidden');
                 box.innerHTML = `<div class="acc-empty"><div class="acc-empty-icon">${accIco('alert', 'acc-ico-flat')}</div><p>Gagal memuat ulasan. Muat ulang halaman untuk coba lagi.</p></div>`;
             }
         }
