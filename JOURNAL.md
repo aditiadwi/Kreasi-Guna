@@ -499,6 +499,16 @@ Fokus: user minta popup logout diperbagus — konfirmasi `confirm()` native (ent
 - Verifikasi: harness DOM mini dengan 20 asersi — copy lama dialog hapus keranjang persis, teks/judul/label ikon, variant primary terpasang saat logout & terlepas saat dibuka tanpa variant, resolve `true`/`false`, dan `handleLogout` dipastikan pakai modal (bukan `confirm()`) sambil tetap `auth.signOut()` + `reload` — semua lulus. Ditambah `node --check app.js`, brace CSS 892/892, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF utuh. Cache `v=1.0.110` → `v=1.0.111`.
 
 
+### **35. Catatan 3 November 2026 (tagline footer: "Setiap tetes, ada cerita")**
+
+Fokus: user ganti judul besar di blok CTA footer.
+
+- **Teks lama** `Satu cangkir,` / `sejuta cerita.` → **baru** `Setiap tetes,` / `ada cerita`. Titik di akhir sengaja **tidak dipakai** (ikut persis seperti yang ditulis user); kalau mau dikembalikan tinggal tambah `.` di dalam `<em>`.
+- **Struktur markup tidak berubah**: baris pertama tetap teks biasa, baris kedua tetap `<em>` — dan `.ft-title em { color: var(--gold-premium) }` (`style.css` ≈1641) yang bikin baris kedua jadi emas. Jadi "ada cerita" otomatis ikut bergaya emas miring Playfair seperti sebelumnya, tanpa perlu sentuh CSS.
+- **Yang diubah 10 halaman**, bukan 11: blok `.ft-cta` ini ada di semua halaman publik + account/cart/checkout/track; `admin.html` memang tidak punya footer ini (dicek `grep -rn "sejuta cerita" *.html` → 0 sisa, dan `Setiap tetes,` muncul tepat 1x per file).
+- Verifikasi: `git diff` memastikan hanya 10 baris `ft-title` yang berubah (pekerjaan filter pesanan/ulasan & modal logout di `account.html` tidak ikut kesenggol). Screenshot headless footer `index.html` 1280px & 390px. `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.111` → `v=1.0.112`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
