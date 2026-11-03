@@ -476,6 +476,17 @@ Fokus: lanjutan fitur filter — bagian **Ulasan Saya** dikasih kategori `Semua 
 - **Verifikasi**: 8 unit test `buildUnratedList` memakai `parseTrackItems`/`findProductByName` **asli** dari app.js — catatan: regex stub pertama salah karena format item di DB adalah `(x2)` **berhuruf x**, bukan `(2)`, sehingga 4 tes sempat gagal palsu (bug di test, bukan di kode) — setelah dibetulkan semua lulus. Sintaks inline script lewat `new Function` 0 error, `npm run check:assets` OK (11 halaman, 22 referensi), CRLF & UTF-8 utuh. Cache `v=1.0.108` → `v=1.0.109` di 11 halaman.
 
 
+### **33. Catatan 3 November 2026 (konfirmasi sebelum logout)**
+
+Fokus: user minta logout tidak langsung — muncul pertanyaan "apakah kamu yakin ingin logout?" dulu.
+
+- **Kenapa perlu**: tombol **Keluar** di sidebar akun (`account.html`) dan item **Logout** di dropdown header (dibuat `updateAuthUI()` di `app.js`) langsung memanggil `handleLogout()` tanpa halangan — gampang kepentok pas scroll di HP. Admin sudah duluan punya konfirmasi (`admin.html:540`, `confirm('Are you sure you want to logout?')`), jadi cuma sisi user yang bolong.
+- **Solusi**: satu baris di `app.js` `handleLogout` → `if (!confirm('Apakah kamu yakin ingin logout?')) return;` dan **letaknya sebelum blok `try`** — ini penting, karena blok itu menghapus `coffee_cart`, `checkout_form_data`, `customer_profile`, `recent_orders` dari localStorage; kalau konfirmasinya ditaruh di dalam `try`, cancel sudah keburu menghapus data guest.
+- **Kenapa `confirm()` native, bukan modal brand**: konsisten dengan pola di seluruh proyek (`Hapus ulasan ini?`, `Hapus alamat ini?`, hapus pesanan/produk/event di admin), satu edit menutup dua titik panggil sekaligus, dan tanpa CSS/markup baru. Modal kustom memang lebih cantik, tapi untuk dialog yang tampil 1 detik biayanya tidak sepadan — kalau nanti mau diganti, tinggal pakai elemen `.hidden` mengikuti pola `acc-edit-modal`.
+- **Jangkauan**: grep memastikan `handleLogout` cuma dipanggil dari dua titik itu, tidak ada logout otomatis yang ikut kena konfirmasi; `admin.html` sengaja tidak disentuh karena sudah ada.
+- Verifikasi: `node --check app.js` lolos, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.109` → `v=1.0.110` di 11 halaman.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

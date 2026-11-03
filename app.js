@@ -228,6 +228,7 @@ window.handleGoogleLogin = async () => {
 
 window.handleLogout = async () => {
     if (!supabaseClient) return;
+    if (!confirm('Apakah kamu yakin ingin logout?')) return;
     try {
         // Hapus data guest di localStorage agar sesi guest berikutnya bersih dan kosong
         localStorage.removeItem('coffee_cart');
