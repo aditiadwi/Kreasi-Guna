@@ -1672,6 +1672,10 @@ footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 ca
     .ft-leaf { display: none; }
     .footer-bottom { flex-direction: column; align-items: flex-start; }
     .footer-bottom .ft-right { margin-right: 0; }
+    /* Eyebrow CTA: teks 44 karakter butuh 466px padahal ruang di 390px cuma 336px.
+       Tracking diturunkan (hemat ~44px per 1px) + balance biar pecahnya jadi dua
+       baris seimbang, bukan satu kata yatim "MENDENGAR." di baris kedua. */
+    .ft-eyebrow { letter-spacing: 2.2px; text-wrap: balance; }
 }
 
 /* RESPONSIVE BREAKPOINTS */

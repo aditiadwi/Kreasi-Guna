@@ -509,6 +509,22 @@ Fokus: user ganti judul besar di blok CTA footer.
 - Verifikasi: `git diff` memastikan hanya 10 baris `ft-title` yang berubah (pekerjaan filter pesanan/ulasan & modal logout di `account.html` tidak ikut kesenggol). Screenshot headless footer `index.html` 1280px & 390px. `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.111` → `v=1.0.112`.
 
 
+### **36. Catatan 3 November 2026 (eyebrow footer diganti + pecahan baris di HP dirapikan)**
+
+Fokus: user minta teks kecil di atas tagline footer ("Punya ide? Bawa ke sini.") diganti biar tidak ketahuan copy-paste dari web lain, lalu tulisan baru itu ternyata pecah jelek di HP.
+
+- **Teks**: `Punya ide? Bawa ke sini.` → `Punya ide atau masukan? Kami siap mendengar.` (persis usulan user). Dipasang di 10 halaman — sama seperti `ft-title`, `admin.html` tidak punya blok `.ft-cta`. `.ft-eyebrow` dipakai hanya di situ (grep: 10×), jadi tidak ada efek samping ke tempat lain.
+- **Masalah yang muncul**: uppercase + tracking bikin teks 44 karakter itu tidak muat 1 baris di HP, dan browser memecahnya jadi "PUNYA IDE ATAU MASUKAN? KAMI SIAP" / "MENDENGAR." — satu kata yatim di baris kedua, terlihat rusak.
+- **Angka hasil pengukuran** (bukan tebakan; harness `--dump-dom` yang nulis hasil ke dokumen top, bukan iframe — `--dump-dom` cuma men-serialize dokumen teratas). Ruang tersedia di viewport 390px = **336px**. Lebar teks diukur dengan node klonan `white-space:nowrap; width:auto` (penting: `getBoundingClientRect().width` pada `<p>` blok mengembalikan lebar *kontainer*, bukan lebar teks): **466px** @tracking 3px, **404px** @1.6px, **387px** @1.2px. Artinya supaya muat 1 baris tracking harus nyaris 0px — bukan solusi.
+  - Catatan: aturan praktisnya ≈1px lebar per karakter per 1px tracking (44 karakter ≈ 44px per 1px). Perkiraan awal saya "turunkan letter-spacing kemungkinan cukup" ternyata SALAH dan sudah dikoreksi pakai angka di atas.
+- **Fix yang dipasang** (`style.css`, di dalam blok `@media (max-width: 600px)` footer yang sudah ada, bukan breakpoint baru):
+  `.ft-eyebrow { letter-spacing: 2.2px; text-wrap: balance; }`
+  Tracking sedikit diturunkan (masih terasa "eyebrow", hemat ±35px) + `text-wrap: balance` supaya pecahannya jadi dua baris seimbang, bukan satu kata yatim.
+- **Verifikasi visual**: 390px → `w=351 h=42 lines=2` render "PUNYA IDE ATAU MASUKAN?" / "KAMI SIAP MENDENGAR." (kata yatim hilang); 1280px → `w=466 h=21 lines=1` (desktop tidak berubah sama sekali, fix-nya cuma di dalam media query).
+- **Kalau browser target tidak mendukung `text-wrap: balance`** (Safari lama), fallback-nya cuma kembali ke pecahan awal — tidak ada layout yang rusak. Masih aman.
+- Verifikasi lain: `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.112` → `v=1.0.113`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
