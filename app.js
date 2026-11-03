@@ -228,7 +228,15 @@ window.handleGoogleLogin = async () => {
 
 window.handleLogout = async () => {
     if (!supabaseClient) return;
-    if (!confirm('Apakah kamu yakin ingin logout?')) return;
+    const confirmed = await showConfirmModal({
+        icon: 'logout',
+        title: 'Keluar dari akun?',
+        message: 'Sesi loginmu akan berakhir dan keranjang belanja di perangkat ini akan dikosongkan.',
+        noLabel: 'Batal',
+        yesLabel: 'Ya, Keluar',
+        variant: 'primary'
+    });
+    if (!confirmed) return;
     try {
         // Hapus data guest di localStorage agar sesi guest berikutnya bersih dan kosong
         localStorage.removeItem('coffee_cart');
@@ -865,12 +873,18 @@ window.removeFromCart = (id) => {
 
 let _removeConfirmResolver = null;
 
+const CONFIRM_ICONS = {
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+    trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
+};
+
 function ensureRemoveConfirmModal() {
     if (document.getElementById('confirm-modal-backdrop')) return;
     const html = `
-    <div id="confirm-modal-backdrop" class="hidden">
+    <div id="confirm-modal-backdrop" class="hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-modal-title">
         <div class="confirm-modal-container" onclick="event.stopPropagation()">
-            <h3>Remove from cart?</h3>
+            <div class="confirm-modal-icon hidden" id="confirm-modal-icon" aria-hidden="true"></div>
+            <h3 id="confirm-modal-title">Remove from cart?</h3>
             <p id="confirm-modal-message">Are you sure?</p>
             <div class="confirm-modal-actions">
                 <button class="btn-confirm-cancel" id="confirm-modal-cancel">Cancel</button>
@@ -889,14 +903,35 @@ function ensureRemoveConfirmModal() {
     });
 }
 
-function showRemoveConfirm(productName) {
+/* Modal konfirmasi serbaguna -> Promise<boolean> (true = ya/batal sesuai tombol) */
+function showConfirmModal(opts) {
+    const o = opts || {};
     ensureRemoveConfirmModal();
-    const backdrop = document.getElementById('confirm-modal-backdrop');
-    const msg = document.getElementById('confirm-modal-message');
-    msg.textContent = `Are you sure you want to remove "${productName}" from the cart?`;
-    backdrop.classList.remove('hidden');
+    document.getElementById('confirm-modal-title').textContent = o.title || 'Are you sure?';
+    document.getElementById('confirm-modal-message').textContent = o.message || '';
+    document.getElementById('confirm-modal-cancel').textContent = o.noLabel || 'Cancel';
+    const yes = document.getElementById('confirm-modal-yes');
+    yes.textContent = o.yesLabel || 'Yes';
+    yes.classList.toggle('btn-confirm-primary', o.variant === 'primary');
+    const iconBox = document.getElementById('confirm-modal-icon');
+    const iconPath = o.icon ? CONFIRM_ICONS[o.icon] : null;
+    iconBox.innerHTML = iconPath
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>`
+        : '';
+    iconBox.classList.toggle('hidden', !iconPath);
+    document.getElementById('confirm-modal-backdrop').classList.remove('hidden');
     return new Promise((resolve) => {
         _removeConfirmResolver = resolve;
+    });
+}
+
+function showRemoveConfirm(productName) {
+    return showConfirmModal({
+        icon: 'trash',
+        title: 'Remove from cart?',
+        message: `Are you sure you want to remove "${productName}" from the cart?`,
+        noLabel: 'Cancel',
+        yesLabel: 'Yes, Remove'
     });
 }
 

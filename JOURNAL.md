@@ -487,6 +487,18 @@ Fokus: user minta logout tidak langsung — muncul pertanyaan "apakah kamu yakin
 - Verifikasi: `node --check app.js` lolos, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF dipertahankan. Cache `v=1.0.109` → `v=1.0.110` di 11 halaman.
 
 
+### **34. Catatan 3 November 2026 (popup logout diperbagus jadi modal brand)**
+
+Fokus: user minta popup logout diperbagus — konfirmasi `confirm()` native (entri 33) diganti modal kustom senada brand.
+
+- **Modal yang sudah ada dimanfaatkan, bukan dibuat baru**: proyek ternyata sudah punya modal konfirmasi generik `#confirm-modal-backdrop` (app.js, dipakai hapus keranjang lewat `showRemoveConfirm`) lengkap dengan CSS sendiri (kartu putih radius 16, backdrop blur, animasi `modalSlideIn`). Fungsinya diumumkan jadi **`showConfirmModal(opts) -> Promise<boolean>`** dengan opsi `title`, `message`, `yesLabel`, `noLabel`, `icon`, `variant`. `showRemoveConfirm(name)` tinggal jadi pembungkus tipis dengan copy lama persis, jadi dialog hapus keranjang tidak berubah isinya sama sekali.
+- **Ikon**: `CONFIRM_ICONS` (path SVG gaya Feather sesuai project: `logout`, `trash`) dirender ke kotak `.confirm-modal-icon` — lingkaran 56px, latar emas lembut `rgba(197,160,89,.16)`, ikon warna `--wood-warm`. Kalau opsi `icon` kosong, kotak ikon disembunyikan pakai class `hidden` (aturan global `display:none !important`).
+- **Tombol "Ya"**: default tetap merah `.btn-confirm-remove` (perilaku lama); `variant: 'primary'` menambahkan class `.btn-confirm-primary` → latar `--coffee-dark #2c1e12` + teks putih (≈15:1 — jauh lebih aman daripada emas `#c5a059` yang cuma ≈2.3:1) dan hover `#1c130b`. Spesifitas `.btn-confirm-remove.btn-confirm-primary:hover` (0,3,0) mengalahkan `:hover` merah lama.
+- **`handleLogout`**: `await showConfirmModal({ icon: 'logout', title: 'Keluar dari akun?', message: 'Sesi loginmu akan berakhir dan keranjang belanja di perangkat ini akan dikosongkan.', noLabel: 'Batal', yesLabel: 'Ya, Keluar', variant: 'primary' })`, dan batal → `return` **sebelum** blok `try` yang menghapus `coffee_cart` dkk. dari localStorage (prinsip yang sama dengan entri 33). `confirm()` native dihapus. Karena modal di-inject `app.js`, satu implementasi menutup sidebar akun **dan** dropdown header di semua halaman; `admin.html` tetap punya konfirmasi miliknya sendiri.
+- **Aksesibilitas**: backdrop diberi `role="alertdialog"`, `aria-modal`, `aria-labelledby="confirm-modal-title"`; kotak ikon `aria-hidden`. Escape, klik backdrop, dan tombol batal semuanya melewati resolver Promise yang sama (`_removeConfirmResolver` tunggal, sudah pola itu dari awal) — tidak ada jalur yang bisa meninggalkan resolver nyangkut.
+- Verifikasi: harness DOM mini dengan 20 asersi — copy lama dialog hapus keranjang persis, teks/judul/label ikon, variant primary terpasang saat logout & terlepas saat dibuka tanpa variant, resolve `true`/`false`, dan `handleLogout` dipastikan pakai modal (bukan `confirm()`) sambil tetap `auth.signOut()` + `reload` — semua lulus. Ditambah `node --check app.js`, brace CSS 892/892, `npm run check:assets` OK (11 halaman, 22 referensi). CRLF utuh. Cache `v=1.0.110` → `v=1.0.111`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

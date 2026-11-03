@@ -2565,6 +2565,24 @@ a:active {
 .btn-confirm-remove:hover {
     background: #c0392b;
 }
+.btn-confirm-remove.btn-confirm-primary {
+    background: var(--coffee-dark);
+}
+.btn-confirm-remove.btn-confirm-primary:hover {
+    background: #1c130b;
+}
+.confirm-modal-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(197, 160, 89, 0.16);
+    color: var(--wood-warm);
+    margin: 0 auto 14px;
+}
+.confirm-modal-icon svg { width: 26px; height: 26px; display: block; }
 
 #order-success-backdrop {
     position: fixed;
