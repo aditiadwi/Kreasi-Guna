@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.118">
+    <link rel="stylesheet" href="style.css?v=1.0.119">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
@@ -146,6 +146,26 @@
         .fb-select { appearance: none; -webkit-appearance: none; padding: 8px 30px 8px 11px; border-radius: 9px; border: 1px solid #d4cbbe; font-size: 0.86rem; font-family: inherit; color: #2c1e12; background-color: #fff; cursor: pointer; transition: border-color 0.18s, box-shadow 0.18s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f4e37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 13px; }
         .fb-select:hover { border-color: #b9ab96; }
         .fb-select:focus-visible { outline: none; border-color: #c5a059; box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.22); }
+
+        /* Dropdown native tidak bisa di-styled CSS — border-radius di .fb-select cuma
+           membulatkan kotaknya saja, bukan daftar opsinya. `appearance: base-select`
+           (Chrome/Edge 131+) melepas widget OS sehingga ::picker dan <option> bisa
+           digarap. Dibungkus @supports: browser tanpa dukungan tetap dapat chevron
+           background-image di atas. */
+        @supports (appearance: base-select) {
+            .fb-select { appearance: base-select; padding: 8px 10px 8px 11px; background-image: none; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; }
+            /* base-select mengukur lebar dari opsi TERPILIH saja, bukan terlebar,
+               jadi kotak menyusut & bar filter bergeser tiap ganti opsi. Dikunci. */
+            #fb-filter-rating { min-width: 200px; }
+            #fb-filter-product { min-width: 190px; }
+            #fb-per-page { min-width: 140px; }
+            .fb-select::picker-icon { content: ''; width: 13px; height: 13px; flex-shrink: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f4e37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") center / 13px no-repeat; transition: rotate 0.18s ease; }
+            .fb-select:open::picker-icon { rotate: 180deg; }
+            .fb-select::picker(select) { background: #fff; border: 1px solid #e0d7c9; border-radius: 12px; box-shadow: 0 14px 34px rgba(44, 30, 18, 0.18); padding: 5px; margin-top: 6px; }
+            .fb-select option { padding: 8px 11px; border-radius: 8px; font-size: 0.86rem; color: #3a2f24; cursor: pointer; }
+            .fb-select option:hover, .fb-select option:focus { background: #f4efe7; outline: none; }
+            .fb-select option:checked { background: #ece1cd; color: #2c1e12; font-weight: 600; }
+        }
 
         @container #fb (max-width: 430px) {
             .fb-filters, .fb-filter-group { flex-direction: column; align-items: stretch; }
@@ -566,7 +586,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.118"></script>
+    <script src="app.js?v=1.0.119"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
