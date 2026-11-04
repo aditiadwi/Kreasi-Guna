@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.115">
+    <link rel="stylesheet" href="style.css?v=1.0.116">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/chart.js"></script>
     <style>
         :root {
-            --admin-bg: #f8f9fa;
+            --admin-bg: #f7f5f0;
             --admin-sidebar: #2c3e50;
             --primary: #3498db;
             --success: #2ecc71;
@@ -56,9 +56,9 @@
         
         /* STATS GRID */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(clamp(150px, 40vw, 240px), 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #eee; transition: 0.3s; }
+        .stat-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #eae3d7; transition: 0.3s; }
         .stat-card:hover { transform: translateY(-5px); }
-        .stat-card h3 { color: #888; font-size: 0.8rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card h3 { color: #877a6b; font-size: 0.8rem; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
         .stat-value { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 800; color: #2c3e50; margin-top: 10px; }
         
         /* ANALYTICS */
@@ -70,8 +70,8 @@
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .table-wide { min-width: 700px; }
-        table th { background: #f8f9fa; color: #777; font-size: 0.8rem; text-transform: uppercase; padding: 15px 12px; border-bottom: 2px solid #eee; text-align: left; }
-        table td { padding: 15px 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        table th { background: #f7f5f0; color: #7b6e5f; font-size: 0.8rem; text-transform: uppercase; padding: 15px 12px; border-bottom: 2px solid #eae3d7; text-align: left; }
+        table td { padding: 15px 12px; border-bottom: 1px solid #eae3d7; font-size: 0.9rem; }
         
         /* UTILS */
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
@@ -84,11 +84,11 @@
         /* MODAL */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); padding: 15px; box-sizing: border-box; }
         .modal-content { background: white; padding: clamp(15px, 5vw, 30px); border-radius: 20px; width: 600px; max-width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        .modal-body-scroll { flex: 1; overflow-y: auto; padding: 10px; margin: 15px 0; background: #fafafa; border-radius: 12px; border: 1px solid #eee; }
+        .modal-body-scroll { flex: 1; overflow-y: auto; padding: 10px; margin: 15px 0; background: #f9f7f2; border-radius: 12px; border: 1px solid #eae3d7; }
         
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #444; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #4a3f35; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ded6c9; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
 
         /* IKON — SVG inline pengganti emoji (1em mengikuti teks sekitarnya) */
         .adm-ico { width: 1em; height: 1em; display: inline-block; vertical-align: -0.125em; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -97,7 +97,7 @@
            bisa diwarnai, tingginya beda-beda, dan alamat panjang naik ke baris yang
            nabrak di bawah ikon — flex + min-width:0 bikin teks melipat di kolomnya. */
         .rcpt-line { display: flex; align-items: flex-start; gap: 9px; margin: 0 0 9px; }
-        .rcpt-line > .adm-ico { margin-top: 0.22em; color: #7f8c8d; }
+        .rcpt-line > .adm-ico { margin-top: 0.22em; color: #938a7e; }
         .rcpt-line > span { flex: 1 1 auto; min-width: 0; }
 
         /* btn-secondary gaya hero (putih) tidak terbaca di modal putih */
@@ -123,18 +123,18 @@
     <div id="admin-login-screen" class="container" style="max-width: 400px; margin-top: 100px; text-align: center; padding: 20px;">
         <div class="admin-card" style="padding: 40px;">
             <h1 style="margin-bottom: 10px;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> KG Admin</h1>
-            <p style="color: #888; margin-bottom: 30px;">Access your store analytics and tools.</p>
+            <p style="color: #877a6b; margin-bottom: 30px;">Access your store analytics and tools.</p>
             <div style="text-align: left; margin-bottom: 15px;">
                 <label style="font-weight: 600; font-size: 0.9rem;">Admin Email</label>
-                <input type="email" id="admin-email" placeholder="admin@example.com" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                <input type="email" id="admin-email" placeholder="admin@example.com" style="width: 100%; padding: 12px; border: 1px solid #ded6c9; border-radius: 8px; margin-top: 5px;">
             </div>
             <div style="text-align: left; margin-bottom: 25px;">
                 <label style="font-weight: 600; font-size: 0.9rem;">Admin Password</label>
-                <input type="password" id="admin-pass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px;">
+                <input type="password" id="admin-pass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" style="width: 100%; padding: 12px; border: 1px solid #ded6c9; border-radius: 8px; margin-top: 5px;">
             </div>
             <button class="btn-primary w-100" style="padding: 15px; font-weight: 700;" onclick="handleAdminLogin()">Open Dashboard</button>
-            <div style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
-                <a href="index.html" style="color: #888; font-size: 0.85rem; text-decoration: none; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='#888'">
+            <div style="margin-top: 25px; border-top: 1px solid #eae3d7; padding-top: 20px;">
+                <a href="index.html" style="color: #877a6b; font-size: 0.85rem; text-decoration: none; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='#877a6b'">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
                         <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -199,7 +199,7 @@
                     <div class="admin-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                             <h3 style="margin: 0;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Sales Trends</h3>
-                            <select id="trend-month" onchange="renderSalesTrend()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.85rem; background: #fff; cursor: pointer;"></select>
+                            <select id="trend-month" onchange="renderSalesTrend()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d4cbbe; font-size: 0.85rem; background: #fff; cursor: pointer;"></select>
                         </div>
                         <div class="chart-container">
                             <canvas id="salesChart"></canvas>
@@ -219,7 +219,7 @@
                         <div class="table-responsive">
                             <table>
                                 <thead><tr><th>Page</th><th style="text-align:right;">Views</th></tr></thead>
-                                <tbody id="page-views-table"><tr><td colspan="2" style="text-align:center; color:#888;">Loading...</td></tr></tbody>
+                                <tbody id="page-views-table"><tr><td colspan="2" style="text-align:center; color:#877a6b;">Loading...</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -258,10 +258,10 @@
                     </div>
                     <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                         <div style="position: relative; flex: 1; min-width: 220px;">
-                            <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: #888;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <input type="text" id="order-search" placeholder="Search Order ID / name / phone..." oninput="renderOrders()" style="width: 100%; box-sizing: border-box; padding: 9px 14px 9px 34px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; outline: none;">
+                            <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: #877a6b;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="order-search" placeholder="Search Order ID / name / phone..." oninput="renderOrders()" style="width: 100%; box-sizing: border-box; padding: 9px 14px 9px 34px; border-radius: 8px; border: 1px solid #d4cbbe; font-size: 0.9rem; outline: none;">
                         </div>
-                        <select id="order-filter-status" onchange="renderOrders()" style="padding: 9px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                        <select id="order-filter-status" onchange="renderOrders()" style="padding: 9px 12px; border-radius: 8px; border: 1px solid #d4cbbe; font-size: 0.9rem; background: #fff; cursor: pointer;">
                             <option value="all">All statuses</option>
                             <option value="PENDING">PENDING</option>
                             <option value="CONFIRMED">CONFIRMED</option>
@@ -270,7 +270,7 @@
                             <option value="CANCELLED">CANCELLED</option>
                         </select>
                     </div>
-                    <p id="order-count" style="font-size: 0.82rem; color: #888; margin: 0 0 10px 0;"></p>
+                    <p id="order-count" style="font-size: 0.82rem; color: #877a6b; margin: 0 0 10px 0;"></p>
                     <div class="table-responsive">
                         <table class="table-wide">
                             <thead><tr><th>Date</th><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
@@ -286,7 +286,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                         <div>
                             <h2 style="margin: 0;">Event & Stand Management</h2>
-                            <p style="color: #666; margin: 4px 0 0 0; font-size: 0.9rem;">Kelola pengumuman stand live event di banner utama website.</p>
+                            <p style="color: #6a5d4f; margin: 4px 0 0 0; font-size: 0.9rem;">Kelola pengumuman stand live event di banner utama website.</p>
                         </div>
                         <button class="btn-primary" onclick="openEventModal()">+ Tambah Event Baru</button>
                     </div>
@@ -315,7 +315,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
                         <div>
                             <h2 style="margin: 0;">Customer Feedback & Evaluasi Produk</h2>
-                            <p style="color: #666; margin: 5px 0 0 0; font-size: 0.9rem;">Kelola ulasan publik & pantau masukan internal untuk pengembangan produk.</p>
+                            <p style="color: #6a5d4f; margin: 5px 0 0 0; font-size: 0.9rem;">Kelola ulasan publik & pantau masukan internal untuk pengembangan produk.</p>
                         </div>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <div style="background: #e3f2fd; color: #1565c0; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
@@ -331,24 +331,24 @@
                     </div>
 
                     <!-- Filters & Per Page Selector -->
-                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 12px 15px; border-radius: 10px; border: 1px solid #eee;">
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f7f5f0; padding: 12px 15px; border-radius: 10px; border: 1px solid #eae3d7;">
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                            <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Filter Tampilan:</label>
-                            <select id="fb-filter-rating" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                            <label style="font-weight: 600; font-size: 0.9rem; color: #4a3f35;">Filter Tampilan:</label>
+                            <select id="fb-filter-rating" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d4cbbe; font-size: 0.9rem; background: #fff; cursor: pointer;">
                                 <option value="all">Semua Feedback</option>
                                 <option value="eval">Arsip Evaluasi Produk (Rating &le; 3)</option>
                                 <option value="positive">Ulasan Positif (Rating 4-5)</option>
                                 <option value="live">Status: Live di Home</option>
                                 <option value="hidden">Status: Hidden / Internal</option>
                             </select>
-                            <select id="fb-filter-product" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                            <select id="fb-filter-product" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d4cbbe; font-size: 0.9rem; background: #fff; cursor: pointer;">
                                 <option value="all">Semua produk</option>
                                 <option value="none">Umum (tanpa produk)</option>
                             </select>
                         </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <label style="font-weight: 600; font-size: 0.9rem; color: #444;">Tampilkan:</label>
-                            <select id="fb-per-page" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; background: #fff; cursor: pointer;">
+                            <label style="font-weight: 600; font-size: 0.9rem; color: #4a3f35;">Tampilkan:</label>
+                            <select id="fb-per-page" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d4cbbe; font-size: 0.9rem; background: #fff; cursor: pointer;">
                                 <option value="10">10 per halaman</option>
                                 <option value="25">25 per halaman</option>
                                 <option value="50">50 per halaman</option>
@@ -376,8 +376,8 @@
                     </div>
 
                     <!-- Pagination Controls -->
-                    <div id="fb-pagination-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
-                        <span id="fb-page-info" style="font-size: 0.88rem; color: #666;">Menampilkan 0 ulasan</span>
+                    <div id="fb-pagination-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eae3d7;">
+                        <span id="fb-page-info" style="font-size: 0.88rem; color: #6a5d4f;">Menampilkan 0 ulasan</span>
                         <div id="fb-page-buttons" style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
                             <!-- Dynamic Pagination Buttons -->
                         </div>
@@ -399,7 +399,7 @@
                 <div class="form-group"><label>Description</label><textarea id="p-desc" rows="3"></textarea></div>
                 <div class="form-group"><label>Image Path</label><input type="text" id="p-image"></div>
             </form></div>
-            <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eee;">
+            <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eae3d7;">
                 <button type="submit" form="product-form" class="btn-primary" style="flex:1">Save</button>
                 <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
             </div>
@@ -415,23 +415,23 @@
                     
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label style="font-weight: 700; display: block; margin-bottom: 5px;">Nama Lokasi / Event <span style="color:red;">*</span></label>
-                        <input type="text" id="e-location" placeholder="misal: BINUS University" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                        <input type="text" id="e-location" placeholder="misal: BINUS University" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d4cbbe;">
                     </div>
 
                     <div class="form-group" style="display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;">
                         <div style="flex: 1; min-width: 180px;">
                             <label style="font-weight: 700; display: block; margin-bottom: 5px;">Tanggal Event <span style="color:red;">*</span></label>
-                            <input type="text" id="e-date" placeholder="misal: 11 - 15 Agustus 2026" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                            <input type="text" id="e-date" placeholder="misal: 11 - 15 Agustus 2026" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d4cbbe;">
                         </div>
                         <div style="flex: 1; min-width: 180px;">
                             <label style="font-weight: 700; display: block; margin-bottom: 5px;">Jam Operasional</label>
-                            <input type="text" id="e-hours" placeholder="misal: 09.00 - 17.00 WIB" value="09.00 - 17.00 WIB" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                            <input type="text" id="e-hours" placeholder="misal: 09.00 - 17.00 WIB" value="09.00 - 17.00 WIB" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d4cbbe;">
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label style="font-weight: 700; display: block; margin-bottom: 5px;">Detail Lokasi Stand / Booth</label>
-                        <input type="text" id="e-location-detail" placeholder="misal: BINUS Anggrek, Booth #12" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                        <input type="text" id="e-location-detail" placeholder="misal: BINUS Anggrek, Booth #12" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d4cbbe;">
                     </div>
 
                     <div class="form-group" style="margin-bottom: 14px;">
@@ -442,29 +442,29 @@
                                 <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Pilih Gambar dari Komputer
                             </label>
                             <input type="file" id="e-image-file" accept="image/*" style="display: none;" onchange="handleEventImageFileSelect(event)">
-                            <span id="e-file-name" style="font-size: 0.82rem; color: #666; font-style: italic;">Belum ada berkas dipilih</span>
+                            <span id="e-file-name" style="font-size: 0.82rem; color: #6a5d4f; font-style: italic;">Belum ada berkas dipilih</span>
                         </div>
 
-                        <div style="font-size: 0.78rem; color: #888; margin-bottom: 6px;">atau masukkan URL/Path Gambar:</div>
-                        <input type="text" id="e-image" placeholder="misal: Images/binus_stand.jpg" value="Images/binus_stand.jpg" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" oninput="updateEventImagePreview(this.value)">
+                        <div style="font-size: 0.78rem; color: #877a6b; margin-bottom: 6px;">atau masukkan URL/Path Gambar:</div>
+                        <input type="text" id="e-image" placeholder="misal: Images/binus_stand.jpg" value="Images/binus_stand.jpg" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d4cbbe;" oninput="updateEventImagePreview(this.value)">
 
                         <div id="e-image-preview-container" style="margin-top: 10px; display: flex; align-items: center; gap: 12px; background: #faf7f2; padding: 10px; border-radius: 10px; border: 1px dashed #d0c0ab;">
-                            <img id="e-image-preview" src="Images/binus_stand.jpg" alt="Preview Foto Stand" style="width: 110px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" onerror="this.src='Images/binus_stand.jpg'">
+                            <img id="e-image-preview" src="Images/binus_stand.jpg" alt="Preview Foto Stand" style="width: 110px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #d4cbbe; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" onerror="this.src='Images/binus_stand.jpg'">
                             <div>
                                 <strong style="display: block; font-size: 0.85rem; color: #2c1e12;">Preview Foto Stand</strong>
-                                <span id="e-image-source-note" style="font-size: 0.75rem; color: #777;">Gambar default atau URL yang dimasukkan</span>
+                                <span id="e-image-source-note" style="font-size: 0.75rem; color: #7b6e5f;">Gambar default atau URL yang dimasukkan</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label style="font-weight: 700; display: block; margin-bottom: 5px;">Deskripsi Promo / Acara</label>
-                        <textarea id="e-desc" rows="3" placeholder="misal: Dapatkan tester kopi gratis & diskon bundling 15% khusus pengunjung stand!" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+                        <textarea id="e-desc" rows="3" placeholder="misal: Dapatkan tester kopi gratis & diskon bundling 15% khusus pengunjung stand!" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d4cbbe;"></textarea>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 14px;">
                         <label style="font-weight: 700; display: block; margin-bottom: 5px;">Daftar Produk yang Dibawa (pisahkan dengan koma)</label>
-                        <input type="text" id="e-items" placeholder="misal: Gayo Drip, Priangan Drip, Starter Pack" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                        <input type="text" id="e-items" placeholder="misal: Gayo Drip, Priangan Drip, Starter Pack" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d4cbbe;">
                     </div>
 
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px; background: #fff8eb; padding: 12px; border-radius: 8px; border: 1px solid #f39c12;">
@@ -473,7 +473,7 @@
                     </div>
                 </form>
             </div>
-            <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eee;">
+            <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eae3d7;">
                 <button type="submit" form="event-form" class="btn-primary" style="flex:1">Simpan Event</button>
                 <button type="button" class="btn-secondary" onclick="closeEventModal()">Batal</button>
             </div>
@@ -484,7 +484,7 @@
         <div class="modal-content">
             <h2>Order Details</h2>
             <div id="order-details-content" class="modal-body-scroll"></div>
-            <div style="padding-top:15px; border-top:1px solid #eee;">
+            <div style="padding-top:15px; border-top:1px solid #eae3d7;">
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                     <label style="font-weight:600;">Status:</label>
                     <select id="update-order-status" style="flex:1; padding: 10px; border-radius: 8px;">
@@ -499,7 +499,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.115"></script>
+    <script src="app.js?v=1.0.116"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
@@ -606,15 +606,15 @@
             });
 
             const sorted = Object.entries(productSales).sort((a,b) => b[1] - a[1]);
-            if (sorted.length > 0) document.getElementById('stat-bestseller').innerHTML = `${sorted[0][0]}<br><small style="font-weight:400; color:#888;">Sold: ${sorted[0][1]} units</small>`;
+            if (sorted.length > 0) document.getElementById('stat-bestseller').innerHTML = `${sorted[0][0]}<br><small style="font-weight:400; color:#877a6b;">Sold: ${sorted[0][1]} units</small>`;
 
             document.getElementById('stat-items-table').innerHTML = sorted.map(([name, qty]) => `<tr><td>${name}</td><td style="text-align:right;"><b>${qty}</b></td></tr>`).join('');
 
             const recent = [...orders].reverse().slice(0, 5);
             document.getElementById('stat-recent-feed').innerHTML = recent.map(o => `
-                <div style="padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <div style="padding: 12px; border-bottom: 1px solid #eae3d7; display: flex; justify-content: space-between; align-items: center;">
                     <span><b>${o.customer_name}</b> ordered coffee</span>
-                    <span style="color: #999; font-size: 0.8rem;">${new Date(o.created_at).toLocaleDateString('id-ID')}</span>
+                    <span style="color: #97897a; font-size: 0.8rem;">${new Date(o.created_at).toLocaleDateString('id-ID')}</span>
                 </div>`).join('');
 
             _trendOrdersCache = valid;
@@ -627,12 +627,12 @@
             try {
                 const { data, error } = await adminSupabase.from('page_views').select('*').order('views', { ascending: false });
                 if (error || !data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#888;">Belum ada data. Jalankan SQL page_views di Supabase, lalu buka halaman web.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#877a6b;">Belum ada data. Jalankan SQL page_views di Supabase, lalu buka halaman web.</td></tr>';
                     return;
                 }
                 tbody.innerHTML = data.map(r => `<tr><td style="text-transform:capitalize;">${r.page}</td><td style="text-align:right;"><b>${Number(r.views).toLocaleString('id-ID')}</b></td></tr>`).join('');
             } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#888;">Gagal memuat.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#877a6b;">Gagal memuat.</td></tr>';
             }
         }
 
@@ -698,7 +698,7 @@
         async function loadProducts() {
             const { data } = await adminSupabase.from('products').select('*').order('created_at', {ascending:false});
             if (!data) {
-                document.getElementById('admin-products-table').innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Gagal memuat produk / Akses ditolak</td></tr>';
+                document.getElementById('admin-products-table').innerHTML = '<tr><td colspan="5" style="text-align:center; color:#877a6b;">Gagal memuat produk / Akses ditolak</td></tr>';
                 return;
             }
             document.getElementById('admin-products-table').innerHTML = data.map(p => {
@@ -769,7 +769,7 @@
             if (!tableBody) return;
 
             if (events.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888; padding:20px;">Belum ada data event. Klik "+ Tambah Event Baru" untuk membuat.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#877a6b; padding:20px;">Belum ada data event. Klik "+ Tambah Event Baru" untuk membuat.</td></tr>';
                 return;
             }
 
@@ -782,16 +782,16 @@
                 return `
                 <tr>
                     <td>
-                        <span class="status-badge" style="background:${isLive ? '#2ecc71' : '#7f8c8d'}; color:#2c1e12; font-weight:700; padding:4px 10px; border-radius:12px; font-size:0.8rem;">
+                        <span class="status-badge" style="background:${isLive ? '#2ecc71' : '#938a7e'}; color:#2c1e12; font-weight:700; padding:4px 10px; border-radius:12px; font-size:0.8rem;">
                             ${isLive ? '<svg class="adm-ico adm-dot" viewBox="0 0 24 24" aria-hidden="true" style="color:#c0392b; vertical-align:-0.1em;"><circle cx="12" cy="12" r="7"/></svg> LIVE' : 'OFF'}
                         </span>
                     </td>
-                    <td><strong>${e.location || 'Stand'}</strong><br><small style="color:#666;">${e.location_detail || ''}</small></td>
-                    <td>${e.event_date || '-'}<br><small style="color:#888;">${e.operating_hours || ''}</small></td>
+                    <td><strong>${e.location || 'Stand'}</strong><br><small style="color:#6a5d4f;">${e.location_detail || ''}</small></td>
+                    <td>${e.event_date || '-'}<br><small style="color:#877a6b;">${e.operating_hours || ''}</small></td>
                     <td>
                         <img src="${e.image_url || 'Images/binus_stand.jpg'}" alt="Foto Stand" style="width:60px; height:40px; object-fit:cover; border-radius:6px;" onerror="this.src='Images/binus_stand.jpg';">
                     </td>
-                    <td style="max-width:200px; font-size:0.85rem; color:#444;">${e.description || '-'}</td>
+                    <td style="max-width:200px; font-size:0.85rem; color:#4a3f35;">${e.description || '-'}</td>
                     <td style="max-width:150px; font-size:0.85rem;">${itemsList}</td>
                     <td>
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -1003,7 +1003,7 @@
         async function loadFeedback() {
             const { data, error } = await adminSupabase.from('feedback').select('*').order('created_at', { ascending: false });
             if (error || !data) {
-                document.getElementById('admin-feedback-table').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888;">Gagal memuat feedback / Akses ditolak</td></tr>';
+                document.getElementById('admin-feedback-table').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#877a6b;">Gagal memuat feedback / Akses ditolak</td></tr>';
                 return;
             }
             allFeedbackData = data;
@@ -1067,7 +1067,7 @@
             if (!tbody) return;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888; padding: 20px;">Tidak ada feedback sesuai filter.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#877a6b; padding: 20px;">Tidak ada feedback sesuai filter.</td></tr>';
                 if (pageInfo) pageInfo.innerText = 'Menampilkan 0 ulasan';
                 if (pageBtns) pageBtns.innerHTML = '';
                 return;
@@ -1097,17 +1097,17 @@
                     pageBtns.innerHTML = '';
                 } else {
                     let btnsHTML = '';
-                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(1)" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>«</button>`;
-                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage - 1})" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>‹ Prev</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(1)" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>«</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage - 1})" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>‹ Prev</button>`;
 
                     let startP = Math.max(1, currentFbPage - 2);
                     let endP = Math.min(totalPages, currentFbPage + 2);
                     for (let p = startP; p <= endP; p++) {
-                        btnsHTML += `<button class="btn-sm" style="background:${p === currentFbPage ? '#2d3436' : '#e0e0e0'}; color:${p === currentFbPage ? '#fff' : '#333'}; font-weight:${p === currentFbPage ? 'bold' : 'normal'}; cursor:pointer;" onclick="goFbPage(${p})">${p}</button>`;
+                        btnsHTML += `<button class="btn-sm" style="background:${p === currentFbPage ? '#2c1e12' : '#e4ddd0'}; color:${p === currentFbPage ? '#fff' : '#333'}; font-weight:${p === currentFbPage ? 'bold' : 'normal'}; cursor:pointer;" onclick="goFbPage(${p})">${p}</button>`;
                     }
 
-                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage + 1})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>Next ›</button>`;
-                    btnsHTML += `<button class="btn-sm" style="background:#e0e0e0; color:#333; cursor:pointer;" onclick="goFbPage(${totalPages})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>»</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage + 1})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>Next ›</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(${totalPages})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>»</button>`;
                     pageBtns.innerHTML = btnsHTML;
                 }
             }
@@ -1124,7 +1124,7 @@
                     <tr style="${isEval ? 'background-color: rgba(255, 243, 224, 0.4);' : ''}">
                         <td>${new Date(f.created_at).toLocaleDateString()}</td>
                         <td><b>${f.customer_name || 'Anonymous'}</b></td>
-                        <td>${f.product_id ? `<span style="background:#e3f2fd; color:#1565c0; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; white-space:nowrap;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: -0.1em;"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> ${fbProductNames[f.product_id] || f.product_id}</span><br><small style="color:#999;">${f.order_id || ''}</small>` : '<span style="color:#aaa; font-size:0.8rem;">Umum</span>'}</td>
+                        <td>${f.product_id ? `<span style="background:#e3f2fd; color:#1565c0; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; white-space:nowrap;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: -0.1em;"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> ${fbProductNames[f.product_id] || f.product_id}</span><br><small style="color:#97897a;">${f.order_id || ''}</small>` : '<span style="color:#a69a8b; font-size:0.8rem;">Umum</span>'}</td>
                         <td style="color: #f1c40f; white-space: nowrap;">${'★'.repeat(ratingNum)}${'☆'.repeat(5 - ratingNum)}</td>
                         <td style="max-width: 320px; word-break: break-word;">${f.message || ''}</td>
                         <td>${evalBadge}${liveBadge}</td>
@@ -1203,7 +1203,7 @@
             if (countEl) countEl.innerText = `Showing ${filtered.length} of ${allOrdersData.length} orders`;
             const tbody = document.getElementById('admin-orders-table');
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888; padding: 20px;">No orders match your search.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#877a6b; padding: 20px;">No orders match your search.</td></tr>';
                 return;
             }
             tbody.innerHTML = filtered.map(o => `
@@ -1319,13 +1319,13 @@
                     <p class="rcpt-line"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ai-phone"/></svg><span>Phone: ${data.customer_phone || '-'}</span></p>
                     <p class="rcpt-line"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ai-mail"/></svg><span>Email: ${data.customer_email || '-'}</span></p>
                     <p class="rcpt-line"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ai-pin"/></svg><span>Alamat: ${data.address}</span></p>
-                    <div style="background:#eef2f7;padding:10px;border-radius:10px;margin:10px 0;">
+                    <div style="background:#f0ebe2;padding:10px;border-radius:10px;margin:10px 0;">
                         <p class="rcpt-line"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ai-truck"/></svg><span>Courier: ${data.delivery_method}</span></p>
                         <p class="rcpt-line"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ai-note"/></svg><span>Note: ${data.note || '-'}</span></p>
                     </div>
-                    <div style="background:white;padding:10px;border-radius:10px;border:1px solid #eee;">
+                    <div style="background:white;padding:10px;border-radius:10px;border:1px solid #eae3d7;">
                         <p class="rcpt-line"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ai-box"/></svg><span>Items:<br>• ${data.items.split(', ').join('<br>• ')}</span></p>
-                        <p style="font-size:1.2rem;font-weight:800;border-top:1px dashed #ccc;margin-top:10px;padding-top:10px;">Total: ${data.total_amount}</p>
+                        <p style="font-size:1.2rem;font-weight:800;border-top:1px dashed #d4cbbe;margin-top:10px;padding-top:10px;">Total: ${data.total_amount}</p>
                     </div>
                     <p class="rcpt-line" style="margin-top:15px;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#ai-file"/></svg><span>Receipt:</span></p>
                     ${data.receipt_url ? `<img src="${data.receipt_url}" style="width:100%;border-radius:10px;cursor:pointer;box-shadow:0 4px 6px rgba(0,0,0,0.1);" onclick="window.open('${data.receipt_url}')" loading="lazy">` : '-'}

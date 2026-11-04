@@ -563,6 +563,19 @@ Fokus: lanjutan entri 37 — user lewat pertanyaan memilih "ganti **semua** ke S
 - **Catatan interleaving**: sesi ini berjalan bersamaan dengan sesi entri 37 di file yang sama. CSS `.adm-ico`/`.adm-dot`, override `.btn-secondary`, dan pembuangan `color:white` `.status-badge` ditulis di sini tapi ikut ter-stage ke commit `c25b601` (entri 37 menyebutnya "yang sudah ada") — tidak menduplikasi, hanya urutan commit-nya yang saling menyusul. Modal Detail Pesanan yang dikerjakan entri 37 tidak tersentuh di commit ini.
 
 
+### **39. Catatan 3 November 2026 (hangatkan netral admin — sidebar & warna fungsional tetap)**
+
+Fokus: user kembali minta ganti warna admin setelah entri 30 di-revert. Pelajaran entri 30: waktu itu user ingat "hitam di kiri, krem di kanan" dan kurang cocok — jadi kali ini scope dibatasi lewat tanya jawab: **hanya netral yang dihangatkan**, sidebar slate + warna fungsional tidak disentuh, dan **preview screenshot dulu** sebelum commit.
+
+- **Yang diubah** (keputusan user: "Hangatkan netral saja"):
+  - `admin.html` — 74 penggantian dari 15 token warna: `--admin-bg`/`table th`/filter bar `#f8f9fa` → `#f7f5f0`; border `#eee` → `#eae3d7` (12×), `#ddd` → `#ded6c9` (3×), `#ccc` → `#d4cbbe` (15×); teks redup `#888` → `#877a6b` (17×) plus `#999`/`#777`/`#666`/`#444`/`#aaa` ke padanan yang se-luminans; pagination `#e0e0e0` → `#e4ddd0` dan halaman aktif `#2d3436` → `#2c1e12` (senada `.btn-secondary`); latar scroll modal `#fafafa` → `#f9f7f2`; kotak Receipt `#eef2f7` → `#f0ebe2`; badge OFF `#7f8c8d` → `#938a7e` — nilainya dipilih yang luminans ≥0.25 supaya teks gelap `#2c1e12` tetap lolos ≥4.5:1 (kandidat lebih gelap seperti `#8a8074` cuma ≈4.1:1, gagal).
+  - `style.css:1442` — `.admin-section` border-top `#ddd` → `#ded6c9`; class itu hanya dipakai admin, jadi satu-satunya sentuhan ke CSS situs.
+- **Yang tidak disentuh**: sidebar `--admin-sidebar:#2c3e50`, semua `--primary/success/warning/danger`, chart biru, pasangan badge kontras entri 38, putih kartu, cokelat brand (`#3d2b1f`, `#d4af37`), dan tint semantik (`#e3f2fd`, `#e8f5e9`, `#fff3e0`, `#fff8eb`).
+- **Kenapa tidak mengulang entri 30**: yang diingat user dari kegagalan itu "hitam di kiri + krem di kanan" — sidebar `#2c1e12` dan penambahan font Google ikut andil bikin kesannya drastis. Kali ini sidebar tetap slate dan font tidak ditambah: yang berkesan cuma "ruangannya jadi hangat", identitas dashboard (biru aktif, badge, chart) tidak berubah.
+- **Preview sebelum commit** (proses yang tidak ada di entri 30): harness `scratch/ashot.html` — iframe `admin.html`, login dipaksa disembunyikan dari luar lalu `showSection(stats|orders)` dipanggil, polling sampai data Supabase asli termuat (`stat-revenue` diawali "Rp" / tabel orders sudah ada `<tr>`), kemudian Chrome headless `--headless=new --virtual-time-budget=30000 --screenshot` dengan `--allow-file-access-from-files` (wajib, supaya harness file:// boleh menyentuh DOM iframe-nya) dan `--user-data-dir` terpisah (kalau tidak, Chrome yang sedang terbuka bikin prosesnya diam-diam gagal). 4 screenshot `before-*`/`after-*` (1280px, tab Statistics + Orders, data asli 39 orders) ditunjukkan ke user untuk dibandingkan sebelum commit.
+- Verifikasi: scan sisa warna dingin = 0, script inline parse OK, brace admin 55/55 dan `style.css` 893/893, `npm run check:assets` OK (11 halaman, 22 referensi), CRLF utuh. Cache `v=1.0.115` → `v=1.0.116`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
