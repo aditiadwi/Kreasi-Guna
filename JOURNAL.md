@@ -540,6 +540,29 @@ Fokus: user tanya apakah halaman admin sebaiknya ganti emoji dengan SVG. Setelah
 - Cek lain: `<svg>` balance 18/18, `id="ai-*"` tidak tabrakan di 11 halaman, `.rcpt-line` tidak dipakai di file lain, `npm run check:assets` OK. Cache `v=1.0.113` → `v=1.0.114`.
 
 
+### **38. Catatan 3 November 2026 (sisa emoji admin jadi SVG + fix kontras badge)**
+
+Fokus: lanjutan entri 37 — user lewat pertanyaan memilih "ganti **semua** ke SVG" dan untuk warna "bug kontras dulu aja" (palet tidak disentuh). Hasil akhir: scan menyeluruh (literal **dan** entity HTML — `&#9888;`, `&#9749;`, dll yang berdigit pendek sempat kelewat di scan awal) → **0 emoji tersisa** selain `★☆` rating yang memang tetap jadi teks.
+
+- **Yang diganti di commit ini** (entri 37 cuma modal Detail Pesanan):
+  - **Nav sidebar** 5 item → `bar-chart-2`/`package`/`shopping-cart`/`calendar`/`message-square`; **judul kartu statistik** 4 → `trending-up`/`clipboard`/`eye`/`clock`; **brand ☕** (login `KG Admin` + mobile header `KG ADMIN`) → ikon cangkir kopi custom; **tombol close sidebar** → `x`.
+  - **Tombol Download Excel** → `download` (tombolnya sudah `inline-flex; gap:5px`, jadi langsung rapi).
+  - **Search order**: `🔍` ada di `placeholder` yang **tidak bisa memuat SVG** → ikon `search` diposisikan absolut di dalam pembungkus `position:relative` (15px, `left:11px`) + input `padding-left:34px`. Placeholder jadi teks polos "Search Order ID / name / phone...".
+  - **Label LIVE event** (checkbox) & **badge LIVE events** → `.adm-dot` (`fill:currentColor; stroke:none`) merah `#e74c3c`/`#c0392b` — `.adm-dot` baru dipakai di sini.
+  - **Stat "Arsip Evaluasi"** + **chip "Evaluasi Produk"** → `alert-triangle`; **chip nama produk** → ikon kopi.
+  - **`<option>` tidak bisa memuat markup** (alasan entri 37 membiarkannya): solusinya bukan dibiarkan ber-emoji, tapi **emoji dihapus dari teksnya** — 5 opsi filter feedback + 2 opsi filter produk (HTML) + 1 di JS `sel.innerHTML`. Teksnya tetap jelas dari konteks label "Filter Tampilan:"/"produk".
+  - Yang **tidak** diubah: `★☆` rating (glyph tipografi, sudah konsisten dengan halaman akun/track) — sama seperti entri 37.
+- **Fix kontras** (keputusan user: perbaiki bug saja, jangan recolor — rebrand entri 30 sudah pernah di-revert):
+  - **`.status-badge`** — `color:white` dibuang dari aturan dasar (saran entri 30). Tiap pemakaian kini punya pasangan latar+teks eksplisit, hue dipertahankan:
+    - **Orders**: PENDING `#f1c40f`+`#2c1e12` (≈9.7:1), COMPLETED `#2ecc71`+`#2c1e12` (≈7.6:1); CONFIRMED `#bf4a00`, SHIPPED `#2a7ab8`, CANCELLED `#c0392b` — tiga-tiganya **digelapkan 1-2 step dari hue aslinya** (`#d35400`/`#3498db`/`#e74c3c`) karena di latar terang itu teks putih (≈3.4-4.1) *dan* teks gelap (≈3.9-4.4) sama-sama gagal 4.5; dengan gelap + putih ≈4.6-5.4 ✓. Makna warna tetap identik (oranye=konfirmasi, biru=kirim, merah=batal).
+    - **Stock**: AVAILABLE `#2ecc71`+gelap (7.6:1), SOLD OUT `#c0392b`+putih (5.4:1, dulu putih di `#e74c3c` ≈3.8).
+    - **Events**: inline `color:white` → `#2c1e12` (LIVE hijau ≈7.6:1; OFF `#7f8c8d` ≈4.6:1 — dulu putih ≈3.1-3.5).
+    - **Feedback LIVE/HIDDEN**: `#55efc4`/`#ffeaa7` + `#2c1e12` (≈11:1 & ≈13:1 — dulu putih ≈1.7 & ≈1.3, paling parah).
+  - **`.btn-secondary`** — definit dari `style.css` memang gaya hero (border+teks putih) untuk latar gelap; dipakai di 3 modal admin (Cancel/Batal/Close) yang latarnya putih → nyaris tak terlihat. Override di style lokal admin (setelah link, jadi menang cascade): border/teks `#2c1e12`, hover kebalikannya. Tidak memengaruhi halaman lain karena aturannya lokal.
+- **Verifikasi**: scan ulang `total: 0` (di luar ★☆); brace style admin 55/55; kedua script inline parse OK (`new Function`); `npm run check:assets` OK (11 halaman, 22 referensi); CRLF utuh di 11 file. Cache `v=1.0.114` → `v=1.0.115`.
+- **Catatan interleaving**: sesi ini berjalan bersamaan dengan sesi entri 37 di file yang sama. CSS `.adm-ico`/`.adm-dot`, override `.btn-secondary`, dan pembuangan `color:white` `.status-badge` ditulis di sini tapi ikut ter-stage ke commit `c25b601` (entri 37 menyebutnya "yang sudah ada") — tidak menduplikasi, hanya urutan commit-nya yang saling menyusul. Modal Detail Pesanan yang dikerjakan entri 37 tidak tersentuh di commit ini.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
