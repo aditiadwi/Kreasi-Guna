@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.117">
+    <link rel="stylesheet" href="style.css?v=1.0.118">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/chart.js"></script>
     <style>
@@ -111,6 +114,43 @@
         .table-wide tbody tr.fb-eval-row { background: rgba(255, 243, 224, 0.4); }
         .table-wide tbody tr.fb-eval-row:hover { background: #fff3e0; }
         .fb-avatar { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #2c1e12; color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 8px; vertical-align: middle; }
+
+        /* FEEDBACK: judul, kartu statistik, bar filter */
+        .fb-head { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid #ece5d9; }
+        .fb-title { border-left: 3px solid #c5a059; padding-left: 14px; }
+        .fb-title h2 { margin: 0; font-family: 'Montserrat', 'Inter', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; color: #2c1e12; }
+        .fb-title p { margin: 5px 0 0; font-size: 0.88rem; color: #7b6e5f; }
+
+        /* Container query: lebar efektifnya ditentukan kartu, bukan viewport,
+           karena sidebar memakan 260px hanya sampai 768px. */
+        #sec-feedback { container: inline-size / fb; }
+        .fb-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); gap: 12px; margin-top: 16px; }
+        .fb-stat { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 12px; border: 1px solid; }
+        .fb-stat-ico { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; }
+        .fb-stat-ico .adm-ico { width: 17px; height: 17px; }
+        .fb-stat-txt { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+        .fb-stat-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; opacity: 0.72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fb-stat-value { font-size: 1.2rem; font-weight: 800; white-space: nowrap; }
+        .fb-stat-unit { font-size: 0.72rem; font-weight: 600; opacity: 0.6; margin-left: 4px; }
+        .fb-stat--total { background: #f4efe7; border-color: #e5dccd; color: #5b4632; }
+        .fb-stat--total .fb-stat-ico { background: #e6dccd; color: #6f4e37; }
+        .fb-stat--avg { background: #fbf5e6; border-color: #f0e2c2; color: #7d5f16; }
+        .fb-stat--avg .fb-stat-ico { background: #f3e5c0; color: #a8811f; }
+        .fb-stat--eval { background: #fdefe7; border-color: #f7d9c4; color: #a44a22; }
+        .fb-stat--eval .fb-stat-ico { background: #f9dfcc; color: #c25a25; }
+
+        .fb-filters { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f7f5f0; padding: 12px 16px; border-radius: 12px; border: 1px solid #eae3d7; }
+        .fb-filter-group { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+        .fb-field { display: inline-flex; align-items: center; gap: 8px; }
+        .fb-field > label { font-weight: 700; font-size: 0.72rem; color: #6a5d4f; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+        .fb-select { appearance: none; -webkit-appearance: none; padding: 8px 30px 8px 11px; border-radius: 9px; border: 1px solid #d4cbbe; font-size: 0.86rem; font-family: inherit; color: #2c1e12; background-color: #fff; cursor: pointer; transition: border-color 0.18s, box-shadow 0.18s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f4e37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 13px; }
+        .fb-select:hover { border-color: #b9ab96; }
+        .fb-select:focus-visible { outline: none; border-color: #c5a059; box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.22); }
+
+        @container #fb (max-width: 430px) {
+            .fb-filters, .fb-filter-group { flex-direction: column; align-items: stretch; }
+            .fb-select { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -320,51 +360,68 @@
             <!-- FEEDBACK SECTION -->
             <section id="sec-feedback" class="admin-section hidden">
                 <div class="admin-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
-                        <div>
-                            <h2 style="margin: 0;">Customer Feedback & Evaluasi Produk</h2>
-                            <p style="color: #6a5d4f; margin: 5px 0 0 0; font-size: 0.9rem;">Kelola ulasan publik & pantau masukan internal untuk pengembangan produk.</p>
+                    <div class="fb-head">
+                        <div class="fb-title">
+                            <h2>Customer Feedback &amp; Evaluasi Produk</h2>
+                            <p>Kelola ulasan publik &amp; pantau masukan internal untuk pengembangan produk.</p>
                         </div>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <div style="background: #e3f2fd; color: #1565c0; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                                <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                Total: <span id="fb-stat-total">0</span>
+                        <div class="fb-stats">
+                            <div class="fb-stat fb-stat--total">
+                                <span class="fb-stat-ico"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                                <span class="fb-stat-txt">
+                                    <span class="fb-stat-label">Total Ulasan</span>
+                                    <span class="fb-stat-value"><span id="fb-stat-total">0</span></span>
+                                </span>
                             </div>
-                            <div style="background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                                <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="fill: currentColor; stroke: none;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                Avg Rating: <span id="fb-stat-avg">0.0</span> &#9733;
+                            <div class="fb-stat fb-stat--avg">
+                                <span class="fb-stat-ico"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="fill: currentColor; stroke: none;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+                                <span class="fb-stat-txt">
+                                    <span class="fb-stat-label">Rata-rata Rating</span>
+                                    <span class="fb-stat-value"><span id="fb-stat-avg">0.0</span><span class="fb-stat-unit">/5</span></span>
+                                </span>
                             </div>
-                            <div style="background: #fff3e0; color: #e65100; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                                <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Arsip Evaluasi (&le;3&#9733;): <span id="fb-stat-eval">0</span>
+                            <div class="fb-stat fb-stat--eval">
+                                <span class="fb-stat-ico"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+                                <span class="fb-stat-txt">
+                                    <span class="fb-stat-label">Arsip Evaluasi</span>
+                                    <span class="fb-stat-value"><span id="fb-stat-eval">0</span><span class="fb-stat-unit">&le;3&#9733;</span></span>
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Filters & Per Page Selector -->
-                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: #f7f5f0; padding: 12px 15px; border-radius: 10px; border: 1px solid #eae3d7;">
-                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                            <label style="font-weight: 600; font-size: 0.9rem; color: #4a3f35;">Filter Tampilan:</label>
-                            <select id="fb-filter-rating" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d4cbbe; font-size: 0.9rem; background: #fff; cursor: pointer;">
-                                <option value="all">Semua Feedback</option>
-                                <option value="eval">Arsip Evaluasi Produk (Rating &le; 3)</option>
-                                <option value="positive">Ulasan Positif (Rating 4-5)</option>
-                                <option value="live">Status: Live di Home</option>
-                                <option value="hidden">Status: Hidden / Internal</option>
-                            </select>
-                            <select id="fb-filter-product" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d4cbbe; font-size: 0.9rem; background: #fff; cursor: pointer;">
-                                <option value="all">Semua produk</option>
-                                <option value="none">Umum (tanpa produk)</option>
-                            </select>
+                    <div class="fb-filters">
+                        <div class="fb-filter-group">
+                            <div class="fb-field">
+                                <label for="fb-filter-rating">Filter</label>
+                                <select id="fb-filter-rating" class="fb-select" onchange="resetFbPageAndFilter()">
+                                    <option value="all">Semua Feedback</option>
+                                    <option value="eval">Perlu Evaluasi (&le; 3&#9733;)</option>
+                                    <option value="positive">Positif (4&ndash;5&#9733;)</option>
+                                    <option value="live">Live di Beranda</option>
+                                    <option value="hidden">Tersembunyi</option>
+                                </select>
+                            </div>
+                            <div class="fb-field">
+                                <label for="fb-filter-product">Produk</label>
+                                <select id="fb-filter-product" class="fb-select" onchange="resetFbPageAndFilter()">
+                                    <option value="all">Semua produk</option>
+                                    <option value="none">Umum (tanpa produk)</option>
+                                </select>
+                            </div>
                         </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <label style="font-weight: 600; font-size: 0.9rem; color: #4a3f35;">Tampilkan:</label>
-                            <select id="fb-per-page" onchange="resetFbPageAndFilter()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d4cbbe; font-size: 0.9rem; background: #fff; cursor: pointer;">
-                                <option value="10">10 per halaman</option>
-                                <option value="25">25 per halaman</option>
-                                <option value="50">50 per halaman</option>
-                                <option value="100">100 per halaman</option>
-                                <option value="all">Semua</option>
-                            </select>
+                        <div class="fb-filter-group">
+                            <div class="fb-field">
+                                <label for="fb-per-page">Per halaman</label>
+                                <select id="fb-per-page" class="fb-select" onchange="resetFbPageAndFilter()">
+                                    <option value="10">10 ulasan</option>
+                                    <option value="25">25 ulasan</option>
+                                    <option value="50">50 ulasan</option>
+                                    <option value="100">100 ulasan</option>
+                                    <option value="all">Semua</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -509,7 +566,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.117"></script>
+    <script src="app.js?v=1.0.118"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
