@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.116">
+    <link rel="stylesheet" href="style.css?v=1.0.117">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/chart.js"></script>
     <style>
@@ -103,6 +103,14 @@
         /* btn-secondary gaya hero (putih) tidak terbaca di modal putih */
         .btn-secondary { border-color: #2c1e12; color: #2c1e12; }
         .btn-secondary:hover { background: #2c1e12; color: #fff; border-color: #2c1e12; }
+
+        /* FEEDBACK: tombol aksi ikon, hover baris, avatar inisial */
+        .btn-icon { padding: 7px 9px; display: inline-flex; align-items: center; justify-content: center; }
+        .table-wide tbody tr { transition: background-color 0.15s ease; }
+        .table-wide tbody tr:hover { background: #f7f5f0; }
+        .table-wide tbody tr.fb-eval-row { background: rgba(255, 243, 224, 0.4); }
+        .table-wide tbody tr.fb-eval-row:hover { background: #fff3e0; }
+        .fb-avatar { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #2c1e12; color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 8px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -318,13 +326,15 @@
                             <p style="color: #6a5d4f; margin: 5px 0 0 0; font-size: 0.9rem;">Kelola ulasan publik & pantau masukan internal untuk pengembangan produk.</p>
                         </div>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <div style="background: #e3f2fd; color: #1565c0; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                            <div style="background: #e3f2fd; color: #1565c0; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                                <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                 Total: <span id="fb-stat-total">0</span>
                             </div>
-                            <div style="background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                            <div style="background: #e8f5e9; color: #2e7d32; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                                <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="fill: currentColor; stroke: none;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                                 Avg Rating: <span id="fb-stat-avg">0.0</span> &#9733;
                             </div>
-                            <div style="background: #fff3e0; color: #e65100; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                            <div style="background: #fff3e0; color: #e65100; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
                                 <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Arsip Evaluasi (&le;3&#9733;): <span id="fb-stat-eval">0</span>
                             </div>
                         </div>
@@ -499,7 +509,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.116"></script>
+    <script src="app.js?v=1.0.117"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
@@ -1067,7 +1077,7 @@
             if (!tbody) return;
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#877a6b; padding: 20px;">Tidak ada feedback sesuai filter.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#877a6b; padding:34px 20px;"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;display:block;margin:0 auto 10px;stroke:#b3a896;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><b style="color:#6a5d4f;">Belum ada feedback</b><br><span style="font-size:0.85rem;">Tidak ada feedback sesuai filter.</span></td></tr>';
                 if (pageInfo) pageInfo.innerText = 'Menampilkan 0 ulasan';
                 if (pageBtns) pageBtns.innerHTML = '';
                 return;
@@ -1097,8 +1107,8 @@
                     pageBtns.innerHTML = '';
                 } else {
                     let btnsHTML = '';
-                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(1)" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>«</button>`;
-                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage - 1})" ${currentFbPage === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>‹ Prev</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;${currentFbPage === 1 ? ' opacity:0.4; cursor:not-allowed;' : ''}" ${currentFbPage === 1 ? 'disabled' : ''} onclick="goFbPage(1)">«</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;${currentFbPage === 1 ? ' opacity:0.4; cursor:not-allowed;' : ''}" ${currentFbPage === 1 ? 'disabled' : ''} onclick="goFbPage(${currentFbPage - 1})">‹ Prev</button>`;
 
                     let startP = Math.max(1, currentFbPage - 2);
                     let endP = Math.min(totalPages, currentFbPage + 2);
@@ -1106,8 +1116,8 @@
                         btnsHTML += `<button class="btn-sm" style="background:${p === currentFbPage ? '#2c1e12' : '#e4ddd0'}; color:${p === currentFbPage ? '#fff' : '#333'}; font-weight:${p === currentFbPage ? 'bold' : 'normal'}; cursor:pointer;" onclick="goFbPage(${p})">${p}</button>`;
                     }
 
-                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(${currentFbPage + 1})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>Next ›</button>`;
-                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;" onclick="goFbPage(${totalPages})" ${currentFbPage === totalPages ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>»</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;${currentFbPage === totalPages ? ' opacity:0.4; cursor:not-allowed;' : ''}" ${currentFbPage === totalPages ? 'disabled' : ''} onclick="goFbPage(${currentFbPage + 1})">Next ›</button>`;
+                    btnsHTML += `<button class="btn-sm" style="background:#e4ddd0; color:#333; cursor:pointer;${currentFbPage === totalPages ? ' opacity:0.4; cursor:not-allowed;' : ''}" ${currentFbPage === totalPages ? 'disabled' : ''} onclick="goFbPage(${totalPages})">»</button>`;
                     pageBtns.innerHTML = btnsHTML;
                 }
             }
@@ -1119,18 +1129,19 @@
                     ? `<span style="background: #fff3e0; color: #d84315; border: 1px solid #ffcc80; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin-right: 5px; display: inline-block; margin-bottom: 3px;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: -0.1em;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Evaluasi Produk</span>` 
                     : '';
                 const liveBadge = `<span class="status-badge" style="background:${f.is_approved ? '#55efc4' : '#ffeaa7'};color:#2c1e12">${f.is_approved ? 'LIVE' : 'HIDDEN'}</span>`;
+                const initial = (f.customer_name || 'A').trim().charAt(0).toUpperCase();
 
                 return `
-                    <tr style="${isEval ? 'background-color: rgba(255, 243, 224, 0.4);' : ''}">
+                    <tr class="${isEval ? 'fb-eval-row' : ''}">
                         <td>${new Date(f.created_at).toLocaleDateString()}</td>
-                        <td><b>${f.customer_name || 'Anonymous'}</b></td>
+                        <td style="white-space: nowrap;"><span class="fb-avatar">${initial}</span><b>${f.customer_name || 'Anonymous'}</b></td>
                         <td>${f.product_id ? `<span style="background:#e3f2fd; color:#1565c0; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; white-space:nowrap;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: -0.1em;"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> ${fbProductNames[f.product_id] || f.product_id}</span><br><small style="color:#97897a;">${f.order_id || ''}</small>` : '<span style="color:#a69a8b; font-size:0.8rem;">Umum</span>'}</td>
                         <td style="color: #f1c40f; white-space: nowrap;">${'★'.repeat(ratingNum)}${'☆'.repeat(5 - ratingNum)}</td>
-                        <td style="max-width: 320px; word-break: break-word;">${f.message || ''}</td>
+                        <td style="max-width: 320px; word-break: break-word; color: #4a3f35; line-height: 1.45;">${f.message || '-'}</td>
                         <td>${evalBadge}${liveBadge}</td>
-                        <td>
-                            <button class="btn-sm btn-edit" onclick="toggleApproval('${f.id}',${f.is_approved})">${f.is_approved ? 'Hide' : 'Approve'}</button>
-                            <button class="btn-sm btn-delete" onclick="deleteFeedback('${f.id}')">Del</button>
+                        <td style="white-space: nowrap;">
+                            <button class="btn-sm btn-edit btn-icon" title="${f.is_approved ? 'Sembunyikan dari beranda' : 'Tampilkan di beranda'}" onclick="toggleApproval('${f.id}',${f.is_approved})"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true">${f.is_approved ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>' : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'}</svg></button>
+                            <button class="btn-sm btn-delete btn-icon" style="margin-left: 5px;" title="Hapus feedback" onclick="deleteFeedback('${f.id}')"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                         </td>
                     </tr>
                 `;

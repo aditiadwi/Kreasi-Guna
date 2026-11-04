@@ -576,6 +576,22 @@ Fokus: user kembali minta ganti warna admin setelah entri 30 di-revert. Pelajara
 - Verifikasi: scan sisa warna dingin = 0, script inline parse OK, brace admin 55/55 dan `style.css` 893/893, `npm run check:assets` OK (11 halaman, 22 referensi), CRLF utuh. Cache `v=1.0.115` → `v=1.0.116`.
 
 
+### **40. Catatan 4 November 2026 (poles bagian Feedback admin — ikon SVG, avatar, fix pagination)**
+
+Fokus: user minta polish bagian Feedback admin.html — visual lebih enak, ikon SVG, poles umum — dengan alur preview dulu (screenshot sebelum commit) seperti entri 39.
+
+- **Yang diubah** (semua di `admin.html`, gaya lokal + template `filterFeedback`):
+  - **Tombol aksi baris** — teks `Hide`/`Approve` + `Del` → tombol ikon SVG (`eye-off` untuk yang LIVE = sembunyikan, `eye` untuk yang hidden = tampilkan, `trash` untuk hapus) dengan tooltip `title`; class baru `.btn-icon` (padding inline-flex). Alasan: teks "Del" rapuh terhadap lebar kolom, ikon seragam dengan nav sidebar.
+  - **3 chip statistik** — Total dapat ikon `message-square`, Avg Rating ikon bintang terisi (`fill:currentColor; stroke:none` override `.adm-ico`), Arsip sudah `alert-triangle`; chip jadi `inline-flex; gap:6px` supaya ikon-teks rata.
+  - **Avatar inisial** — lingkatan `.fb-avatar` 28px `#2c1e12` berisi huruf depan nama (aditia→A, Feri→F…), `Anonymous`→A.
+  - **Hover baris** — `.table-wide tbody tr:hover` `#f7f5f0` + transisi 0.15s. Baris eval ≤3★ dipindah dari inline `style` ke class `fb-eval-row` (inline style menang cascade sehingga hover tidak bisa menimpanya) dengan aturan sendiri: dasar tint oranye `rgba(255,243,224,.4)`, hover `#fff3e0`.
+  - **Kolom pesan** — warna `#4a3f35`, `line-height:1.45`, pesan kosong tampil `-` (dulu kosong melompong).
+  - **Bug pagination** — tombol disabled nulis `disabled style="opacity:0.4..."` sebagai attribute **kedua** `style`; parser HTML mengabaikan attribute kedua, jadi opasitas 40% tidak pernah terpakai (tombol «/Prev tetap solid). Digabung jadi satu `style` + `disabled` terpisah — diverifikasi visual: « & ‹ Prev kini pudar di `after-feedback-full.png`.
+  - **Empty state** — kalau filter cocok 0 baris: ikon chat + "Belum ada feedback" + subteks, bukan satu baris teks polos.
+- **Harness**: debug sempat menampilkan screenshot seolah section Orders yang tampil padahal banner bilang `want=feedback vis=sec-feedback` — ternyata run debug terakhir benar (Feedback tampil), yang ke baca Orders adalah file lama; harness kini menyembunyikan banner `#dbg` otomatis saat `READY` supaya before/after bersih. Tinggi iframe dinaikkan sementara ke 1750px untuk memotret pagination (di bawah fold 900px), lalu dikembalikan.
+- **Verifikasi**: 2 script inline parse OK, brace style admin 61/61, scan sisa `disabled style=` = 0, `npm run check:assets` OK, CRLF utuh. 3 screenshot (`before-feedback.png`, `after-feedback.png`, `after-feedback-full.png`) ditunjukkan ke user → approval "Ya boleh". Cache `v=1.0.116` → `v=1.0.117`. File scratch/ tidak ikut di-stage.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
