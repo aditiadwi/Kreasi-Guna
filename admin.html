@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.119">
+    <link rel="stylesheet" href="style.css?v=1.0.120">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
@@ -55,6 +55,13 @@
 
         /* MAIN CONTENT */
         .main-content { flex: 1; padding: 40px; overflow-y: auto; width: 100%; box-sizing: border-box; }
+        /* Tiap bagian dashboard sempat kerendahan ruang kosong 96px + garis melayang di
+           atasnya karena .admin-section ikut style.css:984 (ritme section halaman
+           marketing) dan border-top di style.css:1442. Di dashboard pembatasnya sudah
+           ada: .main-content 40px + kartu putih, jadi ritme landing page dilepas di sini.
+           contact.html juga pakai .admin-section tapi punya style block sendiri, jadi
+           tetap utuh. */
+        .admin-section { padding: 0; border-top: none; }
         .admin-card { background: white; border-radius: 15px; padding: clamp(15px, 4vw, 25px); box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
         
         /* STATS GRID */
@@ -586,7 +593,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.119"></script>
+    <script src="app.js?v=1.0.120"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;

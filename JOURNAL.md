@@ -619,6 +619,18 @@ Fokus: user kirim screenshot dropdown `fb-filter-rating` yang masih terbuka gaya
 - **Bump versi pakai Python, bukan sed** — `sed -i` di Git Bash (MSYS text mode) ternyata menghapus CR di SELURUH file yang disentuhnya; di entri 41 itu terjadi di 11 HTML dan harus dibetulkan pasca-hoc. Kali ini `open(p,'rb').read().replace(...)` + tulis biner, CR per file dicek sama dengan jumlah baris (156/1038/1466/206/178/336/245/422/291/125/580). `npm run check:assets` OK. Cache `v=1.0.118` → `v=1.0.119`.
 
 
+### **43. Catatan 4 November 2026 (gap 96px di atas tiap bagian admin dihapus)**
+
+Fokus: user lapor "kalau aku cek halaman admin, ada gap besar di atasnya tiap bagiannya".
+
+- **Penyebabnya bukan markup admin** — `style.css:984` menulis `.news-section, .contact-section, .admin-section { padding: 96px 0; }` (ritme section halaman marketing) dan `style.css:1747` variant HP `64px 0`, plus `style.css:1442` `.admin-section { border-top: 1px solid #ded6c9; }`. Jadi tiap `<section class="admin-section">` di dashboard dapat **96px ruang kosong + garis mendatar di atas konten**, di atas `.main-content { padding: 40px }` → total 136px. Garis `border-top`-nya kelihatan melayang jauh di atas kartu.
+- **Cara nemunya**: bukan pakai mata, tapi baca computed style tiap section lewat `evaluate_script` — `getComputedStyle(section).paddingTop` keluar `64px` padahal admin.html tidak pernah mendeklarasikannya. Kueri `grep "admin-section"` di admin.html nihil, jadi rule-nya pasti dari file lain.
+- **Digarap di `admin.html` blok `<style>` sendiri** (bukan di `style.css`): `.admin-section { padding: 0; border-top: none; }`. Alasannya — `contact.html:138-148` juga pakai kelas `.admin-section` untuk tab admin lama (Order History / Inventory / Stand Manager) yang memang hidup di dalam section marketing dan butuh ritme 96px itu. Aturan halaman-lokal cuma kena admin.html, `contact.html` tidak tersentuh.
+- **Tidak ada margin tersisa**: `style.css:30` punya reset `* { margin: 0; padding: 0 }`, jadi setelah padding section dinolkan tidak ada margin heading yang bocok naik. Terukur setelah fix: `sectionPadTop 0px`, `borderTop 0px`, dan **semua 5 section mulai 40px** dari tepi atas `.main-content` (sebelumnya 136px) — posisi heading kini konsisten Stats/Products/Orders/Events/Feedback.
+- **Verifikasi**: `git diff -U0` di 10 HTML non-admin cuma 2 baris versi (dikonfirmasi `sort | uniq -c`); bump `v=1.0.119` → `v=1.0.120` pakai Python biner, CR == LF per file (156/1038/1473/206/178/336/245/422/291/125/580); `npm run check:assets` OK. **Screenshot tetap diblok** (`take_screenshot` butuh user gesture), jadi konfirmasi lewat angka, bukan gambar.
+- **Yang sengaja tidak digarap**: `#sec-stats` masih `<h1>` 32px di luar kartu sementara 4 section lain `<h2>` di dalam `.admin-card` — beda ukuran judul, tapi itu soal hierarki judul, bukan gap. Baru diubah kalau user minta.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
