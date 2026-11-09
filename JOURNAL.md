@@ -654,6 +654,21 @@ Fokus: user ingat input gambar produk di admin masih berupa teks "Image Path" ya
 - **Verifikasi**: kedua blok script inline `admin.html` parse OK lewat `new Function`; bump `v=1.0.121` → `v=1.0.122` biner (latin1) di 11 halaman sehingga CRLF utuh; `npm run check:assets` OK (11 halaman, 22 referensi konsisten). Sisi storefront tidak berubah — `app.js:584` sudah membaca `p.image_url` apa adanya (URL Cloudinary sama dengan URL lokal bagi browser).
 
 
+### **46. Catatan 9 November 2026 (Logout admin dikasih ikon + semua alert/confirm native admin jadi modal popup)**
+
+Fokus: user minta "kasih emoji untuk LogOut admin, sama kasih pop-up yang bukan cuman alert di halaman admin". Untuk ikon dipilih SVG lewat tanya jawab (emoji literal ditolak — konsisten dengan keputusan entri 37/38 yang menghapus semua emoji dari admin).
+
+- **Ikon Logout** (`admin.html:240`): item `<li>` Logout sidebar kini berisi SVG feather `log-out` (path identik dengan `CONFIRM_ICONS.logout` di `app.js:877` dan tombol "Keluar" `account.html:67`). Lima nav lainnya sudah punya `.adm-ico`, jadi Logout akhirnya seragam; warna stroke ikut `color: var(--danger)` milik itemnya.
+- **`showConfirmModal` dikasih mode alert** (`app.js`): opsi baru `alertMode: true` menyembunyikan tombol Cancel (`classList.toggle('hidden', ...)`) sehingga tinggal satu tombol OK, dan backdrop/Escape kini me-resolve `true` (bukan `false`) saat mode aktif — nilai resolve-nya memang tidak dipakai pemanggil alert, yang penting modal selalu bisa ditutup. Flag `_confirmModalAlertMode` disimpan global karena handler backdrop/Escape dibuat sekali di `ensureRemoveConfirmModal()`. Backward compatible: `showRemoveConfirm` (hapus keranjang) dan `handleLogout` user (entri 34) tidak mengirim `alertMode` jadi perilakunya persis lama.
+- **Helper `showAlertModal(title, message)`** di admin (`admin.html:691`) = pembungkus tipis `showConfirmModal({ alertMode:true, variant:'primary', yesLabel:'OK' })` — `variant:'primary'` supaya tombol OK gelap (`--coffee-dark`), bukan merah `.btn-confirm-remove` yang memang berarti "aksi destruktif".
+- **14 titik diganti, 0 sisa** (dicek regex `\balert\(|(?<![A-Za-z])confirm\(` di admin.html = 0):
+  - **7 confirm → modal konfirmasi** dengan ikon `trash`/`logout` + "Batal / Ya, Hapus": logout admin, hapus produk, hapus event, hapus feedback, hapus pesanan. Semua call site sudah berada di fungsi `async` sehingga `await showConfirmModal(...)` tinggal disisipkan — bentuk `if (...)` tidak berubah.
+  - **7 alert → `showAlertModal`**: login kosong, login gagal, upload gambar gagal, event tersimpan, export CSV gagal (`return showAlertModal(...)` — aman karena fungsi juga async), gagal fetch detail pesanan, gagal update status.
+- **Z-index**: `#confirm-modal-backdrop` di `style.css:2500` = 5000, modal admin = 2000 (`admin.html:95`) — jadi popup konfirmasi tampil di atas modal produk/event yang sedang terbuka (misal alert saat form produk terbuka saat upload gagal).
+- **Yang sengaja TIDAK disentuh**: `alert`/`confirm` di `app.js` (sisi customer: keranjang, checkout, ulasan, geolokasi) dan `account.html` — user meminta khusus halaman admin; menggantinya semua berisiko mengubah perilaku halaman lain yang belum diuji.
+- **Verifikasi**: `node --check app.js` lolos, 2 blok script inline `admin.html` parse OK via `new Function`, `npm run check:assets` OK. Bump `v=1.0.122` → `v=1.0.123` biner (latin1) di 11 halaman, CR utuh.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

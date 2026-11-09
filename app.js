@@ -872,6 +872,7 @@ window.removeFromCart = (id) => {
 })();
 
 let _removeConfirmResolver = null;
+let _confirmModalAlertMode = false;
 
 const CONFIRM_ICONS = {
     logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
@@ -894,22 +895,26 @@ function ensureRemoveConfirmModal() {
     </div>`;
     document.body.insertAdjacentHTML('beforeend', html);
     document.getElementById('confirm-modal-backdrop').addEventListener('click', (e) => {
-        if (e.target.id === 'confirm-modal-backdrop') closeRemoveConfirm(false);
+        if (e.target.id === 'confirm-modal-backdrop') closeRemoveConfirm(_confirmModalAlertMode);
     });
     document.getElementById('confirm-modal-cancel').addEventListener('click', () => closeRemoveConfirm(false));
     document.getElementById('confirm-modal-yes').addEventListener('click', () => closeRemoveConfirm(true));
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && _removeConfirmResolver) closeRemoveConfirm(false);
+        if (e.key === 'Escape' && _removeConfirmResolver) closeRemoveConfirm(_confirmModalAlertMode);
     });
 }
 
-/* Modal konfirmasi serbaguna -> Promise<boolean> (true = ya/batal sesuai tombol) */
+/* Modal konfirmasi serbaguna -> Promise<boolean> (true = ya/batal sesuai tombol)
+   o.alertMode: true -> hanya satu tombol (pengganti alert), backdrop/Escape = tutup */
 function showConfirmModal(opts) {
     const o = opts || {};
     ensureRemoveConfirmModal();
+    _confirmModalAlertMode = !!o.alertMode;
     document.getElementById('confirm-modal-title').textContent = o.title || 'Are you sure?';
     document.getElementById('confirm-modal-message').textContent = o.message || '';
-    document.getElementById('confirm-modal-cancel').textContent = o.noLabel || 'Cancel';
+    const cancel = document.getElementById('confirm-modal-cancel');
+    cancel.textContent = o.noLabel || 'Cancel';
+    cancel.classList.toggle('hidden', _confirmModalAlertMode);
     const yes = document.getElementById('confirm-modal-yes');
     yes.textContent = o.yesLabel || 'Yes';
     yes.classList.toggle('btn-confirm-primary', o.variant === 'primary');
