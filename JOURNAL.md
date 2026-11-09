@@ -674,9 +674,9 @@ Fokus: user minta "kasih emoji untuk LogOut admin, sama kasih pop-up yang bukan 
 Fokus: user lihat "tanda oren kotak" di drawer burger menu yang menandai halaman aktif dan minta dibundarin.
 
 - **Titiknya**: `.mm-item.active .mm-ico` (`style.css:869`) — ikon item aktif di drawer `#mm-drawer` diberi background `var(--gold-premium)` (`#c5a059`, kesan oren-emas) + ikon putih. Wadahnya `.mm-ico` 26×26px **tanpa `border-radius` sama sekali**, jadi penandanya tampil sebagai kotak bersudut tajam — satu-satunya marker kotak di drawer (item biasa `border-radius: 12px`, badge cart `11px`).
-- **Fix 1 baris**: `border-radius: 50%` di rule dasar `.mm-ico` — lingkaran penuh. Ditaruh di rule dasar (bukan di rule `.active`) supaya transisi background/color yang sudah ada tetap mulus; item non-aktif latarnya transparan jadi tidak ada perubahan visual lain. Ikon 22px di dalam lingkaran 26px masih muat dengan sisa 2px tiap sisi.
+- **Fix**: `border-radius: 8px` di rule dasar `.mm-ico` — **kotak bersudut membulat**, bukan lingkaran penuh. (Awalnya ditulis `50%` dan sudah dikoreksi user: "maksudku kotak bundar, bukan bundar" — 8px di kotak 26px terbaca jelas sebagai rounded square.) Ditaruh di rule dasar (bukan di rule `.active`) supaya transisi background/color yang sudah ada tetap mulus; item non-aktif latarnya transparan jadi tidak ada perubahan visual lain. Ikon 22px di dalam kotak 26px masih muat dengan sisa 2px tiap sisi.
 - **Yang tidak disentuh**: penanda desktop `.nav-links a.active::after` (`style.css:118`, garis emas 3px) sudah `border-radius: 2px` dan user hanya membahas burger menu.
-- **Verifikasi**: brace `style.css` 893/893, `npm run check:assets` OK. Bump `v=1.0.123` → `v=1.0.124` biner (latin1) di 11 halaman, CR utuh.
+- **Verifikasi**: brace `style.css` 893/893, `npm run check:assets` OK. Bump `v=1.0.123` → `v=1.0.125` biner (latin1) di 11 halaman (124 sempat terlanjur dipakai commit `63702c0` versi lingkaran), CR utuh.
 
 
 ### **Catatan buat besok (lanjut)**
