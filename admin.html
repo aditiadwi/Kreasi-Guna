@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.121">
+    <link rel="stylesheet" href="style.css?v=1.0.122">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
@@ -491,7 +491,25 @@
                 <div class="form-group"><label>Price (Rp)</label><input type="number" id="p-price" required></div>
                 <div class="form-group"><label>Stock</label><input type="number" id="p-stock" required></div>
                 <div class="form-group"><label>Description</label><textarea id="p-desc" rows="3"></textarea></div>
-                <div class="form-group"><label>Image Path</label><input type="text" id="p-image"></div>
+                <div class="form-group">
+                    <label>Gambar Produk</label>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+                        <label for="p-image-file" style="background: #3d2b1f; color: #f1c40f; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #d4af37; transition: all 0.2s ease;" onmouseover="this.style.background='#543c2c'" onmouseout="this.style.background='#3d2b1f'">
+                            <svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Pilih Gambar dari Komputer
+                        </label>
+                        <input type="file" id="p-image-file" accept="image/*" style="display: none;" onchange="handleProductImageFileSelect(event)">
+                        <span id="p-file-name" style="font-size: 0.82rem; color: #6a5d4f; font-style: italic;">Belum ada berkas dipilih</span>
+                    </div>
+                    <div style="font-size: 0.78rem; color: #877a6b; margin-bottom: 6px;">atau masukkan URL/Path Gambar:</div>
+                    <input type="text" id="p-image" placeholder="misal: Images/My Product.png" oninput="updateProductImagePreview(this.value)">
+                    <div id="p-image-preview-container" style="margin-top: 10px; display: flex; align-items: center; gap: 12px; background: #faf7f2; padding: 10px; border-radius: 10px; border: 1px dashed #d0c0ab;">
+                        <img id="p-image-preview" src="Images/My Product.png" alt="Preview Gambar Produk" style="width: 90px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #d4cbbe; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" onerror="this.src='Images/My Product.png'">
+                        <div>
+                            <strong style="display: block; font-size: 0.85rem; color: #2c1e12;">Preview Gambar Produk</strong>
+                            <span id="p-image-source-note" style="font-size: 0.75rem; color: #7b6e5f;">Gambar default atau URL yang dimasukkan</span>
+                        </div>
+                    </div>
+                </div>
             </form></div>
             <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eae3d7;">
                 <button type="submit" form="product-form" class="btn-primary" style="flex:1">Save</button>
@@ -593,7 +611,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.121"></script>
+    <script src="app.js?v=1.0.122"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
@@ -805,18 +823,88 @@
                 </td></tr>`;
             }).join('');
         }
-        function openProductModal() { document.getElementById('product-form').reset(); document.getElementById('p-id').value=''; document.getElementById('product-modal').style.display='flex'; }
+        let _pImageFile = null;
+        let _pImageObjectUrl = null;
+
+        function handleProductImageFileSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            const fileNameSpan = document.getElementById('p-file-name');
+            if (!file) return;
+            _pImageFile = file;
+            if (fileNameSpan) fileNameSpan.textContent = file.name;
+            if (_pImageObjectUrl) URL.revokeObjectURL(_pImageObjectUrl);
+            _pImageObjectUrl = URL.createObjectURL(file);
+            const previewImg = document.getElementById('p-image-preview');
+            if (previewImg) previewImg.src = _pImageObjectUrl;
+            const noteSpan = document.getElementById('p-image-source-note');
+            if (noteSpan) noteSpan.textContent = `File lokal: ${file.name}`;
+        }
+
+        function updateProductImagePreview(url) {
+            _pImageFile = null;
+            const fileNameSpan = document.getElementById('p-file-name');
+            if (fileNameSpan) fileNameSpan.textContent = 'Belum ada berkas dipilih';
+            const fileInput = document.getElementById('p-image-file');
+            if (fileInput) fileInput.value = '';
+            const previewImg = document.getElementById('p-image-preview');
+            if (previewImg) previewImg.src = url || 'Images/My Product.png';
+            const noteSpan = document.getElementById('p-image-source-note');
+            if (noteSpan) noteSpan.textContent = url ? 'URL atau path gambar' : 'Gambar default';
+        }
+
+        function resetProductImageField(imageUrl) {
+            _pImageFile = null;
+            if (_pImageObjectUrl) { URL.revokeObjectURL(_pImageObjectUrl); _pImageObjectUrl = null; }
+            const fileInput = document.getElementById('p-image-file');
+            if (fileInput) fileInput.value = '';
+            const fileNameSpan = document.getElementById('p-file-name');
+            if (fileNameSpan) fileNameSpan.textContent = 'Belum ada berkas dipilih';
+            const urlInput = document.getElementById('p-image');
+            if (urlInput) urlInput.value = imageUrl || '';
+            const previewImg = document.getElementById('p-image-preview');
+            if (previewImg) previewImg.src = imageUrl || 'Images/My Product.png';
+            const noteSpan = document.getElementById('p-image-source-note');
+            if (noteSpan) noteSpan.textContent = imageUrl ? (imageUrl.startsWith('data:image') ? 'Gambar tersimpan (base64)' : 'URL atau path gambar') : 'Gambar default';
+        }
+
+        async function uploadProductImageToCloudinary(file) {
+            if (typeof rateUploadToCloudinary === 'function') return rateUploadToCloudinary(file);
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', 'unsigned_123');
+            const r = await fetch('https://api.cloudinary.com/v1_1/dzwv7azwx/image/upload', { method: 'POST', body: fd });
+            if (!r.ok) throw new Error('Cloudinary upload failed');
+            const d = await r.json();
+            return d.secure_url;
+        }
+
+        function openProductModal() { document.getElementById('product-form').reset(); document.getElementById('p-id').value=''; resetProductImageField(''); document.getElementById('product-modal').style.display='flex'; }
         function closeModal() { document.getElementById('product-modal').style.display='none'; }
         document.getElementById('product-form').onsubmit = async (e) => {
             e.preventDefault();
-            const p = { name:document.getElementById('p-name').value, price:document.getElementById('p-price').value, stock:document.getElementById('p-stock').value, description:document.getElementById('p-desc').value, image_url:document.getElementById('p-image').value };
+            const saveBtn = document.querySelector('button[form="product-form"]');
+            let imageUrl = document.getElementById('p-image').value;
+            if (_pImageFile) {
+                const oldText = saveBtn ? saveBtn.textContent : '';
+                if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Uploading...'; }
+                try {
+                    imageUrl = await uploadProductImageToCloudinary(_pImageFile);
+                } catch (err) {
+                    alert('Upload gambar gagal: ' + (err.message || err));
+                    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = oldText; }
+                    return;
+                }
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = oldText; }
+            }
+            const p = { name:document.getElementById('p-name').value, price:document.getElementById('p-price').value, stock:document.getElementById('p-stock').value, description:document.getElementById('p-desc').value, image_url:imageUrl };
             if (document.getElementById('p-id').value) await adminSupabase.from('products').update(p).eq('id', document.getElementById('p-id').value);
             else await adminSupabase.from('products').insert([p]);
             closeModal(); loadProducts();
         }
         async function editProduct(id) {
             const { data } = await adminSupabase.from('products').select('*').eq('id', id).single();
-            document.getElementById('p-id').value=data.id; document.getElementById('p-name').value=data.name; document.getElementById('p-price').value=data.price; document.getElementById('p-stock').value=data.stock; document.getElementById('p-desc').value=data.description; document.getElementById('p-image').value=data.image_url||'';
+            document.getElementById('p-id').value=data.id; document.getElementById('p-name').value=data.name; document.getElementById('p-price').value=data.price; document.getElementById('p-stock').value=data.stock; document.getElementById('p-desc').value=data.description;
+            resetProductImageField(data.image_url||'');
             document.getElementById('product-modal').style.display='flex';
         }
         async function deleteProduct(id, name) { 

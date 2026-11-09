@@ -643,6 +643,17 @@ Fokus: kartu Page Views di admin berbunyi "Belum ada data. Jalankan SQL page_vie
 - **Sisa yang diketahui**: angka `1` pertama bukan kunjungan asli, tapi efek `select public.bump_page_view('index')` dari skrip diagnostik — bisa dibersihkan `delete from public.page_views where page = 'index';`. Peringatan "Potential issue detected / destructive operations" dari Supabase waktu itu cuma karena kata `drop`/`alter`/`revoke` tanpa melihat objeknya, dan ketiga objek yang disasar memang belum ada. Bump `v=1.0.120` → `v=1.0.121` pakai Python biner, CR == LF di 11 halaman, `npm run check:assets` OK.
 
 
+### **45. Catatan 9 November 2026 (form produk admin: upload gambar langsung dari komputer)**
+
+Fokus: user ingat input gambar produk di admin masih berupa teks "Image Path" yang harus mengetik nama file manual, dan minta bisa upload langsung dari file sendiri — plus opsi tetap mengisi URL manual.
+
+- **Form digarap di `admin.html:494-512`** mengikuti pola form event yang sudah jalan: hidden `<input type="file" accept="image/*">` + tombol label "Pilih Gambar dari Komputer" + span nama berkas, lalu text input URL/Path tetap ada di bawahnya ("atau masukkan URL/Path Gambar") dengan preview 90×90 (`Images/My Product.png` + `onerror` fallback) dan note sumber gambar.
+- **Upload ke Cloudinary, bukan base64 seperti form event** — `handleEventImageFileSelect` mengubah file jadi base64 dan menyimpannya langsung ke Supabase, tapi Supabase menolak row >50 KB sehingga gambar besar diganti default diam-diam. Produk memakai jalur yang sudah teruji untuk foto review: `rateUploadToCloudinary` (`app.js:1693`, unsigned preset `unsigned_123`, cloud `dzwv7azwx`) → `secure_url` yang disimpan ke `products.image_url` (bentuk data di database tidak berubah, storefront tidak perlu diutak-atik). Helper lokal `uploadProductImageToCloudinary` memakai fungsi itu kalau ada, dengan fallback fetch mandiri.
+- **Precedence file vs URL**: pilih file → file menang, preview pakai `URL.createObjectURL` (instan, tanpa membaca isi file); mengetik di field URL membatalkan pilihan file (`updateProductImagePreview` me-reset file input + span). Karena `form.reset()`/assignment `.value=` tidak memicu event `input`, reset manual lewat `resetProductImageField()` dipanggil dari `openProductModal()` dan `editProduct()`.
+- **Saat Save**: kalau ada file terpilih, tombol Save (`button[form="product-form"]`) dinonaktifkan dan tulisannya jadi "Uploading..." selama request; gagal → `alert` dan form **tidak** disimpan (user tidak kehilangan input lain). Saat Edit, note membedakan gambar URL lama vs base64 lama ("Gambar tersimpan (base64)").
+- **Verifikasi**: kedua blok script inline `admin.html` parse OK lewat `new Function`; bump `v=1.0.121` → `v=1.0.122` biner (latin1) di 11 halaman sehingga CRLF utuh; `npm run check:assets` OK (11 halaman, 22 referensi konsisten). Sisi storefront tidak berubah — `app.js:584` sudah membaca `p.image_url` apa adanya (URL Cloudinary sama dengan URL lokal bagi browser).
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
