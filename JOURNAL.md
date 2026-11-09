@@ -679,6 +679,18 @@ Fokus: user lihat "tanda oren kotak" di drawer burger menu yang menandai halaman
 - **Verifikasi**: brace `style.css` 893/893, `npm run check:assets` OK. Bump `v=1.0.123` → `v=1.0.125` biner (latin1) di 11 halaman (124 sempat terlanjur dipakai commit `63702c0` versi lingkaran), CR utuh.
 
 
+### **48. Catatan 9 November 2026 (bintang ulasan di modal See Description dirapikan)**
+
+Fokus: user lihat bintang di modal detail produk (tombol "See Description") dan tanya "bagusan dibiarin atau digimanain?" Setelah diberi tiga temuan, user pilih **rapikan**.
+
+- **Akar masalahnya: `#modal-product-reviews` tidak punya CSS sama sekali** — semua gayanya inline di string JS (`app.js:4377-4387`). Akibatnya: (1) bintang `<b>★★★★★</b>` berwarna hitam warisan teks, padahal `.product-rating` (`style.css:1157`) mengecat bintang kartu produk gold `#f1c40f`; (2) judul `Ulasan Pembeli · ★ 5.0 (3)` adalah `<h4>` default — huruf kecil, beda ukuran — sementara judul DESCRIPTION di atasnya (`style.css:1283`) uppercase + letter-spacing 1.5px; (3) format header beda dari kartu (`★ 5.0 (3)` satu bintang vs `★★★★★ (5.0 · 12)`).
+- **CSS baru** (`style.css` setelah aturan `.product-modal-description p`, +6 rule → brace 893→899): `.product-modal-reviews h4` disamakan persis dengan h4 Description; `.pm-stars { color:#f1c40f; letter-spacing:1px }`; `.pm-review` (border-top, padding, font 0.85rem, line-height); `.pm-review .pm-stars { margin-right:6px }`; `.pm-name { color:#999 }`; `.pm-empty` (pengganti inline style empty state).
+- **JS dirender ulang dengan class, bukan inline**: header kini `Ulasan Pembeli · <span class="pm-stars">★★★★☆</span> (4.8 · 12)` — bintang di-round (`Math.min(5, Math.round(...))`) plus `☆` pelengkap sampai 5, format `(avg · count)` identik dengan `productRatingBadge`. Tiap sampel ulasan: `★★★☆☆ — pesan · Nama`.
+- **Bug fallback ikut diperbaiki**: `'★'.repeat(s.rating || 5)` artinya rating 0/kosong tampil **5 bintang penuh** (salah); diganti `Number(s.rating) || 0` + clamp 0-5 sehingga bintang kosong (`☆`) yang tampil. Saat ini semua 12 baris feedback di DB rating 5 (entri 32) jadi tampilannya tidak berubah untuk data sekarang, tapi data 0-4 nanti tidak lagi menyesatkan.
+- **Yang tidak disentuh**: `productRatingBadge` di kartu produk, badge rating di `renderFeaturedProducts`, dan sumber datanya (`PRODUCT_RATINGS`) — hanya presentasi modal.
+- **Verifikasi**: `node --check app.js` lolos, `npm run check:assets` OK (11 halaman), brace `style.css` 899/899. Bump `v=1.0.125` → `v=1.0.126` biner (latin1), CR utuh.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

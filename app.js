@@ -4379,10 +4379,14 @@ window.openProductModal = (product) => {
         const e = PRODUCT_RATINGS && PRODUCT_RATINGS[product.id];
         if (e && e.count) {
             const avg = (e.total / e.count).toFixed(1);
-            revBox.innerHTML = `<h4 style="margin: 18px 0 8px;">Ulasan Pembeli · ★ ${avg} (${e.count})</h4>` +
-                e.samples.map(s => `<div style="border-top: 1px solid #f0f0f0; padding: 8px 0; font-size: 0.85rem;"><b>${'★'.repeat(s.rating || 5)}</b> — ${s.message || ''} <span style="color:#999;">· ${s.customer_name || 'Anonymous'}</span></div>`).join('');
+            const rounded = Math.min(5, Math.round(e.total / e.count));
+            revBox.innerHTML = `<h4>Ulasan Pembeli · <span class="pm-stars">${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}</span> (${avg} · ${e.count})</h4>` +
+                e.samples.map(s => {
+                    const r = Math.max(0, Math.min(5, Number(s.rating) || 0));
+                    return `<div class="pm-review"><span class="pm-stars">${'★'.repeat(r)}${'☆'.repeat(5 - r)}</span> — ${s.message || ''} <span class="pm-name">· ${s.customer_name || 'Anonymous'}</span></div>`;
+                }).join('');
         } else {
-            revBox.innerHTML = `<h4 style="margin: 18px 0 8px;">Ulasan Pembeli</h4><p style="font-size: 0.85rem; color: #999;">Belum ada ulasan untuk produk ini. Beli dan lacak order-mu untuk kasih bintang pertama!</p>`;
+            revBox.innerHTML = `<h4>Ulasan Pembeli</h4><p class="pm-empty">Belum ada ulasan untuk produk ini. Beli dan lacak order-mu untuk kasih bintang pertama!</p>`;
         }
     }
     
