@@ -669,6 +669,16 @@ Fokus: user minta "kasih emoji untuk LogOut admin, sama kasih pop-up yang bukan 
 - **Verifikasi**: `node --check app.js` lolos, 2 blok script inline `admin.html` parse OK via `new Function`, `npm run check:assets` OK. Bump `v=1.0.122` → `v=1.0.123` biner (latin1) di 11 halaman, CR utuh.
 
 
+### **47. Catatan 9 November 2026 (penanda halaman aktif di burger menu jadi bundar)**
+
+Fokus: user lihat "tanda oren kotak" di drawer burger menu yang menandai halaman aktif dan minta dibundarin.
+
+- **Titiknya**: `.mm-item.active .mm-ico` (`style.css:869`) — ikon item aktif di drawer `#mm-drawer` diberi background `var(--gold-premium)` (`#c5a059`, kesan oren-emas) + ikon putih. Wadahnya `.mm-ico` 26×26px **tanpa `border-radius` sama sekali**, jadi penandanya tampil sebagai kotak bersudut tajam — satu-satunya marker kotak di drawer (item biasa `border-radius: 12px`, badge cart `11px`).
+- **Fix 1 baris**: `border-radius: 50%` di rule dasar `.mm-ico` — lingkaran penuh. Ditaruh di rule dasar (bukan di rule `.active`) supaya transisi background/color yang sudah ada tetap mulus; item non-aktif latarnya transparan jadi tidak ada perubahan visual lain. Ikon 22px di dalam lingkaran 26px masih muat dengan sisa 2px tiap sisi.
+- **Yang tidak disentuh**: penanda desktop `.nav-links a.active::after` (`style.css:118`, garis emas 3px) sudah `border-radius: 2px` dan user hanya membahas burger menu.
+- **Verifikasi**: brace `style.css` 893/893, `npm run check:assets` OK. Bump `v=1.0.123` → `v=1.0.124` biner (latin1) di 11 halaman, CR utuh.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

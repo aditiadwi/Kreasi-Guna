@@ -871,6 +871,7 @@ body.menu-open {
     flex-shrink: 0;
     width: 26px;
     height: 26px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
