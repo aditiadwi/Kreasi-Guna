@@ -4383,7 +4383,7 @@ window.openProductModal = (product) => {
             revBox.innerHTML = `<h4><span>Ulasan Pembeli</span><span class="pm-avg"><span class="pm-stars">${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}</span> (${avg} · ${e.count})</span></h4>` +
                 e.samples.map(s => {
                     const r = Math.max(0, Math.min(5, Number(s.rating) || 0));
-                    return `<div class="pm-review"><span class="pm-stars">${'★'.repeat(r)}${'☆'.repeat(5 - r)}</span><span class="pm-msg">${s.message || ''}</span><span class="pm-name">· ${s.customer_name || 'Anonymous'}</span></div>`;
+                    return `<div class="pm-review"><div class="pm-rhead"><span class="pm-name">${s.customer_name || 'Anonymous'}</span><span class="pm-stars">${'★'.repeat(r)}${'☆'.repeat(5 - r)}</span></div><span class="pm-msg">${s.message || ''}</span></div>`;
                 }).join('');
         } else {
             revBox.innerHTML = `<h4>Ulasan Pembeli</h4><p class="pm-empty">Belum ada ulasan untuk produk ini. Beli dan lacak order-mu untuk kasih bintang pertama!</p>`;

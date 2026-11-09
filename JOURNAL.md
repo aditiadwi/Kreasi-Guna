@@ -702,6 +702,17 @@ Fokus: lanjutan entri 48 — user minta "bintangnya di kanan atas, sama respon t
 - **Verifikasi**: `node --check app.js` lolos, `npm run check:assets` OK, brace `style.css` 899 → 901. Bump `v=1.0.126` → `v=1.0.127` biner (latin1), CR utuh.
 
 
+### **50. Catatan 9 November 2026 (respon ulasan modal: nama sebaris dengan bintang, pesan di bawahnya)**
+
+Fokus: usulan user sendiri sebagai alternatif entri 49 — "nama sampingnya bintang, bawahnya responnya" (dikonfirmasi "ya" untuk diterapkan, mengganti layout tiga-baris entri 49).
+
+- **Markup per respon**: dari `<div class="pm-stars">` + `<span class="pm-msg">` + `<span class="pm-name">` (tiga blok bertumpuk) jadi `<div class="pm-rhead"><span class="pm-name">Nama</span><span class="pm-stars">★★★★★</span></div><span class="pm-msg">Pesan…</span>` — baris nama+bintang sebagai header, pesan di bawahnya.
+- **CSS**: rule lama `.pm-review .pm-stars { display:block; margin-bottom }` dan `.pm-name { display:block; color:#999; margin-top }` **dihapus**; gantinya `.pm-rhead` (flex, `align-items:center`, `gap:8px`, `flex-wrap:wrap`, `margin-bottom:2px`) dan `.pm-name` restyle jadi `var(--coffee-dark)` + `font-weight:600` (dari grey `#999`) — nama naik peran jadi label ulasan, bukan keterangan terakhir. `.pm-msg` tetap blok rata kiri (inti anti-miring entri 49 tetap dipertahankan). Jumlah rule tidak berubah (brace 901/901).
+- **Urutan**: nama dulu baru bintang (sesuai susunan kalimat user "nama sampingnya bintang"); kalau mau dibalik tinggal tukar urutan dua span di dalam `.pm-rhead`.
+- **Yang tidak berubah**: ringkasan `★★★★☆ (4.8 · 12)` di kanan atas judul (entri 49), logika rating, empty state.
+- **Verifikasi**: `node --check app.js` lolos, `npm run check:assets` OK (11 halaman), brace 901/901. Bump `v=1.0.127` → `v=1.0.128` biner (latin1), CR utuh.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

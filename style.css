@@ -1318,17 +1318,19 @@ body.menu-open {
     font-size: 0.85rem;
     line-height: 1.55;
 }
-.product-modal-reviews .pm-review .pm-stars {
-    display: block;
+.product-modal-reviews .pm-rhead {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
     margin-bottom: 2px;
+}
+.product-modal-reviews .pm-name {
+    color: var(--coffee-dark);
+    font-weight: 600;
 }
 .product-modal-reviews .pm-msg {
     display: block;
-}
-.product-modal-reviews .pm-name {
-    display: block;
-    color: #999;
-    margin-top: 2px;
 }
 .product-modal-reviews .pm-empty {
     font-size: 0.85rem;
