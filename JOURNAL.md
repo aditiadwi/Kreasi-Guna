@@ -691,6 +691,17 @@ Fokus: user lihat bintang di modal detail produk (tombol "See Description") dan 
 - **Verifikasi**: `node --check app.js` lolos, `npm run check:assets` OK (11 halaman), brace `style.css` 899/899. Bump `v=1.0.125` → `v=1.0.126` biner (latin1), CR utuh.
 
 
+### **49. Catatan 9 November 2026 (layout modal ulasan: ringkasan bintang di kanan atas, respon jadi blok rata)**
+
+Fokus: lanjutan entri 48 — user minta "bintangnya di kanan atas, sama respon tidak miring-miring", lalu konfirmasi "mungkin terapin?".
+
+- **Diagnosis "miring"**: sebelumnya tiap respon adalah **satu baris inline** `★★★★★ — pesan · Nama`. Untuk pesan panjang, baris pertama nempel setelah bintang tapi baris lanjutan wrap balik ke tepi kiri kontainer — tepi kiri bertahap (paragraf cuma "berindeks" di baris pertama), dan nama yang ikut inline makin membuat blok terlihat tidak sejajar. Bukan ada rotasi CSS; miring = ragged left edge.
+- **Judul jadi flex** (`.product-modal-reviews h4`, `style.css`): `display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px`. Markup JS dipecah jadi dua span — `<span>Ulasan Pembeli</span>` kiri, `<span class="pm-avg">★★★★☆ (4.8 · 12)</span>` kanan. **Jangan gabung jadi satu text node**: flex memecah text node jadi anonymous flex item, jadi pisahan span ini wajib supaya bintang benar-benar nempel ke angka di kanan, bukan jadi item tengah. `.pm-avg` dikasih `margin-left:auto` + `white-space:nowrap` supaya tetap rata kanan bahkan saat wrap (dengan flex-wrap saja, item tunggal di baris kedua jatuh ke kiri).
+- **Respon jadi tiga blok `display:block`**: `.pm-stars` (baris sendiri di atas pesan, `margin-bottom:2px`), `.pm-msg` (pesan penuh, semua baris rata kiri — ini inti fix anti-miring), `.pm-name` (`margin-top:2px`, nama baris sendiri sehingga panjang pesan yang beda tidak menggeser nama ke mana-mana). Aturan lama `.pm-review .pm-stars { margin-right:6px }` dihapus (tidak relevan untuk blok). Padding `.pm-review` 8px → 10px.
+- **JS** (`app.js` `openProductModal`): template respon diganti dari string inline satu baris jadi tiga span; logika rating (round, clamp 0-5, format `avg · count`) **tidak berubah** dari entri 48.
+- **Verifikasi**: `node --check app.js` lolos, `npm run check:assets` OK, brace `style.css` 899 → 901. Bump `v=1.0.126` → `v=1.0.127` biner (latin1), CR utuh.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

@@ -1298,6 +1298,15 @@ body.menu-open {
     letter-spacing: 1.5px;
     color: var(--coffee-dark);
     margin: 18px 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.product-modal-reviews .pm-avg {
+    margin-left: auto;
+    white-space: nowrap;
 }
 .product-modal-reviews .pm-stars {
     color: #f1c40f;
@@ -1305,15 +1314,21 @@ body.menu-open {
 }
 .product-modal-reviews .pm-review {
     border-top: 1px solid #f0f0f0;
-    padding: 8px 0;
+    padding: 10px 0;
     font-size: 0.85rem;
     line-height: 1.55;
 }
 .product-modal-reviews .pm-review .pm-stars {
-    margin-right: 6px;
+    display: block;
+    margin-bottom: 2px;
+}
+.product-modal-reviews .pm-msg {
+    display: block;
 }
 .product-modal-reviews .pm-name {
+    display: block;
     color: #999;
+    margin-top: 2px;
 }
 .product-modal-reviews .pm-empty {
     font-size: 0.85rem;
