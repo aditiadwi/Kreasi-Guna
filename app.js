@@ -876,7 +876,8 @@ let _confirmModalAlertMode = false;
 
 const CONFIRM_ICONS = {
     logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
-    trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
+    trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+    lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
 };
 
 function ensureRemoveConfirmModal() {
@@ -950,6 +951,7 @@ function closeRemoveConfirm(result) {
 }
 
 let _pendingOrderId = null;
+let _pendingTrackToken = null;
 
 function ensureOrderSuccessModal() {
     if (document.getElementById('order-success-backdrop')) return;
@@ -994,16 +996,19 @@ function ensureOrderSuccessModal() {
     });
 }
 
-function showOrderSuccessModal(orderId, orderTotal) {
+function showOrderSuccessModal(orderId, orderTotal, trackingToken) {
     ensureOrderSuccessModal();
     _pendingOrderId = orderId;
+    _pendingTrackToken = trackingToken || null;
     document.getElementById('order-success-id').textContent = orderId;
     document.getElementById('order-success-payment').textContent = 'QRIS';
     document.getElementById('order-success-total').textContent = orderTotal || 'Rp 0';
     const now = new Date();
     const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     document.getElementById('order-success-date').textContent = dateStr;
-    document.getElementById('btn-goto-track').href = 'track.html?id=' + encodeURIComponent(orderId);
+    document.getElementById('btn-goto-track').href = trackingToken
+        ? 'track.html?token=' + encodeURIComponent(trackingToken)
+        : 'track.html?id=' + encodeURIComponent(orderId);
     document.getElementById('order-success-backdrop').classList.remove('hidden');
     spawnConfetti();
 }
@@ -1027,7 +1032,9 @@ function spawnConfetti() {
 }
 
 function goToTrackPage() {
-    if (_pendingOrderId) {
+    if (_pendingTrackToken) {
+        window.location.href = 'track.html?token=' + encodeURIComponent(_pendingTrackToken);
+    } else if (_pendingOrderId) {
         window.location.href = 'track.html?id=' + encodeURIComponent(_pendingOrderId);
     } else {
         window.location.href = 'track.html';
@@ -2067,6 +2074,7 @@ window.handlePlaceOrder = async () => {
         const receiptUrl = cloudData.secure_url; 
         
         const orderId = 'ORD-'+Date.now();
+        const trackingToken = crypto.randomUUID();
         const customerName = document.getElementById('customer-name').value;
         const phoneRaw = document.getElementById('customer-phone').value;
         const customerPhone = phoneRaw.startsWith('0') ? '+62' + phoneRaw.slice(1) : '+62' + phoneRaw;
@@ -2158,7 +2166,8 @@ window.handlePlaceOrder = async () => {
                 total_amount: total,
                 delivery_method: delivery,
                 customer_note: note,
-                receipt_image: receiptUrl 
+                receipt_image: receiptUrl,
+                tracking_url: window.location.origin + '/track.html?token=' + encodeURIComponent(trackingToken)
             };
 
             // 1. Kirim email bukti pemesanan ke Penjual/Admin
@@ -2209,9 +2218,11 @@ window.handlePlaceOrder = async () => {
             status: 'PENDING',
             delivery_method: delivery,
             note: note,
-            payment_method: method
+            payment_method: method,
+            tracking_token: trackingToken
         }]);
         if (sbError) throw sbError;
+        try { localStorage.setItem('kg_track_token_' + orderId, trackingToken); } catch (e) { /* penyimpanan privat penuh */ }
 
         // --- AUTOMATIC STOCK REDUCTION ---
         for (const productId in cart) {
@@ -2251,7 +2262,7 @@ window.handlePlaceOrder = async () => {
         clearFormData(); 
         renderCart(); 
         
-        showOrderSuccessModal(orderId, orderTotal);
+        showOrderSuccessModal(orderId, orderTotal, trackingToken);
 
     } catch (error) {
         console.error(error);
@@ -3845,7 +3856,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const urlParams = new URLSearchParams(window.location.search);
         const idFromUrl = urlParams.get('id');
-        if (idFromUrl) {
+        const tokenFromUrl = urlParams.get('token');
+        if (tokenFromUrl) {
+            const searchCard = document.querySelector('.tk-search-card');
+            if (searchCard) searchCard.classList.add('hidden');
+            const heroNote = document.querySelector('.tk-hero p');
+            if (heroNote) heroNote.textContent = 'Menampilkan pesanan dari tautan lacak Anda.';
+            setTimeout(() => { if (typeof handleTrackOrder === 'function') handleTrackOrder(); }, 500);
+        } else if (idFromUrl) {
             const input = document.getElementById('track-id-input');
             if (input) {
                 input.value = idFromUrl;
@@ -4180,6 +4198,12 @@ window.renderRecentOrdersTrack = () => {
 };
 
 window.fillAndTrackOrder = (id) => {
+    let token = null;
+    try { token = localStorage.getItem('kg_track_token_' + id); } catch (e) { /* penyimpanan privat */ }
+    if (token) {
+        window.location.href = 'track.html?token=' + encodeURIComponent(token);
+        return;
+    }
     const input = document.getElementById('track-id-input');
     if (input) {
         input.value = id;
@@ -4225,12 +4249,18 @@ window.handleTrackOrder = async () => {
     const trackBtn = document.getElementById('track-btn');
     const trackBtnText = document.getElementById('track-btn-text');
 
-    if (!input || !input.value.trim()) {
-        alert('Masukkan ID Pemesanan terlebih dahulu');
+    const token = new URLSearchParams(window.location.search).get('token');
+    if (!token && (!input || !input.value.trim())) {
+        showConfirmModal({
+            alertMode: true,
+            title: 'ID belum diisi',
+            message: 'Masukkan ID Pemesanan terlebih dahulu.',
+            yesLabel: 'Mengerti'
+        });
         return;
     }
 
-    const orderId = input.value.trim();
+    const orderId = input ? input.value.trim() : '';
 
     if (trackResult) trackResult.classList.add('hidden');
     if (trackError) trackError.classList.add('hidden');
@@ -4241,14 +4271,52 @@ window.handleTrackOrder = async () => {
         const sb = initSupabase();
         if (!sb) throw new Error('Database tidak tersedia');
 
-        const { data, error } = await sb
-            .from('orders')
-            .select('*')
-            .eq('order_id', orderId)
-            .single();
+        let data = null;
+        if (token) {
+            const r = await sb.rpc('track_order_by_token', { p_token: token });
+            if (r.error) throw r.error;
+            data = (r.data && r.data[0]) || null;
+            if (!data) {
+                showConfirmModal({
+                    alertMode: true,
+                    icon: 'lock',
+                    title: 'Akses dibatasi',
+                    message: 'Tautan lacak ini tidak cocok dengan pesanan mana pun. Bila ini pesananmu, minta tautan baru ke penjual.',
+                    yesLabel: 'Mengerti'
+                });
+                return;
+            }
+        } else {
+            const { data: { session } } = await sb.auth.getSession();
+            if (!session) {
+                showConfirmModal({
+                    alertMode: true,
+                    icon: 'lock',
+                    title: 'Login diperlukan',
+                    message: 'Demi melindungi data pemesan, lacak pesanan hanya bisa dilakukan setelah login. Masuk dengan akun yang dipakai saat memesan.',
+                    yesLabel: 'Mengerti'
+                });
+                return;
+            }
 
-        if (error || !data) {
-            throw new Error('Order tidak ditemukan');
+            const q = await sb
+                .from('orders')
+                .select('*')
+                .eq('order_id', orderId)
+                .single();
+
+            if (q.error && q.error.code !== 'PGRST116') throw q.error;
+            data = q.data;
+            if (!data) {
+                showConfirmModal({
+                    alertMode: true,
+                    icon: 'lock',
+                    title: 'Akses dibatasi',
+                    message: 'ID pemesanan ini bukan milik akun yang sedang login, atau tidak ditemukan. Pesanan orang lain tidak dapat ditampilkan.',
+                    yesLabel: 'Mengerti'
+                });
+                return;
+            }
         }
 
         window._trackOrderData = data;
