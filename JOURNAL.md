@@ -736,6 +736,17 @@ Fokus: user tanya "Halaman brew masih ada emoji yang bukan svg, biarkan atau uba
 - **Verifikasi**: `node --check app.js` lolos, brace `style.css` 903 → 907/907, `npm run check:assets` OK (11 halaman), scan ulang `brew.html` = 0 sisa emoji dan region modal `app.js` 2640-2740 bersih. Bump `v=1.0.129` → `v=1.0.130` di 22 referensi (byte-level), CRLF utuh.
 
 
+### **53. Catatan 10 November 2026 (perataan teks bullet di kartu hack Brew)**
+
+Fokus: user kasih screenshot `Images/Tampilan Halaman Brew Perataan Teks.png` — baris yang wrap di kartu Pro Tips/Hindari Ini balik ke kolom paling kiri (di bawah bullet), bukan sejajar kolom teks pertama.
+
+- **Penyebab**: `brew.html` kedua `<ul>` memakai `list-style: none; padding: 0` dengan bullet manual `&bull; ` di awal tiap `<li>` — teks pertama ter-indent ~10px karena karakter bullet, tapi baris wrap mulai dari x=0 (tidak ada hanging indent), jadi sisa baris ("aroma.", "langsung.") miring ke kiri.
+- **Perbaikan**: ganti jadi list marker asli — `<ul style="list-style: disc; padding-left: 1.5em;">` dan hapus prefix `&bull; ` dari 6 `<li>` (2 kartu × 3 item). Browser otomatis pasang hanging indent: marker disc di gutter, semua baris (termasuk yang wrap) sejajar di kolom yang sama (24px, dekat kolom teks heading ±26px dari tepi konten). Inline style dipertahankan karena brew.html memang konsisten styling via inline.
+- **Kenapa bukan `text-indent` negatif**: lebar glyph `&bull;` tidak tepat 1em (bergantung font), sehingga indent baris wrap pasti meleset; marker asli = browser yang hitung. Opsi `display:flex` per-`<li>` juga dipertimbangkan, lebih ribet tanpa keunggulan.
+- **Pemakaian `&bull;` lain di repo** (di luar lingkup, tidak disentuh): `admin.html:208` placeholder titik password (bukan bullet), `history.html:293-296` daftar sumber referensi dengan pola sama (`<li>&bull; ...` + `list-style:none`) — **kemungkinan besar bug wrap yang sama ada di halaman History**, tinggal bilang kalau mau diperbaiki sekalian. `history.html:181` `&bull;` sebagai pemisah teks biasa — biarkan.
+- **Verifikasi**: 0 sisa `&bull;` di list `brew.html`, `npm run check:assets` OK (11 halaman, `v=1.0.130` konsisten), CRLF utuh. **Tanpa bump versi** — perubahan hanya HTML, `style.css`/`app.js` tidak berubah jadi referensi cache tetap valid.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
