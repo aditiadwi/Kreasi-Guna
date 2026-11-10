@@ -724,6 +724,18 @@ Fokus: user kirim screenshot `Contoh Tampilan di halaman Products setelah meneka
 - **Verifikasi**: brace `style.css` 903/903, `node --check app.js` lolos, `npm run check:assets` OK (11 halaman). Bump `v=1.0.128` → `v=1.0.129` di 22 referensi (11 halaman × CSS+JS) lewat penggantian level byte; CRLF dan byte non-ASCII semua utuh.
 
 
+### **52. Catatan 10 November 2026 (emoji di halaman Brew diganti SVG)**
+
+Fokus: user tanya "Halaman brew masih ada emoji yang bukan svg, biarkan atau ubah?" — setelah diberi daftar temuan, user pilih **ubah semua (brew + banner index + modal Detail Stand)**.
+
+- **Temuan di lingkup Brew**: `brew.html:56` panah `➤` (U+27A4) tombol banner, `:98` `💡` judul Pro Tips, `:106` `⚠️` judul Hindari Ini; banner identik di `index.html:134`; modal Detail Stand (di-inject `app.js`, dibuka dari tombol banner itu) berisi `📸` media-badge, `📍`/`📝`/`☕` tiga `.detail-icon`, dan prefix `☕ ` di tiap chip produk (`app.js:2736`).
+- **Arah repo sudah bulat**: jurnal entri 37/38 menghapus semua emoji dari admin (emoji literal ditolak) dan entri 46 memakai SVG untuk ikon logout — jadi ini menyelesaikan sisa emoji di halaman customer. Bonus: `💡⚠️☕` selama ini tampil sebagai emoji warna sistem (Noto di Android / Segoe di Windows) yang bentuknya beda-beda antar perangkat, sementara SVG stroke feather selalu seragam.
+- **Penggantinya (semua SVG stroke feather gaya repo**: `viewBox="0 0 24 24"`, `stroke="currentColor"`, `aria-hidden`): panah → feather `arrow-right`; `💡` → lucide `lightbulb`; `⚠️` → feather `alert-triangle`; `📸` → feather `camera`; `📍` → feather `map-pin`; `📝` → feather `file-text`; `☕` → feather `coffee` **memakai path yang sudah ada di repo** (`app.js:3715`, set ikon drawer mobile). Prefix `☕ ` di chip dihapus — chip versi statis (`app.js:2674-2676`) memang tidak pernah ber-ikony jadi versi dinamis ikut seragam; teks chip tetap.
+- **CSS baru** (`style.css`, satu blok komentar "ikon SVG inline pengganti emoji" setelah `.banner-cta-btn:hover .arrow-icon`): `.banner-cta-btn .arrow-icon svg` 1em display-block (animasi hover `translateX(4px)` di span induk tetap jalan), `.hack-card h3 svg` 1.1em `vertical-align:-0.15em` + margin 6px, `.media-badge svg` 1em, `.detail-icon svg` 22px display-block (kotak ikon 44px). `currentColor` membuat warna ikon otomatis ikut teks induk — tidak ada warna hardcoded.
+- **Yang sengaja TIDAK disentuh**: bintang `★`/`☆` (U+2605/U+2606) — itu glyph teks yang jadi konvensi "bintang" seluruh situs (kartu produk, modal ulasan, form rating `.star-d` dengan sibling selector `:hover ~`/`.active ~` yang bergantung pada span teks; menggantinya SVG = rombak sistem rating lintas halaman), `&bull;`/`&#8599;`/`&uarr;` simbol teks footer, serta emoji halaman lain di luar lingkup (`⚠️`/`📍` alamat peta `app.js:3174/3415`, `💡` `checkout.html:83/134`) — kalau mau diseragamkan tinggal bilang.
+- **Verifikasi**: `node --check app.js` lolos, brace `style.css` 903 → 907/907, `npm run check:assets` OK (11 halaman), scan ulang `brew.html` = 0 sisa emoji dan region modal `app.js` 2640-2740 bersih. Bump `v=1.0.129` → `v=1.0.130` di 22 referensi (byte-level), CRLF utuh.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

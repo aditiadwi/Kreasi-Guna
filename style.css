@@ -2278,6 +2278,30 @@ a:active {
     transform: translateX(4px);
 }
 
+/* Ikon SVG inline pengganti emoji (banner, hack-card brew, modal detail stand) */
+.banner-cta-btn .arrow-icon svg {
+    width: 1em;
+    height: 1em;
+    display: block;
+}
+.hack-card h3 svg {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: -0.15em;
+    margin-right: 6px;
+}
+.media-badge svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    margin-right: 4px;
+}
+.detail-icon svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
 /* 2. Interactive Event Detail Modal */
 .event-modal-backdrop {
     position: fixed;
