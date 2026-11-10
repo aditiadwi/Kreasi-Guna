@@ -713,6 +713,17 @@ Fokus: usulan user sendiri sebagai alternatif entri 49 — "nama sampingnya bint
 - **Verifikasi**: `node --check app.js` lolos, `npm run check:assets` OK (11 halaman), brace 901/901. Bump `v=1.0.127` → `v=1.0.128` biner (latin1), CR utuh.
 
 
+### **51. Catatan 10 November 2026 (card modal See Description di HP tidak kepotong lagi)**
+
+Fokus: user kirim screenshot `Contoh Tampilan di halaman Products setelah menekan see description.jpeg` dan melaporkan "ukuran cardnya kepotong… mungkin kepanjangan untuk di hp" — card modal produk memanjang melewati batas layar sehingga tepi bawahnya tidak pernah kelihatan.
+
+- **Akar masalahnya: `max-height: 90vh` vs tinggi viewport nyata di HP.** `vh` = *large viewport* (ukuran layar saat URL bar/browser toolbar sembunyi); saat toolbar tampil, viewport terlihat lebih pendek dari `vh`. Backdrop `position: fixed` + `height: 100%` menyesuaikan viewport terlihat, sedangkan card dibolehkan setinggi `90vh` → card bisa lebih tinggi dari area terlihat dan terpotong di bawah (persis seperti screenshot: card mentok tepi bawah, sudut membulat bawah tidak pernah tampil).
+- **Fix di `@media (max-width: 768px)`** (`style.css`): `.product-modal-backdrop` dikasih `height: 100dvh` (progressive enhancement — browser tanpa `dvh` tetap jatuh ke `height: 100%` rule dasar) dan `padding` 20px → 12px; `.product-modal-container` dikasih `max-height: calc(100dvh - 24px)` yang menimpa `90vh`. `dvh` = *dynamic viewport height*: ikut naik-turun saat URL bar muncul/hilang, jadi card selalu muat utuh (sudut atas + bawah kelihatan) dan hanya konten di dalamnya yang melakukan scroll.
+- **`overscroll-behavior: contain`** ditambahkan ke rule dasar `.product-modal-container` — saat isi modal mentok di bawah, scroll tidak "bocor" (chain) ke halaman products di belakangnya.
+- **Yang tidak disentuh**: layout desktop (grid 2 kolom; `90vh + 40px padding < 100vh` di desktop jadi memang selalu muat), posisi tombol close, dan markup `app.js` (nol perubahan JS — konten/kontrol modal tidak berubah).
+- **Verifikasi**: brace `style.css` 903/903, `node --check app.js` lolos, `npm run check:assets` OK (11 halaman). Bump `v=1.0.128` → `v=1.0.129` di 22 referensi (11 halaman × CSS+JS) lewat penggantian level byte; CRLF dan byte non-ASCII semua utuh.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
