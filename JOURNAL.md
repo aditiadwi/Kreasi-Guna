@@ -763,6 +763,16 @@ Fokus: user minta "1 orang cuma bisa pakai ID pemesanan dia; kalau nebak ID oran
 - **Dua bug yang ketahuan saat review ulang (user tanya "sudah benar belum?") dan sudah diperbaiki**: (1) guard `if (!input.value.trim()) alert(...)` di awal `handleTrackOrder` jalan **sebelum** cabang token, sehingga `track.html?token=...` dengan input kosong langsung ditolak dan kuncinya tidak pernah dipakai — guard kini hanya berlaku bila tidak ada token, dan alert native diganti modal sesuai konvensi repo. (2) `enable row level security` tanpa policy tulis akan mematikan checkout bila RLS sebelumnya mati — SQL kini membuat policy INSERT (`anon, authenticated`, `with check (true)`) dan UPDATE/DELETE (admin email) **hanya bila belum ada** policy untuk command itu, jadi tidak melebarkan permukaan yang sudah terpasang.
 
 
+### **55. Catatan 10 November 2026 (ongkir checkout kadang Rp 0 + error tersembunyi di langkah PAY)**
+
+Fokus: user melaporkan Final Summary checkout kadang menampilkan Shipping Fee Rp 0 dan Total = subtotal saja ("kadang ngebug, bisa tadi"), padahal di lain waktu normal.
+
+- **Akar masalah ongkir nol**: `loadUserSpecificState` memulihkan form dengan `el.value = data[id] || ''`. Bila JSON tersimpan tidak punya kunci `delivery-service` (sisa versi lama), select layanan dikosongkan saat event auth async menyusul. `handleShippingUpdate` menghitung ongkir **sebelum** select memperbaiki dirinya (rebuild option otomatis memilih opsi pertama), sehingga ongkir 0 menempel pada tampilan itu; sembuh hanya bila ada panggilan `handleShippingUpdate` berikutnya (race dengan `fetchProducts().then`) — itulah sumber "kadang". Direproduksi deterministik di browser test: sekali panggil `handleShippingUpdate` setelah select dikosongkan → fee Rp 0 dan total = subtotal, persis screenshot user; panggilan kedua sembuh.
+- **Akar masalah PAY**: `handleProceedToPayment` menulis ke `#payment-grand-total`, id yang hanya ada di `version_old/checkout.html` (sudah dihapus saat redesign). TypeError terjadi setiap lanjut ke PAY, sehingga `updatePaymentDisplay()` (gambar QR) dan scroll tidak pernah jalan.
+- **Perbaikan (app.js saja)**: (1) restore form hanya bila nilai tersimpan ada (`if (el && data[id])`), tidak menimpa select dengan string kosong; (2) `handleShippingUpdate` fallback ke `reg` bila nilai layanan tidak ada di tabel kota, **sebelum** menghitung ongkir; (3) hapus tulisan ke id mati `payment-grand-total` di `handleProceedToPayment` dan `renderCart`.
+- **Verifikasi**: `node --check` OK; `npm run check:assets` OK (`v=1.0.132` konsisten di 11 halaman, CRLF utuh); browser test terhadap server lokal: data tersimpan tanpa `delivery-service` → fee Rp 15.000 / total Rp 63.000; select dipaksa kosong → tetap Rp 15.000; lanjut PAY → step 3 aktif, area bayar tampil, gambar QR terinjek, tanpa error. **Belum di-push** — menunggu izin user.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

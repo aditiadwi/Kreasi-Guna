@@ -56,7 +56,7 @@ function loadUserSpecificState(session) {
                 const data = JSON.parse(saved);
                 FORM_FIELDS.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) el.value = data[id] || '';
+                    if (el && data[id]) el.value = data[id];
                 });
             } catch (e) {
                 console.warn("Gagal membaca checkout_form_data dari localStorage:", e);
@@ -775,8 +775,6 @@ function renderCart() {
     const cartTotalEl = document.getElementById('cart-total');
     if (cartTotalEl) cartTotalEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
 
-    const pgEl = document.getElementById('payment-grand-total');
-    if (pgEl) pgEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
     const mbEl = document.getElementById('mobile-bar-total');
     if (mbEl) mbEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
 
@@ -1966,9 +1964,15 @@ window.handleShippingUpdate = () => {
     if (!citySelect || !serviceSelect) return;
     
     const city = citySelect.value;
-    const serv = serviceSelect.value;
-    
+    let serv = serviceSelect.value;
+
     const table = (city && SHIPPING_FEES[city]) ? SHIPPING_FEES[city] : null;
+    // Nilai layanan tersimpan bisa sisa versi lama (tidak ada di tabel); tanpa
+    // fallback ini ongkir terhitung 0 sebelum select sempat memperbaiki dirinya.
+    if (table && !Number.isFinite(table[serv])) {
+        serv = 'reg';
+        serviceSelect.value = serv;
+    }
     currentShippingFee = (table && Number.isFinite(table[serv])) ? table[serv] : 0;
     const feeEl = document.getElementById('shipping-fee');
     if (feeEl) feeEl.innerText = `Rp ${currentShippingFee.toLocaleString('id-ID')}`;
@@ -2027,9 +2031,7 @@ window.handleProceedToPayment = () => {
         if (paybar) paybar.style.display = 'none';
         document.body.classList.remove('has-paybar');
         if (typeof setCheckoutStep === 'function') setCheckoutStep(3);
-        const total = document.getElementById('grand-total').innerText;
-        document.getElementById('payment-grand-total').innerText = total;
-        
+
         // Initialize payment display
         window.updatePaymentDisplay();
         
