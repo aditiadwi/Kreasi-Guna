@@ -1011,8 +1011,8 @@ function showOrderSuccessModal(orderId, orderTotal, trackingToken) {
     spawnConfetti();
 }
 
-function spawnConfetti() {
-    const canvas = document.getElementById('confetti-canvas');
+function spawnConfetti(canvasId) {
+    const canvas = document.getElementById(canvasId || 'confetti-canvas');
     if (!canvas) return;
     const colors = ['#c5a059', '#d4af37', '#27ae60', '#e67e22', '#8e44ad', '#3498db'];
     const pieceCount = 50;
@@ -1544,6 +1544,7 @@ function injectRateModal() {
     if (document.getElementById('rate-modal')) return;
     document.body.insertAdjacentHTML('beforeend', `
     <div id="rate-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 15px;">
+        <div class="confetti-canvas" id="rate-confetti-canvas"></div>
         <div class="rm-box">
             <button class="rm-close" onclick="closeRateModal()" aria-label="Tutup">&times;</button>
 
@@ -1590,7 +1591,13 @@ function injectRateModal() {
 
             <!-- VIEW: SUCCESS -->
             <div id="rate-view-success" style="display:none;">
-                <div class="rm-bigcheck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="rm-bigcheck">
+                    <svg viewBox="0 0 64 64" class="rm-checkmark-circle">
+                        <circle class="rm-circle-track" cx="32" cy="32" r="28" fill="none"/>
+                        <circle class="rm-circle" cx="32" cy="32" r="28" fill="none"/>
+                        <path class="rm-check" fill="none" d="M18 34l9 9 20-20"/>
+                    </svg>
+                </div>
                 <h3 class="rm-success-title">Ulasan Berhasil Dikirim!</h3>
                 <p class="rm-success-sub">Terima kasih telah berbagi pengalamanmu. Ulasanmu sangat berarti bagi kami dan pembeli lainnya.</p>
                 <div id="rate-success-body"></div>
@@ -1653,6 +1660,7 @@ window.rateShowView = function (which) {
         const el = document.getElementById('rate-view-' + v);
         if (el) el.style.display = (v === which) ? '' : 'none';
     });
+    if (which === 'success') spawnConfetti('rate-confetti-canvas');
 };
 
 window.rateCountChars = function () {

@@ -3631,8 +3631,28 @@ a:active {
 
 /* View sukses */
 #rate-view-success { text-align: center; }
-.rm-bigcheck { width: 64px; height: 64px; margin: 6px auto 14px; border-radius: 50%; background: #e8f7ec; color: #2fa855; display: flex; align-items: center; justify-content: center; animation: rm-pop-in 0.35s ease; }
-.rm-bigcheck svg { width: 34px; height: 34px; }
+.rm-bigcheck { width: 72px; height: 72px; margin: 6px auto 14px; animation: rm-pop-in 0.35s ease; }
+.rm-bigcheck .rm-checkmark-circle { width: 100%; height: 100%; }
+.rm-bigcheck .rm-circle-track {
+    stroke: #e8f7ec;
+    stroke-width: 3.5;
+}
+.rm-bigcheck .rm-circle {
+    stroke: #2fa855;
+    stroke-width: 3.5;
+    stroke-dasharray: 176;
+    stroke-dashoffset: 176;
+    animation: circle-draw 0.6s ease-out forwards;
+}
+.rm-bigcheck .rm-check {
+    stroke: #2fa855;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: checkmark-draw 0.4s ease-out 0.55s forwards;
+}
 @keyframes rm-pop-in { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 .rm-success-title { margin: 0 0 6px; color: var(--coffee-dark); font-size: 1.1rem; font-weight: 800; }
 .rm-success-sub { margin: 0 0 16px; font-size: 0.85rem; color: #777; line-height: 1.5; }
