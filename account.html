@@ -704,7 +704,7 @@
                     <div class="acc-stars">${stars}</div>
                     ${f.message ? `<p class="acc-review-msg">${esc(f.message)}</p>` : '<p class="acc-review-msg acc-muted">Tanpa komentar.</p>'}
                     <div class="acc-review-actions">
-                        ${f.edited ? '' : `<button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>`}
+                        ${(+f.edit_count || 0) >= 2 ? '' : `<button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>`}
                         <button class="acc-btn-danger" onclick="deleteReview(${i})">Hapus</button>
                     </div>
                 </div>
@@ -831,7 +831,7 @@
         window.editReview = async function (idx) {
             const f = accReviews[idx];
             if (!f) return;
-            if (f.edited) return alert('Ulasan hanya bisa diubah satu kali.');
+            if ((+f.edit_count || 0) >= 2) return alert('Ulasan hanya bisa diubah maksimal 2 kali.');
             _accEditIdx = idx;
             // Cari info produk untuk tampilan kartu
             if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
@@ -882,14 +882,15 @@
             document.getElementById('acc-edit-view-form').style.display = 'none';
             document.getElementById('acc-edit-view-loading').style.display = '';
             try {
-                let { error } = await supabaseClient.from('feedback').update({ message: msg, edited: true }).eq('id', f.id);
-                if (error && /edited|column/i.test(error.message || '')) {
-                    // Kolom edited belum ada di DB (SQL belum dijalankan): simpan tanpa penanda
+                const nextCount = (+f.edit_count || 0) + 1;
+                let { error } = await supabaseClient.from('feedback').update({ message: msg, edit_count: nextCount }).eq('id', f.id);
+                if (error && /edit_count|column/i.test(error.message || '')) {
+                    // Kolom edit_count belum ada di DB (SQL belum dijalankan): simpan tanpa penanda
                     ({ error } = await supabaseClient.from('feedback').update({ message: msg }).eq('id', f.id));
                 }
                 if (error) throw error;
                 f.message = msg;
-                f.edited = true;
+                f.edit_count = nextCount;
                 loadReviews();
                 document.getElementById('acc-edit-view-loading').style.display = 'none';
                 document.getElementById('acc-edit-view-success').style.display = '';
