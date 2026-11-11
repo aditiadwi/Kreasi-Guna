@@ -2301,6 +2301,13 @@ a:active {
     height: 22px;
     display: block;
 }
+/* Ikon SVG inline pengganti emoji (UI: tombol, empty-state, banner, checkout) */
+.ui-ico {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    flex-shrink: 0;
+}
 
 /* 2. Interactive Event Detail Modal */
 .event-modal-backdrop {

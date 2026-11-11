@@ -773,6 +773,46 @@ Fokus: user melaporkan Final Summary checkout kadang menampilkan Shipping Fee Rp
 - **Verifikasi**: `node --check` OK; `npm run check:assets` OK (`v=1.0.132` konsisten di 11 halaman, CRLF utuh); browser test terhadap server lokal: data tersimpan tanpa `delivery-service` → fee Rp 15.000 / total Rp 63.000; select dipaksa kosong → tetap Rp 15.000; lanjut PAY → step 3 aktif, area bayar tampil, gambar QR terinjek, tanpa error. **Belum di-push** — menunggu izin user.
 
 
+### **56. Catatan 11 November 2026 (animasi sukses ulasan: lingkaran progress, centang draw, konfeti)**
+
+Fokus: user minta success view modal ulasan (rate) dianimasikan "kayak lingkaran progress, terus centang, nanti ada konfeti" — sebelumnya hanya pop-in lingkaran statis dengan polyline centang yang tidak pernah digambar.
+
+- **Markup** (`app.js`, view `#rate-view-success`): `.rm-bigcheck` diganti dari `<svg viewBox="0 0 24 24">` polyline statis jadi SVG 64×64 berisi track ring (`rm-circle-track`), lingkaran stroke (`rm-circle`), dan path centang (`rm-check`) — identik dengan pola modal sukses pesanan yang sudah ada.
+- **Animasi** (`style.css`): reuse keyframes global `circle-draw` (0.6s) dan `checkmark-draw` (delay 0.55s) lewat stroke-dasharray/offset; track ring statis `#e8f7ec` biar efek progress-nya kelihatan. `rm-pop-in` dipertahankan. View di-toggle `display:none` → tampil, jadi animasi otomatis restart tiap kali sukses tampil — tidak perlu restart manual.
+- **Konfeti**: `spawnConfetti()` kini menerima parameter `canvasId` (default `'confetti-canvas'` — modal pesanan tidak berubah perilaku). Modal rate dapat `#rate-confetti-canvas`; `rateShowView('success')` memanggil `spawnConfetti('rate-confetti-canvas')`.
+- **Kenapa canvas konfeti sendiri per modal**: `.confetti-canvas` z-index 4999 < backdrop `#rate-modal` z-index 9999 — pakai canvas modal pesanan, konfetinya tertimbun di belakang backdrop dan tidak terlihat.
+- **Commit**: `5101202`.
+
+
+### **57. Catatan 11 November 2026 (edit ulasan: view sukses + konfeti, batas edit 2 kali)**
+
+Fokus: user tanya "kalau ngubah/gedit ulasan tidak ada pop up seperti setelah berhasil memesan, perlu kah?" — pilih view sukses (opsi 2); lalu minta "bisa ubah 2 kali kalau user salah masukin".
+
+- **Sebelumnya senyap**: `saveAccEditReview` (`account.html`) langsung `closeAccEditModal()` + `loadReviews()` — modal nutup diam-diam, pengguna tidak dapat konfirmasi apa pun bahwa perubahan tersimpan. Beda jauh dengan submit baru yang punya view sukses + konfeti.
+- **View sukses**: modal edit `#acc-edit-modal` diberi view ketiga `#acc-edit-view-success` (markup centang SVG sama dengan rate modal, kelas `rm-bigcheck`/`rm-success-*` dipakai ulang tanpa CSS baru) + canvas `#acc-edit-confetti-canvas`. Simpan berhasil → sembunyikan loading, tampilkan sukses, `spawnConfetti('acc-edit-confetti-canvas')`; `editReview()` me-reset ketiga view + `disabled` tombol simpan (tanpa ini, buka modal edit kedua kali tombolnya permanen mati karena state disabled menempel).
+- **Batas edit 1 → 2 kali**: permintaan awal "cuman bisa sekali" → kolom boolean `edited` (SQL `supabase/feedback_edited.sql`); user ubah jadi "bisa ubah 2 kali" → diganti `edit_count smallint not null default 0`. SQL versi akhir idempotent: add column kalau belum ada, lalu blok DO migrasi `edited=true` → `edit_count=1` dan drop kolom `edited` (cek `information_schema` dulu supaya aman dijalankan ulang). Guard: tombol **Ubah** disembunyikan saat `edit_count >= 2` (`accReviewCard`), `editReview()` alert "maksimal 2 kali" bila lolos guard.
+- **Fallback tanpa SQL**: update kirim `edit_count`; bila error mengandung `edit_count|column`, ulangi update tanpa kolom itu. Jadi kode aman ditayang duluan dan tetap jalan sebelum SQL dijalankan — tapi batas editnya belum aktif (tombol Ubah selalu muncul). Berbeda dengan orders_privacy yang urutannya wajib SQL dulu; di sini SQL hanya mengaktifkan fitur, bukan prasyarat simpan.
+- **Status DB**: user sudah run SQL dua kali (versi boolean `edited`, lalu versi `edit_count` yang sekalian memigrasikan).
+- **Commits**: `2979c73` (view sukses + konfeti + batas 1), `0a64794` (batas 2 via `edit_count`).
+- **Verifikasi**: `npm run check:assets` OK (11 halaman). Bump `v=1.0.132` → `v=1.0.133` di 22 referensi (11 halaman × CSS+JS). **Catatan prosedur**: bump pertama salah pakai konversi ASCII (`Encoding.ASCII`) yang merusak karakter non-ASCII (`—` jadi `???` di 10 halaman) — langsung `git checkout --` semua HTML dan diulang dengan penggantian byte 1:1 (Latin-1) yang hanya menyentuh string versi; diff bersih 22 baris, tidak ada kerusakan encoding.
+
+
+### **58. Catatan 11 November 2026 (emoji UI sisa diganti SVG stroke — pilihan 3)**
+
+Fokus: inventaris emoji aktif dipecah 3 pilihan; pilihan 3 (UI/button) diganti SVG stroke gaya repo (`viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `aria-hidden`). Pilihan 1 (status pesanan 🚚✅❌🟡) dan 2 (ikon dekoratif 🌍☕⚡🏆✨ 🌋🌿⛰️🌺🏝️) **tidak disentuh**; ★ ☆ (rating) dan ✓ (langkah checkout / Copied) tetap teks — konvensi situs (jurnal entri 52).
+
+- **Lokasi diganti (29 kemunculan)**:
+  - `app.js` (15): 🛒 empty cart, ⏳ loading ×3 (export receipt, search, kirim kontak), 🚫 Habis / ➕ Tambah (kartu checkout), 🏦 bank transfer, 📍 hasil cari, ⚠️ + 💡 tip lokasi, 🔍 Cari/Mengambil Alamat/Mendeteksi ×4, 🗺️ Pilih di Peta, 📒 alamat tersimpan.
+  - `cart.html` (2): 🛒 empty-cart, 👤 tombol tamu.
+  - `contact.html` (1): ✉️ Kirim ke Email.
+  - `checkout.html` (7, entri HTML entity): ☕ heading quick-add, 💡 ×2 banner/helper, 📍 ×2 deteksi/pin, 🗺️ pilih peta, 🔍 cari.
+- **Path SVG**: feather/lucide yang sudah ada di repo dipakai ulang (shopping-cart, user, mail, search, map, map-pin, alert-triangle, lightbulb, coffee, book); baru: clock (⏳), ban-circle (🚫), plus (➕), landmark (🏦).
+- **CSS**: utility `.ui-ico` (`style.css`, blok ikon SVG pengganti emoji) — `width/height: 1em`, `vertical-align: -0.15em`, `flex-shrink: 0`. Ikut skala font parent (empty-cart 3rem → 48px).
+- **Status tombol loading**: `innerHTML` diganti SVG+teks; restore pakai `original`/`originalText` yang sudah menangkap SVG — perilaku tidak berubah.
+- **Scan akhir**: sisa emoji aktif hanya pilihan 1 & 2 + ★☆✓ (31 kemunculan, semua di luar lingkup). Pilihan 3 = 0.
+- **Verifikasi**: `node --check app.js` OK; `npm run check:assets` OK (`v=1.0.133` konsisten 11 halaman).
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

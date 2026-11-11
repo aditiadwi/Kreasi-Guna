@@ -715,7 +715,7 @@ function renderCart() {
         if (summaryEl) summaryEl.style.display = 'none';
         if (containerEl) containerEl.classList.add('cart-empty');
         if (isCartPage) {
-            cont.innerHTML = `<div class="empty-cart"><div class="empty-cart-icon">🛒</div><p>Your cart is empty.</p><a href="products.html" class="btn-primary">Browse Products</a></div>`;
+            cont.innerHTML = `<div class="empty-cart"><div class="empty-cart-icon"><svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div><p>Your cart is empty.</p><a href="products.html" class="btn-primary">Browse Products</a></div>`;
         } else {
             cont.innerHTML = '<p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>';
         }
@@ -1437,7 +1437,7 @@ window.trackReceiptAs = (kind, btn) => {
 
 function exportReceiptFile(kind, data, btn) {
     const original = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.innerHTML = '⏳...'; }
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>...'; }
     const done = () => { if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = original; } };
     try {
         const canvas = drawReceiptCanvas(data);
@@ -1958,7 +1958,7 @@ function renderCheckoutProductsList() {
                 <button type="button" class="btn-qty" onclick="addToCartCheckout('${p.id}')" ${isOutOfStock ? 'disabled' : ''}
                         style="width: 100%; padding: 6px; border: none; background: ${isOutOfStock ? '#ccc' : 'var(--gold-premium)'}; color: white; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: ${isOutOfStock ? 'not-allowed' : 'pointer'}; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s;"
                         ${!isOutOfStock ? `onmouseover="this.style.backgroundColor='var(--gold-accent)'" onmouseout="this.style.backgroundColor='var(--gold-premium)'"` : ''}>
-                    ${isOutOfStock ? '🚫 Habis' : '➕ Tambah'}
+                    ${isOutOfStock ? '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg> Habis' : '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah'}
                 </button>
             </div>
         `;
@@ -2060,7 +2060,7 @@ window.updatePaymentDisplay = () => {
         qrContainer.innerHTML = `<img src="Images/QR Merchant Gojek.jpeg" style="width: 250px; border-radius: 12px; box-shadow: var(--shadow-medium);">`;
         instruction.innerText = "Scan the QR code above with your Gojek / GoPay / Any QRIS app.";
     } else if (method === 'transfer') {
-        qrContainer.innerHTML = `<div style="padding: 40px; background: #eee; border-radius: 12px; font-weight: 700; color: #666;">🏦 BANK TRANSFER<br><br><span style="font-size: 0.9rem; font-weight: 400;">Coming Soon! Please use QRIS for now.</span></div>`;
+        qrContainer.innerHTML = `<div style="padding: 40px; background: #eee; border-radius: 12px; font-weight: 700; color: #666;"><svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg> BANK TRANSFER<br><br><span style="font-size: 0.9rem; font-weight: 400;">Coming Soon! Please use QRIS for now.</span></div>`;
         instruction.innerText = "Direct Bank Transfer is currently under maintenance.";
     }
 };
@@ -3071,7 +3071,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!isAutocomplete) {
                 btnSearch.disabled = true;
-                btnSearch.innerHTML = '⏳...';
+                btnSearch.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>...';
             } else {
                 searchResults.innerHTML = `
                     <div style="padding: 10px 12px; font-size: 0.8rem; color: #999; display: flex; align-items: center; gap: 8px;">
@@ -3162,7 +3162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                  style="padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 0.8rem; transition: background 0.2s;"
                                  onmouseover="this.style.backgroundColor='#f7f7f7'"
                                  onmouseout="this.style.backgroundColor='white'">
-                                📍 <strong>${mainName}</strong><br>
+                                <svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> <strong>${mainName}</strong><br>
                                 <span style="color: #666; font-size: 0.75rem;">${detailsName}</span>
                             </div>
                         `;
@@ -3192,8 +3192,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     searchResults.innerHTML = `
                         <div style="padding: 12px; font-size: 0.8rem; color: #666; line-height: 1.4;">
-                            ⚠️ Lokasi tidak ditemukan.<br>
-                            <span style="font-size: 0.72rem; color: #999;">💡 <strong>Tip Pencarian:</strong> Persingkat kata kunci Anda. Coba ketik <em>"Al-Azhar Summarecon"</em> atau <em>"Summarecon Bekasi"</em> saja daripada alamat lengkap spesifik.</span>
+                            <svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Lokasi tidak ditemukan.<br>
+                            <span style="font-size: 0.72rem; color: #999;"><svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg> <strong>Tip Pencarian:</strong> Persingkat kata kunci Anda. Coba ketik <em>"Al-Azhar Summarecon"</em> atau <em>"Summarecon Bekasi"</em> saja daripada alamat lengkap spesifik.</span>
                         </div>
                     `;
                     searchResults.style.display = 'block';
@@ -3205,7 +3205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 if (!isAutocomplete) {
                     btnSearch.disabled = false;
-                    btnSearch.innerHTML = '🔍 Cari';
+                    btnSearch.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Cari';
                 }
             }
         };
@@ -3260,7 +3260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = '🔍 Mengambil Alamat...';
+                btn.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Mengambil Alamat...';
             }
             
             try {
@@ -3433,7 +3433,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = '🗺️ Pilih di Peta';
+                    btn.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Pilih di Peta';
                 }
             }
         };
@@ -3453,7 +3453,7 @@ window.detectUserLocationDirect = () => {
     
     const originalText = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '🔍 Mendeteksi...';
+    btn.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Mendeteksi...';
     
     navigator.geolocation.getCurrentPosition(async (position) => {
         const lat = position.coords.latitude;
@@ -3653,7 +3653,7 @@ window.detectUserLocationMap = () => {
     
     const originalText = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '🔍 Mendeteksi...';
+    btn.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Mendeteksi...';
     
     navigator.geolocation.getCurrentPosition((position) => {
         const lat = position.coords.latitude;
@@ -3948,7 +3948,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!btnSubmit) return;
                 const originalText = btnSubmit.innerHTML;
                 btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '⏳ Mengirim...';
+                btnSubmit.innerHTML = '<svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Mengirim...';
 
                 try {
                     const name = document.getElementById('contact-name').value;
@@ -4111,7 +4111,7 @@ window.renderAddressBook = () => {
         section = document.createElement('div');
         section.id = 'address-book-section';
         section.innerHTML = `
-            <div class="address-book-title">📒 Alamat Tersimpan <small>(maks. 3)</small></div>
+            <div class="address-book-title"><svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Alamat Tersimpan <small>(maks. 3)</small></div>
             <div id="address-book-list"></div>
             <button type="button" class="btn-save-address" id="btn-save-address" onclick="saveCurrentFormAddress()">+ Simpan alamat ini</button>`;
         const banner = document.getElementById('autofill-banner');
