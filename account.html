@@ -247,6 +247,7 @@
 
     <!-- Modal edit ulasan -->
     <div id="acc-edit-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 15px;">
+        <div class="confetti-canvas" id="acc-edit-confetti-canvas"></div>
         <div class="rm-box">
             <button class="rm-close" onclick="closeAccEditModal()" aria-label="Tutup">&times;</button>
             <div id="acc-edit-view-form">
@@ -276,6 +277,18 @@
                 <div class="rm-spinner"></div>
                 <p class="rm-load-title">Menyimpan ulasan...</p>
                 <p class="rm-load-sub">Mohon tunggu sebentar.</p>
+            </div>
+            <div id="acc-edit-view-success" style="display:none; text-align:center;">
+                <div class="rm-bigcheck">
+                    <svg viewBox="0 0 64 64" class="rm-checkmark-circle">
+                        <circle class="rm-circle-track" cx="32" cy="32" r="28" fill="none"/>
+                        <circle class="rm-circle" cx="32" cy="32" r="28" fill="none"/>
+                        <path class="rm-check" fill="none" d="M18 34l9 9 20-20"/>
+                    </svg>
+                </div>
+                <h3 class="rm-success-title">Ulasan Berhasil Diubah!</h3>
+                <p class="rm-success-sub">Perubahan ulasanmu sudah tersimpan.</p>
+                <button onclick="closeAccEditModal()" class="rm-btn rm-btn-submit rm-btn-full">Tutup</button>
             </div>
         </div>
     </div>
@@ -691,7 +704,7 @@
                     <div class="acc-stars">${stars}</div>
                     ${f.message ? `<p class="acc-review-msg">${esc(f.message)}</p>` : '<p class="acc-review-msg acc-muted">Tanpa komentar.</p>'}
                     <div class="acc-review-actions">
-                        <button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>
+                        ${f.edited ? '' : `<button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>`}
                         <button class="acc-btn-danger" onclick="deleteReview(${i})">Hapus</button>
                     </div>
                 </div>
@@ -818,6 +831,7 @@
         window.editReview = async function (idx) {
             const f = accReviews[idx];
             if (!f) return;
+            if (f.edited) return alert('Ulasan hanya bisa diubah satu kali.');
             _accEditIdx = idx;
             // Cari info produk untuk tampilan kartu
             if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
@@ -840,6 +854,8 @@
             document.getElementById('acc-edit-count').textContent = (f.message || '').length + '/500';
             document.getElementById('acc-edit-view-form').style.display = '';
             document.getElementById('acc-edit-view-loading').style.display = 'none';
+            document.getElementById('acc-edit-view-success').style.display = 'none';
+            document.getElementById('acc-edit-save-btn').disabled = false;
             document.getElementById('acc-edit-modal').classList.remove('hidden');
             msgEl.focus();
         };
@@ -866,11 +882,18 @@
             document.getElementById('acc-edit-view-form').style.display = 'none';
             document.getElementById('acc-edit-view-loading').style.display = '';
             try {
-                const { error } = await supabaseClient.from('feedback').update({ message: msg }).eq('id', f.id);
+                let { error } = await supabaseClient.from('feedback').update({ message: msg, edited: true }).eq('id', f.id);
+                if (error && /edited|column/i.test(error.message || '')) {
+                    // Kolom edited belum ada di DB (SQL belum dijalankan): simpan tanpa penanda
+                    ({ error } = await supabaseClient.from('feedback').update({ message: msg }).eq('id', f.id));
+                }
                 if (error) throw error;
                 f.message = msg;
-                closeAccEditModal();
+                f.edited = true;
                 loadReviews();
+                document.getElementById('acc-edit-view-loading').style.display = 'none';
+                document.getElementById('acc-edit-view-success').style.display = '';
+                spawnConfetti('acc-edit-confetti-canvas');
             } catch (e) {
                 document.getElementById('acc-edit-view-form').style.display = '';
                 document.getElementById('acc-edit-view-loading').style.display = 'none';
