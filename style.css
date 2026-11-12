@@ -780,10 +780,6 @@ body.menu-open {
     display: flex;
     flex-direction: column;
     background-color: var(--white);
-    background-image: url('Images/Burger Menu Background Coffee Bean Cascade Border.png');
-    background-repeat: no-repeat;
-    background-position: right center;
-    background-size: auto 100%;
     transform: translateX(100%);
     visibility: hidden;
     transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1), visibility 0.4s;
