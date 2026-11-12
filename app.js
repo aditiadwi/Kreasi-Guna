@@ -528,18 +528,23 @@ async function fetchProductRatings() {
     try {
         const sb = initSupabase();
         if (!sb) return PRODUCT_RATINGS;
-        const { data, error } = await sb.from('feedback')
-            .select('product_id,rating,customer_name,message,created_at,is_anonymous')
+        const base = (cols) => sb.from('feedback')
+            .select(cols)
             .eq('is_approved', true)
             .not('product_id', 'is', null)
             .order('created_at', { ascending: false });
+        let { data, error } = await base('product_id,rating,customer_name,message,created_at,is_anonymous,photos');
+        if (error && /photos/i.test(error.message || '')) {
+            // Kolom photos belum ada di DB: ambil tanpa foto
+            ({ data, error } = await base('product_id,rating,customer_name,message,created_at,is_anonymous'));
+        }
         if (error || !data) return PRODUCT_RATINGS;
         data.forEach(r => {
             if (!r.product_id) return;
-            if (!PRODUCT_RATINGS[r.product_id]) PRODUCT_RATINGS[r.product_id] = { total: 0, count: 0, samples: [] };
+            if (!PRODUCT_RATINGS[r.product_id]) PRODUCT_RATINGS[r.product_id] = { total: 0, count: 0, all: [] };
             const e = PRODUCT_RATINGS[r.product_id];
             e.total += (r.rating || 0); e.count += 1;
-            if (e.samples.length < 3) e.samples.push(r);
+            e.all.push(r); // semua ulasan — preview pakai slice(0,3), panel "lihat semua" pakai ini
         });
     } catch (e) { /* abaikan: rating tak boleh merusak katalog */ }
     return PRODUCT_RATINGS;
@@ -4497,11 +4502,15 @@ window.openProductModal = (product) => {
         if (e && e.count) {
             const avg = (e.total / e.count).toFixed(1);
             const rounded = Math.min(5, Math.round(e.total / e.count));
+            const shown = (e.all || []).slice(0, 3);
+            const seeAll = e.count > 3
+                ? `<button type="button" class="pm-see-all" onclick="openReviewsAllModal('${product.id}')">Lihat semua ulasan (${e.count})</button>`
+                : '';
             revBox.innerHTML = `<h4><span>Ulasan Pembeli</span><span class="pm-avg"><span class="pm-stars">${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}</span> (${avg} · ${e.count})</span></h4>` +
-                e.samples.map(s => {
+                shown.map(s => {
                     const r = Math.max(0, Math.min(5, Number(s.rating) || 0));
                     return `<div class="pm-review"><div class="pm-rhead"><span class="pm-name">${s.is_anonymous ? maskAnonymousName(s.customer_name) : (s.customer_name || 'Anonymous')}</span><span class="pm-stars">${'★'.repeat(r)}${'☆'.repeat(5 - r)}</span></div><span class="pm-msg">${s.message || ''}</span></div>`;
-                }).join('');
+                }).join('') + seeAll;
         } else {
             revBox.innerHTML = `<h4>Ulasan Pembeli</h4><p class="pm-empty">Belum ada ulasan untuk produk ini. Beli dan lacak order-mu untuk kasih bintang pertama!</p>`;
         }
@@ -4560,3 +4569,72 @@ function injectProductModal() {
 }
 
 document.addEventListener('DOMContentLoaded', injectProductModal);
+
+function reviewDateStr(iso) {
+    if (!iso) return '';
+    try {
+        return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch (e) { return ''; }
+}
+
+function injectReviewsAllModal() {
+    const html = `
+    <div id="reviews-all-modal" class="product-modal-backdrop reviews-all-backdrop hidden" onclick="if (event.target === this) closeReviewsAllModal()">
+        <div class="reviews-all-container" onclick="event.stopPropagation()">
+            <button class="product-modal-close-btn" onclick="closeReviewsAllModal()" title="Tutup">&times;</button>
+            <div class="reviews-all-head">
+                <h3>Ulasan Pembeli</h3>
+                <div class="reviews-all-summary" id="reviews-all-summary"></div>
+            </div>
+            <div class="reviews-all-list" id="reviews-all-list"></div>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+document.addEventListener('DOMContentLoaded', injectReviewsAllModal);
+
+window.openReviewsAllModal = (productId) => {
+    const modal = document.getElementById('reviews-all-modal');
+    const list = document.getElementById('reviews-all-list');
+    const summary = document.getElementById('reviews-all-summary');
+    if (!modal || !list) return;
+    const e = PRODUCT_RATINGS && PRODUCT_RATINGS[productId];
+    const all = (e && e.all) || [];
+    if (e && e.count) {
+        const avg = (e.total / e.count).toFixed(1);
+        const rounded = Math.min(5, Math.round(e.total / e.count));
+        summary.innerHTML = `<span class="pm-stars">${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}</span> (${avg} · ${e.count} ulasan)`;
+    } else {
+        summary.innerHTML = '';
+    }
+    if (!all.length) {
+        list.innerHTML = `<p class="pm-empty">Belum ada ulasan untuk produk ini.</p>`;
+    } else {
+        list.innerHTML = all.map(s => {
+            const r = Math.max(0, Math.min(5, Number(s.rating) || 0));
+            const date = reviewDateStr(s.created_at);
+            const photos = String(s.photos || '').split(',')
+                .map(u => u.trim())
+                .filter(u => /^https?:\/\//i.test(u))
+                .map(u => `<img class="ra-photo" src="${u}" alt="Foto ulasan" loading="lazy" onclick="window.open(this.src, '_blank')">`)
+                .join('');
+            return `<div class="ra-item">
+                <div class="ra-head">
+                    <span class="ra-name">${s.is_anonymous ? maskAnonymousName(s.customer_name) : (s.customer_name || 'Anonymous')}</span>
+                    <span class="pm-stars">${'★'.repeat(r)}${'☆'.repeat(5 - r)}</span>
+                    ${date ? `<span class="ra-date">${date}</span>` : ''}
+                </div>
+                ${s.message ? `<span class="ra-msg">${s.message}</span>` : ''}
+                ${photos ? `<div class="ra-photos">${photos}</div>` : ''}
+            </div>`;
+        }).join('');
+    }
+    modal.classList.remove('hidden');
+    list.scrollTop = 0;
+};
+
+window.closeReviewsAllModal = () => {
+    const modal = document.getElementById('reviews-all-modal');
+    if (modal) modal.classList.add('hidden');
+};

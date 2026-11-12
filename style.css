@@ -1340,6 +1340,122 @@ body.menu-open {
     font-size: 0.85rem;
     color: #999;
 }
+.product-modal-reviews .pm-see-all {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--white);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--coffee-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.product-modal-reviews .pm-see-all:hover {
+    background: var(--gold-premium);
+    border-color: var(--gold-premium);
+    color: var(--white);
+}
+
+/* ===== Panel "Lihat semua ulasan" (overlay di atas modal See Description) ===== */
+.reviews-all-backdrop { z-index: 2100; }
+.reviews-all-container {
+    background: var(--white);
+    border-radius: 20px;
+    width: min(640px, 100%);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-bold);
+    animation: modalSlideIn 0.3s ease;
+}
+.reviews-all-head {
+    flex-shrink: 0;
+    padding: 22px 60px 14px 24px;
+    border-bottom: 1px solid var(--border-light);
+}
+.reviews-all-head h3 {
+    font-size: 1.2rem;
+    color: var(--coffee-dark);
+    margin-bottom: 4px;
+}
+.reviews-all-summary {
+    font-size: 0.88rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.reviews-all-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 24px 24px;
+}
+.ra-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+.ra-item:last-child { border-bottom: none; }
+.ra-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+.ra-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--coffee-dark);
+}
+.ra-head .pm-stars {
+    color: #f1c40f;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+.ra-date {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: #999;
+    white-space: nowrap;
+}
+.ra-msg {
+    display: block;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    margin-bottom: 10px;
+}
+.ra-photos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.ra-photo {
+    width: 74px;
+    height: 74px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    background: #fdfdfd;
+}
+.ra-photo:hover { transform: scale(1.06); }
+@media (max-width: 480px) {
+    .reviews-all-head { padding: 18px 56px 12px 16px; }
+    .reviews-all-list { padding: 4px 16px 20px; }
+    .ra-date { margin-left: 0; }
+}
 
 @media (max-width: 768px) {
     .product-modal-backdrop {
