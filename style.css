@@ -1365,7 +1365,8 @@ body.menu-open {
 .checkout-container > * { min-width: 0; }
 .checkout-steps { max-width: 100%; overflow-x: auto; }
 /* Ringkasan nempel saat form panjang di-scroll (desktop) */
-.order-summary { position: sticky; top: 96px; }
+.order-summary { position: sticky; top: 96px; max-height: calc(100vh - 120px); overflow-y: auto; overscroll-behavior: contain; }
+.order-summary > h3 { text-align: center; }
 /* Bar total fixed di HP — disembunyikan di desktop */
 #mobile-paybar { display: none; }
 /* Tombol lipat quick-add — hanya muncul di HP */
@@ -1741,7 +1742,7 @@ footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 ca
 @media (max-width: 992px) {
     .hero h1 { font-size: 3.5rem; }
     .checkout-container { grid-template-columns: 1fr; }
-    .order-summary { position: static; }
+    .order-summary { position: static; max-height: none; overflow: visible; }
     /* Bar total selalu terlihat di bawah layar (halaman checkout, HP) */
     #mobile-paybar {
         display: flex;
