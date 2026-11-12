@@ -828,7 +828,7 @@ Fokus: user kasih screenshot "Tampila Halaman Checkout Final Summary Harus diper
 - **Sisa**: warna tombol Pilih File belum dipilih/diterapkan.
 
 
-### **60. Catatan 12 November 2026 (burger menu rapi, ulasan anonim gaya Shopee, gambar kartu persegi)**
+### **60. Catatan 12 November 2026 (burger menu rapi, ulasan anonim gaya Shopee, gambar kartu & modal See Description persegi)**
 
 Lanjutan dari #59: bersihkan drawer burger menu, lalu bangun fitur ulasan anonim sesuai contoh Shopee, terakhir seragamkan kotak gambar produk.
 
@@ -836,7 +836,8 @@ Lanjutan dari #59: bersihkan drawer burger menu, lalu bangun fitur ulasan anonim
 - **Ulasan anonim** (commit `c5ded5d`, `v=1.0.140`): kolom `is_anonymous` via `supabase/feedback_anonymous.sql` (idempotent `add column if not exists`; kode fallback retry insert/update tanpa kolom kalau belum jalan — regex `/is_anonymous/i` dicek **sebelum** fallback generik `product_id|order_id|column` supaya tidak salah cabang). SQL sudah di-run user, diverifikasi via REST `feedback?select=id,is_anonymous` balik `is_anonymous:false`.
 - **UI anonim**: checkbox "Tampilkan sebagai Anonim" di modal Beri Ulasan (app.js `injectRateModal`, reset tiap modal dibuka) dan modal edit ulasan account (`#acc-edit-anon`, preset dari `f.is_anonymous`, payload fallback dua tahap). Nama publik disamar gaya Shopee lewat `maskAnonymousName(name)` → huruf awal + `*` sepanjang isi + huruf akhir huruf kecil (`aditiadwip` → `a********p`, `annaravinta` → `a*********a`, 1-2 huruf → `a*`) — panjang nama terbaca tapi isinya tidak; berlaku di testimonials beranda (authorName) dan modal produk (`pm-name`). Avatar publik: ikon orang SVG generic di lingkaran latte — tanpa foto profil Google maupun initial huruf. Admin tetap lihat **nama asli** untuk moderasi + badge ungu "Anonim" + teks "tampil: menyamar".
 - **Gambar kartu produk persegi** (`v=1.0.141`): `.product-card img` semula `height: 250px` fixed — kotaknya jadi rasio beda-beda karena lebar ikut kolom grid (clamp 250-320px). Diganti `aspect-ratio: 1/1` + `height: auto` (`object-fit: cover; object-position: center` dipertahankan) → semua gambar jadi kotak seragam, dipasin ke tengah kotak; override mobile `height: 160px` dihapus biar aturan aspect-ratio berlaku (lebar kartu HP ~160px, jadi tingginya mirip). Class `img-box/img-sachet/img-pouch` sudah tidak punya CSS di `style.css` aktif (hanya di `version_old`) — tidak perlu disentuh.
-- **Commits**: `a75249c` → `c5ded5d` → commit kartu+jurnal ini.
+- **Modal See Description: gambar kotak 1:1** (commit `309d773`, `v=1.0.142`): klarifikasi user — yang dimaksud "kartu gambar dipasin" ternyata gambar di modal See Description, bukan cuma grid. `.product-modal-image img` semula `max-height: 350px` + `object-fit: contain` → tiap produk tampil beda ukuran/tinggi (contoh user: gambar 40x100 harus jadi kotak 40x40). Diganti `aspect-ratio: 1/1` + `height: auto` + `object-fit: cover; object-position: center` — semua gambar modal jadi persegi seragam, kepotong rapi di tengah. Grid kartu (perubahan `v=1.0.141`) dipertahankan juga.
+- **Commits**: `a75249c` → `c5ded5d` → `857fbf7` → `309d773` → commit jurnal ini.
 
 
 ### **Catatan buat besok (lanjut)**
