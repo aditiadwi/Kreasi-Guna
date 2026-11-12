@@ -840,6 +840,19 @@ Lanjutan dari #59: bersihkan drawer burger menu, lalu bangun fitur ulasan anonim
 - **Commits**: `a75249c` → `c5ded5d` → `857fbf7` → `309d773` → commit jurnal ini.
 
 
+### **61. Catatan 12 November 2026 (panel "Lihat semua ulasan" + gambar modal sticky)**
+
+Fokus: modal See Description — user minta semua pendapat pembeli bisa dilihat (scroll, foto, tanggal) tanpa memenuhi modal, lalu gambar jangan ikut scroll.
+
+- **Kolom `photos` diverifikasi ada** di DB via REST (`feedback?select=photos`) — foto ulasan disimpan sebagai CSV URL Cloudinary, lama `null` (kolom mungkin dibuat belakangan / upload jarang).
+- **Panel "Lihat semua ulasan"** (commit `88cb822`, `v=1.0.143`):
+  - `fetchProductRatings`: select tambah `photos` (fallback retry tanpa `photos` kalau kolom belum ada — regex `/photos/i`), semua baris disimpan di `e.all` (bukan cuma 3 `samples` lagi; `samples` dihapus, preview pakai `e.all.slice(0,3)`).
+  - Preview modal tetap 3 ulasan terbaru + tombol `pm-see-all` **"Lihat semua ulasan (N)"** yang muncul kalau `e.count > 3`.
+  - Overlay baru `#reviews-all-modal` (z-index 2100, di atas modal See Description yang 2000), inject via `injectReviewsAllModal` di DOMContentLoaded: header (judul + ringkasan `★★★★☆ (4.5 · N ulasan)`) + `reviews-all-list` scrollable berisi **semua** ulasan — nama (mask anonim), bintang, tanggal `reviewDateStr` (`toLocaleDateString('id-ID')`), pesan (`pre-wrap`), thumbnail foto 74px (klik → `window.open` tab baru, hanya URL http/https). Tutup via × atau klik backdrop. Tombol tidak muncul kalau ≤3 ulasan (sudah tampil semua di preview).
+- **Gambar modal See Description sticky** (commit `272d060`, `v=1.0.144`): user minta "gambar tidak kescroll, see descriptionnya aja yang kescroll". `.product-modal-image` dapat `position: sticky; top: 0; align-self: start` (grid item harus `align-self: start` biar sticky-nya jalan) — desktop: kolom gambar menempel, kolom kanan yang jalan. Mobile (≤768): `.product-modal-content` diganti dari `grid 1 kolom` jadi `flex column` (sticky grid item terkunci di row-nya sendiri, fleksibel) + `z-index: 1` + shadow bawah + `img max-height: 42dvh` — teks scroll di bawah gambar yang tetap teratas.
+- **Commits**: `88cb822` → `272d060` → commit jurnal ini. Bump `v=1.0.143` → `v=1.0.144`.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
