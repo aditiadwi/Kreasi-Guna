@@ -1365,7 +1365,8 @@ body.menu-open {
 .checkout-container > * { min-width: 0; }
 .checkout-steps { max-width: 100%; overflow-x: auto; }
 /* Ringkasan nempel saat form panjang di-scroll (desktop) */
-.order-summary { position: sticky; top: 96px; max-height: calc(100vh - 120px); overflow-y: auto; overscroll-behavior: contain; }
+.order-summary { position: sticky; top: 96px; max-height: calc(100vh - 120px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; -ms-overflow-style: none; }
+.order-summary::-webkit-scrollbar { display: none; }
 .order-summary > h3 { text-align: center; }
 /* Bar total fixed di HP — disembunyikan di desktop */
 #mobile-paybar { display: none; }
