@@ -813,6 +813,21 @@ Fokus: inventaris emoji aktif dipecah 3 pilihan; pilihan 3 (UI/button) diganti S
 - **Verifikasi**: `node --check app.js` OK; `npm run check:assets` OK (`v=1.0.133` konsisten 11 halaman).
 
 
+### **59. Catatan 12 November 2026 (rapikan tampilan checkout: merchant, Final Summary, tombol Pilih File)**
+
+Fokus: user kasih screenshot "Tampila Halaman Checkout Final Summary Harus diperbaiki" — nama merchant pecah 3 baris ("Gojek - KG / Smart Drip / Coffee"), Final Summary minta center & bisa scroll, tombol upload bukti bayar masih input file default browser.
+
+- **Nama merchant** (`.merchant-header`): semula `flex row` + `space-between` memaksa nama panjang wrap berantakan di kolom kanan. Percobaan pertama `flex-column` (commit `6efd5b4`) ternyata terlalu tinggi, user minta "kecilin aja tulisannya" → revert (`b1ed2cb`) lalu settle di `flex row` + `gap: 12px`, label `0.7rem` letter-spacing 1px, nama `0.9rem` `text-align: right` — satu baris, ringkas, wrap hanya bila benar-benar panjang.
+- **Percobaan payment-mode (direvert)**: commit `6efd5b4` sempat menambah `.checkout-container.payment-mode` (sembunyikan `.cart-details`, single-column, max-width 640px center) + toggle class di `handleProceedToPayment`. User minta "balik ke repo sebelumnya" → seluruh mekanisme itu dibatalkan di revert `b1ed2cb`; hanya perkecil teks merchant yang dipertahankan.
+- **Final Summary center + scrollable** (commit `57cb2f6`): `.order-summary > h3 { text-align: center; }` + `.order-summary` dapat `max-height: calc(100vh - 120px)` `overflow-y: auto` `overscroll-behavior: contain` — card sticky tidak lagi melangkahi viewport saat payment area (QR + form) muncul. Di mobile (`max-width: 992px`) `max-height` dilepas (`none`/`visible`) biar flow scroll halaman biasa.
+- **Scrollbar disembunyikan** (commit `ed13bca`, `v=1.0.136`): `scrollbar-width: none` + `::-webkit-scrollbar { display: none }` — scroll tetap jalan, bar visual hilang → tampilan smooth sesuai permintaan.
+- **Tombol Pilih File custom** (commit `1e15d4e`, `v=1.0.137`): input file default diganti wrapper `.file-upload-box` (border dashed latte, hover gold) berisi `<input type=file>` tersembunyi + `<button class="btn-file-pick">` (ikon SVG upload + teks) + `<span id="receipt-file-name">` yang JS-nya di `DOMContentLoaded` update nama file & toggle class `has-file` (border solid gold). Input asli tetap dipakai `handlePlaceOrder` lewat `files[0]` — alur submit tidak berubah.
+- **Inventaris file input aktif**: hanya `checkout.html` yang dulu tampil default; `admin.html` (produk & event) sudah `display:none` + label custom; `rate-photo-input` juga tersembunyi. Folder backup tidak disentuh.
+- **Diskusi warna (belum dieksekusi)**: user tanya hijau atau apa; direkomendasikan `--wood-warm` (#6f4e37) atau `--gold-premium` — hijau dianggap nyeleneh dengan palet kopi/emas. Menunggu keputusan.
+- **Commits (semua sudah push)**: `6efd5b4` → `b1ed2cb` → `57cb2f6` → `ed13bca` → `1e15d4e`. Bump `v=1.0.133` → `v=1.0.137` di `checkout.html` (CSS+JS).
+- **Sisa**: warna tombol Pilih File belum dipilih/diterapkan.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
