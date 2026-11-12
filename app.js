@@ -529,7 +529,7 @@ async function fetchProductRatings() {
         const sb = initSupabase();
         if (!sb) return PRODUCT_RATINGS;
         const { data, error } = await sb.from('feedback')
-            .select('product_id,rating,customer_name,message,created_at')
+            .select('product_id,rating,customer_name,message,created_at,is_anonymous')
             .eq('is_approved', true)
             .not('product_id', 'is', null)
             .order('created_at', { ascending: false });
@@ -1576,6 +1576,13 @@ function injectRateModal() {
                 <div id="rate-photos" class="rm-photos"></div>
                 <input type="file" id="rate-photo-input" accept="image/*" multiple style="display:none" onchange="rateAddPhoto(this)">
 
+                <label class="rm-anon" for="rate-anonymous">
+                    <input type="checkbox" id="rate-anonymous">
+                    <span class="rm-anon-text">Tampilkan sebagai Anonim
+                        <small>Nama ditampilkan menyamar (misal: a*****p) &amp; tanpa foto profil.</small>
+                    </span>
+                </label>
+
                 <div class="rm-actions">
                     <button onclick="closeRateModal()" class="rm-btn rm-btn-cancel">Batal</button>
                     <button id="rate-submit-btn" onclick="submitRateModal()" class="rm-btn rm-btn-submit" disabled>Kirim Ulasan &#9733;</button>
@@ -1764,6 +1771,8 @@ window.rateOrderProduct = async function (orderId, itemsRaw, itemName, btn) {
     document.getElementById('rate-message').value = '';
     rateCountChars();
     rateRenderPhotos();
+    const anonBox = document.getElementById('rate-anonymous');
+    if (anonBox) anonBox.checked = false;
     previewRateStars(0);
     rateShowView('form');
     document.getElementById('rate-modal').classList.remove('hidden');
@@ -1822,10 +1831,17 @@ window.submitRateModal = async function () {
             order_id: pending.orderId,
             is_approved: true // terikat order asli, langsung tampil
         };
+        const anonEl = document.getElementById('rate-anonymous');
+        if (anonEl && anonEl.checked) row.is_anonymous = true;
         if (photoUrls.length) row.photos = photoUrls.join(',');
         if (sessionAvatar && /^https?:\/\//i.test(sessionAvatar)) row.avatar_url = sessionAvatar;
 
         let { error } = await supabaseClient.from('feedback').insert([row]);
+        if (error && /is_anonymous/i.test(error.message || '')) {
+            // Kolom is_anonymous belum ada di DB: ulangi tanpa flag anonim
+            delete row.is_anonymous;
+            ({ error } = await supabaseClient.from('feedback').insert([row]));
+        }
         if (error && /photos/i.test(error.message || '')) {
             // Kolom photos belum ada di DB: ulangi tanpa foto
             delete row.photos;
@@ -2338,6 +2354,16 @@ window.submitDirectReview = async () => {
     }
 };
 
+/** Nama menyamar gaya Shopee: "aditiadwip" -> "a********p" (huruf awal + akhir saja,
+    tengahnya semua bintang sepanjang nama — panjang nama ikut terlihat, isinya tidak). */
+function maskAnonymousName(name) {
+    const n = String(name || '').trim();
+    if (!n) return 'Anonim';
+    if (n.length === 1) return n.toLowerCase() + '*';
+    if (n.length === 2) return n[0].toLowerCase() + '*';
+    return n[0].toLowerCase() + '*'.repeat(n.length - 2) + n[n.length - 1].toLowerCase();
+}
+
 async function renderTestimonials() {
     const cont = document.getElementById('testimonials-grid');
     if (!cont) return;
@@ -2357,17 +2383,19 @@ async function renderTestimonials() {
         }
 
         const avatarHtml = r => {
+            if (r.is_anonymous) return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--latte-accent); color: var(--wood-warm); flex-shrink: 0;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>`;
             const url = (r.avatar_url && /^https?:\/\//i.test(r.avatar_url)) ? r.avatar_url : '';
             const initial = (r.customer_name || 'A').charAt(0).toUpperCase();
             if (url) return `<img src="${url}" alt="" loading="lazy" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold-premium); flex-shrink: 0;" onerror="this.remove()">`;
             return `<span style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--gold-premium); color: white; font-weight: 800; font-size: 1rem; flex-shrink: 0;">${initial}</span>`;
         };
+        const authorName = r => r.is_anonymous ? maskAnonymousName(r.customer_name) : (r.customer_name || 'Anonymous');
         const cardHtml = r => `
                 <div class="testimonial-card">
                     <div class="testimonial-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06);">
                         <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
                             ${avatarHtml(r)}
-                            <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${r.customer_name || 'Anonymous'}</strong>
+                            <strong class="testimonial-author" style="color: var(--coffee-black); font-size: 0.98rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${authorName(r)}</strong>
                         </div>
                         <div style="color: #f1c40f; font-size: 1rem; letter-spacing: 1px; white-space: nowrap;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
                     </div>
@@ -4472,7 +4500,7 @@ window.openProductModal = (product) => {
             revBox.innerHTML = `<h4><span>Ulasan Pembeli</span><span class="pm-avg"><span class="pm-stars">${'★'.repeat(rounded)}${'☆'.repeat(5 - rounded)}</span> (${avg} · ${e.count})</span></h4>` +
                 e.samples.map(s => {
                     const r = Math.max(0, Math.min(5, Number(s.rating) || 0));
-                    return `<div class="pm-review"><div class="pm-rhead"><span class="pm-name">${s.customer_name || 'Anonymous'}</span><span class="pm-stars">${'★'.repeat(r)}${'☆'.repeat(5 - r)}</span></div><span class="pm-msg">${s.message || ''}</span></div>`;
+                    return `<div class="pm-review"><div class="pm-rhead"><span class="pm-name">${s.is_anonymous ? maskAnonymousName(s.customer_name) : (s.customer_name || 'Anonymous')}</span><span class="pm-stars">${'★'.repeat(r)}${'☆'.repeat(5 - r)}</span></div><span class="pm-msg">${s.message || ''}</span></div>`;
                 }).join('');
         } else {
             revBox.innerHTML = `<h4>Ulasan Pembeli</h4><p class="pm-empty">Belum ada ulasan untuk produk ini. Beli dan lacak order-mu untuk kasih bintang pertama!</p>`;

@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.139">
+    <link rel="stylesheet" href="style.css?v=1.0.140">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -268,6 +268,12 @@
                     <p class="rm-help">Ceritakan pengalamanmu agar membantu pembeli lain.</p>
                     <span id="acc-edit-count" class="rm-charcount">0/500</span>
                 </div>
+                <label class="rm-anon" for="acc-edit-anon">
+                    <input type="checkbox" id="acc-edit-anon">
+                    <span class="rm-anon-text">Tampilkan sebagai Anonim
+                        <small>Nama ditampilkan menyamar (misal: a*****p) &amp; tanpa foto profil.</small>
+                    </span>
+                </label>
                 <div class="rm-actions">
                     <button onclick="closeAccEditModal()" class="rm-btn rm-btn-cancel">Batal</button>
                     <button id="acc-edit-save-btn" onclick="saveAccEditReview()" class="rm-btn rm-btn-submit">Simpan Perubahan</button>
@@ -293,7 +299,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.139"></script>
+    <script src="app.js?v=1.0.140"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -852,6 +858,8 @@
             const msgEl = document.getElementById('acc-edit-msg');
             msgEl.value = f.message || '';
             document.getElementById('acc-edit-count').textContent = (f.message || '').length + '/500';
+            const editAnon = document.getElementById('acc-edit-anon');
+            if (editAnon) editAnon.checked = !!f.is_anonymous;
             document.getElementById('acc-edit-view-form').style.display = '';
             document.getElementById('acc-edit-view-loading').style.display = 'none';
             document.getElementById('acc-edit-view-success').style.display = 'none';
@@ -883,7 +891,15 @@
             document.getElementById('acc-edit-view-loading').style.display = '';
             try {
                 const nextCount = (+f.edit_count || 0) + 1;
-                let { error } = await supabaseClient.from('feedback').update({ message: msg, edit_count: nextCount }).eq('id', f.id);
+                const editAnon = document.getElementById('acc-edit-anon');
+                const payload = { message: msg, edit_count: nextCount };
+                if (editAnon) payload.is_anonymous = !!editAnon.checked;
+                let { error } = await supabaseClient.from('feedback').update(payload).eq('id', f.id);
+                if (error && /is_anonymous/i.test(error.message || '')) {
+                    // Kolom is_anonymous belum ada di DB: ulangi tanpa flag anonim
+                    delete payload.is_anonymous;
+                    ({ error } = await supabaseClient.from('feedback').update(payload).eq('id', f.id));
+                }
                 if (error && /edit_count|column/i.test(error.message || '')) {
                     // Kolom edit_count belum ada di DB (SQL belum dijalankan): simpan tanpa penanda
                     ({ error } = await supabaseClient.from('feedback').update({ message: msg }).eq('id', f.id));
@@ -891,6 +907,7 @@
                 if (error) throw error;
                 f.message = msg;
                 f.edit_count = nextCount;
+                if (editAnon) f.is_anonymous = !!editAnon.checked;
                 loadReviews();
                 document.getElementById('acc-edit-view-loading').style.display = 'none';
                 document.getElementById('acc-edit-view-success').style.display = '';

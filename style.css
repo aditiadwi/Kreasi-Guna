@@ -3654,6 +3654,13 @@ a:active {
 
 /* Photo picker */
 .rm-photos { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Checkbox anonim (ulasan) */
+.rm-anon { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; padding: 11px 13px; background: #faf7f1; border: 1px solid #e6ded1; border-radius: 10px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+.rm-anon:hover { border-color: var(--gold-premium); background: #f6efe1; }
+.rm-anon input[type="checkbox"] { width: 18px; height: 18px; margin-top: 1px; flex-shrink: 0; accent-color: var(--gold-premium); cursor: pointer; }
+.rm-anon-text { font-size: 0.83rem; color: var(--wood-warm); font-weight: 600; line-height: 1.4; }
+.rm-anon-text small { display: block; font-weight: 400; font-size: 0.74rem; color: #9c8f7d; margin-top: 1px; }
 .rm-thumb { position: relative; width: 64px; height: 64px; border-radius: 10px; overflow: hidden; border: 1px solid #e6ded1; }
 .rm-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .rm-thumb-x { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border: none; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.75rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }

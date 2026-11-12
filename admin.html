@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | KG Smart Drip Coffee</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="style.css?v=1.0.139">
+    <link rel="stylesheet" href="style.css?v=1.0.140">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
@@ -611,7 +611,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.139"></script>
+    <script src="app.js?v=1.0.140"></script>
     <script>
         const adminSupabase = supabaseClient;
         let salesChart = null;
@@ -1305,16 +1305,17 @@
                     ? `<span style="background: #fff3e0; color: #d84315; border: 1px solid #ffcc80; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin-right: 5px; display: inline-block; margin-bottom: 3px;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: -0.1em;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Evaluasi Produk</span>` 
                     : '';
                 const liveBadge = `<span class="status-badge" style="background:${f.is_approved ? '#55efc4' : '#ffeaa7'};color:#2c1e12">${f.is_approved ? 'LIVE' : 'HIDDEN'}</span>`;
+                const anonBadge = f.is_anonymous ? `<span style="background:#ede7f6; color:#5e35b1; border:1px solid #d1c4e9; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; margin-right:5px; display:inline-block; margin-bottom:3px;" title="Nama asli tidak ditampilkan ke publik">Anonim</span>` : '';
                 const initial = (f.customer_name || 'A').trim().charAt(0).toUpperCase();
 
                 return `
                     <tr class="${isEval ? 'fb-eval-row' : ''}">
                         <td>${new Date(f.created_at).toLocaleDateString()}</td>
-                        <td style="white-space: nowrap;"><span class="fb-avatar">${initial}</span><b>${f.customer_name || 'Anonymous'}</b></td>
+                        <td style="white-space: nowrap;"><span class="fb-avatar">${initial}</span><b>${f.customer_name || 'Anonymous'}</b>${f.is_anonymous ? '<br><small style="color:#5e35b1; font-size:0.72rem;">tampil: Anonim</small>' : ''}</td>
                         <td>${f.product_id ? `<span style="background:#e3f2fd; color:#1565c0; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; white-space:nowrap;"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align: -0.1em;"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> ${fbProductNames[f.product_id] || f.product_id}</span><br><small style="color:#97897a;">${f.order_id || ''}</small>` : '<span style="color:#a69a8b; font-size:0.8rem;">Umum</span>'}</td>
                         <td style="color: #f1c40f; white-space: nowrap;">${'★'.repeat(ratingNum)}${'☆'.repeat(5 - ratingNum)}</td>
                         <td style="max-width: 320px; word-break: break-word; color: #4a3f35; line-height: 1.45;">${f.message || '-'}</td>
-                        <td>${evalBadge}${liveBadge}</td>
+                        <td>${anonBadge}${evalBadge}${liveBadge}</td>
                         <td style="white-space: nowrap;">
                             <button class="btn-sm btn-edit btn-icon" title="${f.is_approved ? 'Sembunyikan dari beranda' : 'Tampilkan di beranda'}" onclick="toggleApproval('${f.id}',${f.is_approved})"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true">${f.is_approved ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>' : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'}</svg></button>
                             <button class="btn-sm btn-delete btn-icon" style="margin-left: 5px;" title="Hapus feedback" onclick="deleteFeedback('${f.id}')"><svg class="adm-ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
