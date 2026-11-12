@@ -1249,8 +1249,10 @@ body.menu-open {
 }
 .product-modal-image img {
     width: 100%;
-    max-height: 350px;
-    object-fit: contain;
+    height: auto;
+    aspect-ratio: 1 / 1; /* kotak persegi seragam — gambar dipasin (cover), mis. 40x100 -> 40x40 */
+    object-fit: cover;
+    object-position: center;
     border-radius: 12px;
 }
 .product-modal-details {
