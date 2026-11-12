@@ -828,9 +828,20 @@ Fokus: user kasih screenshot "Tampila Halaman Checkout Final Summary Harus diper
 - **Sisa**: warna tombol Pilih File belum dipilih/diterapkan.
 
 
+### **60. Catatan 12 November 2026 (burger menu rapi, ulasan anonim gaya Shopee, gambar kartu persegi)**
+
+Lanjutan dari #59: bersihkan drawer burger menu, lalu bangun fitur ulasan anonim sesuai contoh Shopee, terakhir seragamkan kotak gambar produk.
+
+- **Drawer burger menu** (commit `a75249c`, `v=1.0.139`): bg biji kopi "Coffee Bean Cascade" sempat dipasang lalu user pilih **hapus permanen** — CSS `.mm-drawer` bersih tanpa gambar latar (pertanyaan "mau dipasang balik?" di catatan besok sudah tidak berlaku).
+- **Ulasan anonim** (commit `c5ded5d`, `v=1.0.140`): kolom `is_anonymous` via `supabase/feedback_anonymous.sql` (idempotent `add column if not exists`; kode fallback retry insert/update tanpa kolom kalau belum jalan — regex `/is_anonymous/i` dicek **sebelum** fallback generik `product_id|order_id|column` supaya tidak salah cabang). SQL sudah di-run user, diverifikasi via REST `feedback?select=id,is_anonymous` balik `is_anonymous:false`.
+- **UI anonim**: checkbox "Tampilkan sebagai Anonim" di modal Beri Ulasan (app.js `injectRateModal`, reset tiap modal dibuka) dan modal edit ulasan account (`#acc-edit-anon`, preset dari `f.is_anonymous`, payload fallback dua tahap). Nama publik disamar gaya Shopee lewat `maskAnonymousName(name)` → huruf awal + `*` sepanjang isi + huruf akhir huruf kecil (`aditiadwip` → `a********p`, `annaravinta` → `a*********a`, 1-2 huruf → `a*`) — panjang nama terbaca tapi isinya tidak; berlaku di testimonials beranda (authorName) dan modal produk (`pm-name`). Avatar publik: ikon orang SVG generic di lingkaran latte — tanpa foto profil Google maupun initial huruf. Admin tetap lihat **nama asli** untuk moderasi + badge ungu "Anonim" + teks "tampil: menyamar".
+- **Gambar kartu produk persegi** (`v=1.0.141`): `.product-card img` semula `height: 250px` fixed — kotaknya jadi rasio beda-beda karena lebar ikut kolom grid (clamp 250-320px). Diganti `aspect-ratio: 1/1` + `height: auto` (`object-fit: cover; object-position: center` dipertahankan) → semua gambar jadi kotak seragam, dipasin ke tengah kotak; override mobile `height: 160px` dihapus biar aturan aspect-ratio berlaku (lebar kartu HP ~160px, jadi tingginya mirip). Class `img-box/img-sachet/img-pouch` sudah tidak punya CSS di `style.css` aktif (hanya di `version_old`) — tidak perlu disentuh.
+- **Commits**: `a75249c` → `c5ded5d` → commit kartu+jurnal ini.
+
+
 ### **Catatan buat besok (lanjut)**
 
-- **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. **Tawarkan user**: bg biji kopi belum dipasang balik — mau ditambahin? Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
+- **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
 - Tes alur akun end-to-end di HP & desktop: login → Pesanan Saya (detail expand) → Beri Ulasan/Beli Lagi di item selesai → Ulasan (ubah/hapus) → Alamat (tambah/ubah/hapus)
 - Kalau mau lanjut lagi: bikin ulang halaman Detail Pesanan full-page dari nol (commit `9003b84` cuma jadi referensi, jangan langsung cherry-pick — harus dirapikan dulu biar nggak amburadul)
 - Cek RLS Supabase tabel `feedback`: kalau UPDATE/DELETE ditolak buat user biasa, tombol Ubah/Hapus ulasan bakal error — perlu policy khusus atau dipindah server-side
