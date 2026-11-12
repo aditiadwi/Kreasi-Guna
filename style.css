@@ -1366,6 +1366,16 @@ body.menu-open {
 .checkout-steps { max-width: 100%; overflow-x: auto; }
 /* Ringkasan nempel saat form panjang di-scroll (desktop) */
 .order-summary { position: sticky; top: 96px; }
+/* Mode bayar: form sudah diisi → ringkasan + payment jadi fokus penuh */
+.checkout-container.payment-mode { grid-template-columns: 1fr; }
+.checkout-container.payment-mode .cart-details { display: none; }
+.checkout-container.payment-mode .order-summary {
+    position: static;
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+}
+.checkout-container.payment-mode .payment-area { margin-top: 30px; }
 /* Bar total fixed di HP — disembunyikan di desktop */
 #mobile-paybar { display: none; }
 /* Tombol lipat quick-add — hanya muncul di HP */
@@ -1436,14 +1446,16 @@ body.menu-open {
 
 .merchant-header { 
     display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 25px; 
-    padding-bottom: 15px; 
+    flex-direction: row;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 20px; 
+    padding-bottom: 14px; 
     border-bottom: 1px solid var(--latte-accent); 
+    text-align: left;
 }
-.merchant-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
-.merchant-name { font-weight: 700; color: var(--coffee-dark); font-size: 1.1rem; }
+.merchant-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; flex-shrink: 0; }
+.merchant-name { font-weight: 700; color: var(--coffee-dark); font-size: 1rem; line-height: 1.3; word-break: break-word; }
 
 .payment-area { 
     border: 2px solid var(--latte-accent); 

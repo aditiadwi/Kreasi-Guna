@@ -2035,6 +2035,8 @@ window.handleProceedToPayment = () => {
     if (payArea) {
         payArea.classList.remove('hidden');
         document.getElementById('btn-checkout').classList.add('hidden');
+        const checkoutCont = document.querySelector('.checkout-container');
+        if (checkoutCont) checkoutCont.classList.add('payment-mode');
         const paybar = document.getElementById('mobile-paybar');
         if (paybar) paybar.style.display = 'none';
         document.body.classList.remove('has-paybar');
