@@ -1456,6 +1456,46 @@ body.menu-open {
     text-align: center; 
     background: #fcfcfc;
 }
+/* Upload bukti bayar — kartu upload custom (input file asli disembunyikan) */
+.file-upload-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px dashed var(--latte-accent);
+    border-radius: 12px;
+    background: var(--white);
+    transition: border-color 0.2s, background 0.2s;
+}
+.file-upload-box:hover, .file-upload-box:focus-within { border-color: var(--gold-accent); background: #fffdf8; }
+.file-upload-box input[type="file"] { display: none; }
+.file-upload-box .btn-file-pick {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 9px;
+    background: var(--coffee-black);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+.file-upload-box .btn-file-pick:hover { background: var(--coffee-dark); transform: translateY(-1px); }
+.file-upload-box .btn-file-pick .ui-ico { width: 16px; height: 16px; }
+.file-upload-name {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.file-upload-box.has-file { border-style: solid; border-color: var(--gold-accent); }
+.file-upload-box.has-file .file-upload-name { color: var(--coffee-dark); font-weight: 600; }
 .payment-amount-display { 
     background: var(--white); 
     padding: 30px; 

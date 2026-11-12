@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css?v=1.0.136">
+    <link rel="stylesheet" href="style.css?v=1.0.137">
     <script type="text/javascript" src="https://unpkg.com/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
@@ -220,7 +220,14 @@
                         </div>
                         <div class="form-group">
                             <label>Upload Payment Proof</label>
-                            <input type="file" id="payment-receipt" accept="image/*">
+                            <div class="file-upload-box" id="receipt-upload-box">
+                                <input type="file" id="payment-receipt" accept="image/*">
+                                <button type="button" class="btn-file-pick" onclick="document.getElementById('payment-receipt').click()">
+                                    <svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Pilih File
+                                </button>
+                                <span class="file-upload-name" id="receipt-file-name">Belum ada file dipilih</span>
+                            </div>
                         </div>
                         <button id="btn-place-order" class="btn-primary w-100" onclick="handlePlaceOrder()">Submit Payment & Order</button>
                     </div>
@@ -330,7 +337,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=1.0.136"></script>
+    <script src="app.js?v=1.0.137"></script>
 </body>
 </html>
 

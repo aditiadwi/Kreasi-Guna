@@ -3001,6 +3001,17 @@ function initLeafletMap(lat, lon, accuracy) {
 
 // Pasang event listener untuk tombol-tombol modal peta
 document.addEventListener('DOMContentLoaded', () => {
+    const receiptInput = document.getElementById('payment-receipt');
+    const receiptBox = document.getElementById('receipt-upload-box');
+    const receiptName = document.getElementById('receipt-file-name');
+    if (receiptInput && receiptBox && receiptName) {
+        receiptInput.addEventListener('change', () => {
+            const f = receiptInput.files[0];
+            receiptName.textContent = f ? f.name : 'Belum ada file dipilih';
+            receiptBox.classList.toggle('has-file', !!f);
+        });
+    }
+
     const btnCancel = document.getElementById('btn-cancel-map');
     const btnClose = document.getElementById('btn-close-map');
     const btnConfirm = document.getElementById('btn-confirm-map');
