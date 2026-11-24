@@ -2383,7 +2383,10 @@ async function renderTestimonials() {
             .eq('is_approved', true)
             .order('created_at', { ascending: false });
 
-        if (error || !data || data.length === 0) {
+        // Marquee "What Our Customers Say" hanya tampilkan ulasan yang punya komentar
+        const items = (data || []).filter(r => (r.message || '').trim() !== '');
+
+        if (error || items.length === 0) {
             cont.innerHTML = '<p class="no-reviews" style="text-align:center; grid-column: 1/-1; color: var(--text-muted);">Belum ada ulasan yang disetujui saat ini.</p>';
             return;
         }
@@ -2410,8 +2413,8 @@ async function renderTestimonials() {
             `;
 
         // Marquee loop: satu baris mengalir kanan→kiri + bisa digeser manual
-        const setHtml = data.map(cardHtml).join('');
-        const copies = data.length <= 2 ? 8 : 4; // genap agar wrap mulus
+        const setHtml = items.map(cardHtml).join('');
+        const copies = items.length <= 2 ? 8 : 4; // genap agar wrap mulus
         const seeMoreBtn = document.getElementById('see-more-btn');
         cont.className = 'testimonials-marquee';
         cont.innerHTML = `<div class="marquee-track">${setHtml.repeat(copies)}</div>`;

@@ -866,6 +866,13 @@ Fokus: user minta nama anonim jangan terlalu panjang bintangnya — pola lama (`
 - Bump cache `v=1.0.144` → `v=1.0.145` di 11 file HTML (biar `app.js` lama tidak di-serve dari cache).
 
 
+### **63. Catatan 24 November 2026 (marquee testimonials: buang ulasan tanpa komentar)**
+
+- **`renderTestimonials()` (app.js)**: ulasan yang hanya kasih bintang tanpa pesan (`message` null / `""` / spasi saja) tidak dimunculkan di marquee "What Our Customers Say" — kartu dengan tanda kutip kosong `""` jadi tidak enak dilihat. Filter client-side `items = data.filter(r => (r.message || '').trim() !== '')` setelah query; kalau semua tersaring keluar → empty state lama. Sekalian amankan crash kalau query error (`data` null → `data.length` dulu bisa throw, sekarang `data || []`).
+- **Tidak berlaku untuk**: badge rata-rata rating produk, modal See Description, panel "Lihat semua ulasan", moderasi admin — di sana ulasan tanpa komentar tetap tampil/dihitung.
+- Bump cache `v=1.0.145` → `v=1.0.146` di 11 file HTML.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
