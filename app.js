@@ -2359,14 +2359,15 @@ window.submitDirectReview = async () => {
     }
 };
 
-/** Nama menyamar gaya Shopee: "aditiadwip" -> "a********p" (huruf awal + akhir saja,
-    tengahnya semua bintang sepanjang nama — panjang nama ikut terlihat, isinya tidak). */
+/** Nama menyamar gaya Shopee: "aditiadwip" -> "a*****p" (huruf awal + akhir saja,
+    bintang di tengah maksimal 5). Nama 1-2 huruf -> "a*", nama 3 huruf -> "a**"
+    (huruf akhir disembunyikan agar isi nama tidak mudah ditebak). */
 function maskAnonymousName(name) {
     const n = String(name || '').trim();
     if (!n) return 'Anonim';
-    if (n.length === 1) return n.toLowerCase() + '*';
-    if (n.length === 2) return n[0].toLowerCase() + '*';
-    return n[0].toLowerCase() + '*'.repeat(n.length - 2) + n[n.length - 1].toLowerCase();
+    if (n.length <= 2) return n[0].toLowerCase() + '*';
+    if (n.length === 3) return n[0].toLowerCase() + '**';
+    return n[0].toLowerCase() + '*'.repeat(Math.min(n.length - 2, 5)) + n[n.length - 1].toLowerCase();
 }
 
 async function renderTestimonials() {

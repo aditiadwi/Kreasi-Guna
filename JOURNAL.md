@@ -853,6 +853,19 @@ Fokus: modal See Description — user minta semua pendapat pembeli bisa dilihat 
 - **Commits**: `88cb822` → `272d060` → commit jurnal ini. Bump `v=1.0.143` → `v=1.0.144`.
 
 
+### **62. Catatan 24 November 2026 (masking nama anonim dipendekkan)**
+
+Fokus: user minta nama anonim jangan terlalu panjang bintangnya — pola lama (`aditiadwip` → `a********p`, bintang sepanjang nama) mengungkap panjang asli nama.
+
+- **`maskAnonymousName(name)` di app.js** (pola lama didokumentasikan di #60, sudah tidak berlaku) diubah — bintang di tengah **maksimal 5**, huruf akhir hanya tampil kalau nama ≥4 huruf:
+  - 1–2 huruf → `a*` (`ai` → `a*`)
+  - 3 huruf → `a**`, huruf belakang disembunyikan (`ani` → `a**`, `max` → `m**`) — kalau tetap `a*i` sisa huruf tersembunyi cuma 1, gampang ditebak
+  - ≥4 huruf → huruf awal + `min(len-2, 5)` bintang + huruf akhir huruf kecil (`aditia` → `a****a`, `aditiadwip` → `a*****p`, `aditia teresa` → `a*****a`)
+  - kosong → `Anonim` (tidak berubah)
+- Berlaku otomatis di 3 titik pemanggil: testimonials beranda (`authorName`), modal See Description (`pm-name`), panel "Lihat semua ulasan" (`ra-name`). Admin tetap nama asli, "Ulasan Saya" tidak menampilkan nama.
+- Bump cache `v=1.0.144` → `v=1.0.145` di 11 file HTML (biar `app.js` lama tidak di-serve dari cache).
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
