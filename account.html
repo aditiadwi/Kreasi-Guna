@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.146">
+    <link rel="stylesheet" href="style.css?v=1.0.147">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -299,7 +299,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.146"></script>
+    <script src="app.js?v=1.0.147"></script>
     <script>
         const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
@@ -712,6 +712,7 @@
                     <div class="acc-review-actions">
                         ${(+f.edit_count || 0) >= 2 ? '' : `<button class="acc-btn-ghost" onclick="editReview(${i})">Ubah</button>`}
                         <button class="acc-btn-danger" onclick="deleteReview(${i})">Hapus</button>
+                        <span class="acc-edit-left">${(+f.edit_count || 0) >= 2 ? 'Tidak bisa diubah lagi' : `Sisa ${2 - (+f.edit_count || 0)}× ubah`}</span>
                     </div>
                 </div>
             </div>`;
@@ -885,6 +886,10 @@
             const f = accReviews[_accEditIdx];
             if (!f) return;
             const msg = document.getElementById('acc-edit-msg').value.trim();
+            if (!msg) {
+                alert('Tulis komentar dulu sebelum menyimpan.');
+                return;
+            }
             const btn = document.getElementById('acc-edit-save-btn');
             btn.disabled = true;
             document.getElementById('acc-edit-view-form').style.display = 'none';

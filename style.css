@@ -3916,7 +3916,8 @@ a:active {
 .acc-star { color: #e3ddd2; }
 .acc-star.on { color: #f1c40f; }
 .acc-review-msg { font-size: 0.87rem; color: var(--text-main); margin-bottom: 10px; word-break: break-word; }
-.acc-review-actions { display: flex; gap: 8px; }
+.acc-review-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.acc-edit-left { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
 
 /* Alamat */
 .acc-addr-card {
@@ -4040,6 +4041,7 @@ a:active {
     .acc-order-actions .acc-btn-ghost,
     .acc-review-actions .acc-btn-ghost,
     .acc-review-actions .acc-btn-danger { flex: 1; text-align: center; }
+    .acc-review-actions .acc-edit-left { margin-left: 0; width: 100%; }
     .acc-detail-actions .btn-primary { width: 100%; text-align: center; }
     .acc-item-row.acc-item-done {
         grid-template-columns: 46px 1fr;

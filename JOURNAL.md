@@ -873,6 +873,26 @@ Fokus: user minta nama anonim jangan terlalu panjang bintangnya — pola lama (`
 - Bump cache `v=1.0.145` → `v=1.0.146` di 11 file HTML.
 
 
+### **64. Catatan 24 November 2026 (indikator sisa edit ulasan + validasi komentar kosong)**
+
+Konteks: dicek ulang ternyata fitur batas edit 2× **sudah aktif** (kolom `edit_count` ada di DB, diverifikasi via REST; kode guard di account.html lengkap) — jadi `feedback_edited.sql` bukan pekerjaan tertunda lagi. Dua perbaikan UX di sekitarnya:
+
+- **Indikator sisa edit** (`accReviewCard`, account.html): di baris aksi kartu ulasan sekarang ada teks hak kanan `Sisa 2× ubah` / `Sisa 1× ubah`, dan saat `edit_count >= 2` → `Tidak bisa diubah lagi` (tombol Ubah tetap tersembunyi — sebelumnya user tidak diberi tahu kenapa tombolnya hilang). CSS `.acc-edit-left` (muted, `margin-left: auto`) + di ≤480px teks turun ke baris sendiri di bawah tombol (`.acc-review-actions` dikasih `flex-wrap: wrap` + `align-items: center`).
+- **Validasi komentar kosong saat edit** (`saveAccEditReview`): simpan ditolak dengan alert "Tulis komentar dulu sebelum menyimpan." kalau isi textarea kosong/spasi — dicek **sebelum** tombol di-disable & view loading, jadi tidak perlu reset state. Ulasan awal yang memang tanpa komentar tetap bisa diedit untuk *menambah* komentar (aturannya simpan = wajib non-kosong).
+- Bump cache `v=1.0.146` → `v=1.0.147` di 11 file HTML.
+
+
+### **65. Catatan 25 November 2026 (env.js: buang NEWS_API_KEY & LEGACY_ADMIN_PASSWORD dari browser)**
+
+Konteks: analisa ulang web menemukan `env.js` live masih mengirim 5 kunci ke semua pengunjung, padahal 2 di antaranya tidak dipakai di live. Keduanya dicabut dari generator — whitelist jadi 3 kunci yang benar-benar dibaca halaman.
+
+- **NEWS_API_KEY**: hanya dipakai cabang `localhost` di `getCoffeeNews` (app.js); di live berita selalu pakai `MOCK_COFFEE_NEWS`. Fallback `API_KEY` di app.js:1 cuma placeholder (bukan kunci asli), jadi aman dibiarkan.
+- **LEGACY_ADMIN_PASSWORD**: tidak dibaca halaman mana pun yang sekarang — `loginAdmin` (app.js) cuma redirect ke admin.html, dan admin.html pakai auth Supabase. Hanya `version_old/app.js` (backup lama) yang membacanya, dengan fallback hardcoded yang nilainya sudah dirotasi/mati.
+- **Fix**: `generate-env-js.js` di-whitelist ke `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `EMAILJS_PUBLIC_KEY`. Karena `env.js` di-gitignore dan dibuat saat build (`vercel.json` buildCommand `node generate-env-js.js`), whitelist generator inilah gerbangnya — env var di dashboard Vercel boleh tetap ada.
+- **Verifikasi**: lokal — regenerate env.js jadi 3 kunci, buka index & brew: berita tetap 3 kartu mock, produk load, tanpa error console. Live setelah push — env.js = 3 kunci, kunci retained non-empty (40/208/17), home 200, dua kunci lama hilang.
+- Commit `8504667` (push `6f68cd7..8504667`). Salinan `env.js` di folder backup ternyata 404 di live (tidak ikut ter-deploy). Sisa exposure yang masih ditunda: `/JOURNAL.md`, `/version_old/*`, `/backup-2026-10-19/*`, `.gitignore`, `vercel.json` publicly fetchable → satu `.vercelignore` (belum disentuh, masih ditunda user).
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
