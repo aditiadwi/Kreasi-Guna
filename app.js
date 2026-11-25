@@ -2112,6 +2112,7 @@ window.handleProceedToPayment = () => {
     const phoneDigits = phoneRaw.replace(/\D/g, '');
     if (Object.keys(cart).length === 0) return alert('Keranjang masih kosong. Masukkan produk dulu.');
     if (name.trim().length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
+    if (!/^(08|8)/.test(phoneDigits)) return alert('Nomor WhatsApp harus diawali 08 atau 8 (contoh: 081234567890).');
     if (phoneDigits.length < 9 || phoneDigits.length > 13) return alert('Masukkan nomor WhatsApp yang valid (9-13 digit angka).');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return alert('Masukkan alamat email yang valid.');
     if (!province) return alert('Pilih provinsi pengiriman.');
@@ -2179,7 +2180,7 @@ window.handlePlaceOrder = async () => {
         const customerEmail = document.getElementById('customer-email').value;
         const province = document.getElementById('customer-province').value;
         const postalCode = document.getElementById('customer-postal-code').value;
-        const location = `${document.getElementById('shipping-city').value}, ${province}, ${postalCode}, ${document.getElementById('customer-address').value}`;
+        const location = `${shippingCityLabel(document.getElementById('shipping-city').value)}, ${province}, ${postalCode}, ${document.getElementById('customer-address').value}`;
         
         // Detailed Items List
         const itemsList = Object.keys(cart).map(id => {
@@ -3962,7 +3963,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderFeaturedProducts();
             }
             if (page === 'checkout') {
-                renderCheckoutProductsList();
                 renderCart();
                 window.handleShippingUpdate();
             }
@@ -4004,7 +4004,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     else if (page === 'checkout') { 
-        renderCheckoutProductsList();
         loadFormData();
 
         const provSelect = document.getElementById('customer-province');

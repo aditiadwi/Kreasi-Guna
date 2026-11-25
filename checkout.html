@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css?v=1.0.149">
+    <link rel="stylesheet" href="style.css?v=1.0.150">
     <script type="text/javascript" src="https://unpkg.com/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
@@ -61,21 +61,7 @@
                     <div id="cart-items" class="cart-items">
                         <p class="empty-cart-msg">Your cart is empty. <a href="products.html">Go back to shop</a>.</p>
                     </div>
-                    
-                    <!-- Quick Add More Products -->
-                    <div class="quick-add-section" style="margin: 25px 0; border-top: 1px dashed var(--border-light); border-bottom: 1px dashed var(--border-light); padding: 20px 0;">
-                        <div class="quick-add-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h3 style="font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;"><svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> Tambah Produk Lain</h3>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <button type="button" id="quick-toggle" onclick="toggleQuickAdd()" class="btn-hide-quick-add" style="background: transparent; border: 1px solid var(--border-light); border-radius: 999px; padding: 4px 14px; font-size: 0.75rem; font-weight: 700; color: var(--wood-warm); cursor: pointer; align-items: center; white-space: nowrap;">Sembunyikan</button>
-                                <a href="products.html" class="btn-see-all" style="font-size: 0.78rem; font-weight: 600; color: var(--wood-warm); text-decoration: none; transition: color 0.2s; white-space: nowrap;" onmouseover="this.style.color='var(--coffee-dark)'" onmouseout="this.style.color='var(--wood-warm)'">Lihat Semua &rarr;</a>
-                            </div>
-                        </div>
-                        <div id="checkout-products-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
-                            <!-- Ditempel oleh app.js -->
-                        </div>
-                    </div>
-                    
+
                     <form id="checkout-form">
                         <h3 style="margin-bottom: 16px;">Data Penerima</h3>
                         <div id="autofill-banner" class="hidden" style="background: rgba(224, 192, 151, 0.12); border: 1px dashed var(--latte-accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 0.3s ease;">
@@ -94,15 +80,16 @@
                         <div class="form-group">
                             <label>Nomor WhatsApp *</label>
                             <div style="display: flex; gap: 8px;">
-                                <select id="phone-prefix" style="width: 80px; flex-shrink: 0; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; cursor: pointer;">
-                                    <option value="+62" selected>+62</option>
-                                </select>
+                                <div id="phone-prefix" title="Indonesia" style="width: 80px; flex-shrink: 0; padding: 12px 6px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 6px; background: #fff;">
+                                    <svg width="20" height="14" viewBox="0 0 20 14" style="border: 1px solid #e0e0e0; border-radius: 2px; flex-shrink: 0;" role="img" aria-label="Bendera Indonesia"><rect width="20" height="7" fill="#e70011"/><rect y="7" width="20" height="7" fill="#ffffff"/></svg>
+                                    <span>+62</span>
+                                </div>
                                 <div style="flex: 1; position: relative;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.4;"><path fill="#25D366" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/></svg>
-                                    <input type="tel" id="customer-phone" placeholder="81234567890" required pattern="[0-9]{9,13}" maxlength="13" inputmode="numeric" autocomplete="tel-national" style="padding-left: 38px;">
+                                    <input type="tel" id="customer-phone" placeholder="081234567890" required pattern="(08|8)[0-9]{7,11}" maxlength="13" inputmode="numeric" autocomplete="tel-national" style="padding-left: 38px;">
                                 </div>
                             </div>
-                            <div class="error-message">Masukkan nomor WhatsApp yang valid (9-13 digit).</div>
+                            <div class="error-message">Nomor WhatsApp harus diawali 08 atau 8 (9-13 digit), contoh: 081234567890.</div>
                         </div>
                         <div class="form-group">
                             <label>Email *</label>
@@ -329,7 +316,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=1.0.149"></script>
+    <script src="app.js?v=1.0.150"></script>
 </body>
 </html>
 

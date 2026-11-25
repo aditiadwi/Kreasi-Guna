@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.149">
+    <link rel="stylesheet" href="style.css?v=1.0.150">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -59,6 +59,20 @@
                         </div>
                     </div>
                     <a href="products.html" class="btn-continue-shopping" id="btn-continue-shopping">&larr; Continue Shopping</a>
+
+                    <!-- Quick Add More Products -->
+                    <div class="quick-add-section" style="margin: 25px 0 0; border-top: 1px dashed var(--border-light); padding: 20px 0 0;">
+                        <div class="quick-add-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="font-family: 'Montserrat', sans-serif; color: var(--coffee-dark); font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;"><svg class="ui-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> Tambah Produk Lain</h3>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <button type="button" id="quick-toggle" onclick="toggleQuickAdd()" class="btn-hide-quick-add" style="background: transparent; border: 1px solid var(--border-light); border-radius: 999px; padding: 4px 14px; font-size: 0.75rem; font-weight: 700; color: var(--wood-warm); cursor: pointer; align-items: center; white-space: nowrap;">Sembunyikan</button>
+                                <a href="products.html" class="btn-see-all" style="font-size: 0.78rem; font-weight: 600; color: var(--wood-warm); text-decoration: none; transition: color 0.2s; white-space: nowrap;" onmouseover="this.style.color='var(--coffee-dark)'" onmouseout="this.style.color='var(--wood-warm)'">Lihat Semua &rarr;</a>
+                            </div>
+                        </div>
+                        <div id="checkout-products-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
+                            <!-- Ditempel oleh app.js -->
+                        </div>
+                    </div>
                 </div>
                 <div class="cart-page-summary">
                     <h3>Order Summary</h3>
@@ -172,7 +186,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.149"></script>
+    <script src="app.js?v=1.0.150"></script>
 </body>
 </html>
 
