@@ -934,6 +934,16 @@ Konteks: user dapat saran teman (Rio B27). Dari 6 saran, dikerjakan dulu yang am
 - Catatan: fitur akun (tambah/switch akun lain + hapus akun) belum disentuh — "hapus akun" destruktif (pesanan/ulasan/alamat), perlu desain + konfirmasi terpisah.
 
 
+### **69. Catatan 25 November 2026 (badge stok "Tambah Produk Lain" konsisten — sisa turun 1 per tekan)**
+
+Konteks: lanjutan saran Rio "logic tambahkan produk lain dibenerin". User kasih contoh konkret: di keranjang ada 1 produk, stok 5, tekan Tambah malah angka stoknya jadi 3. Direproduksi di browser lokal (server :8123, evaluate_script): qty keranjang naik benar 1 per tekan (bukan increment ganda), tapi **badge stoknya yang tidak konsisten** — `renderCheckoutProductsList` menampilkan **stok total** (`Stok: N unit`) selama sisa > 2, lalu mendadak ganti menampilkan **sisa** (`Sisa X unit`) begitu sisa ≤ 2. Akibatnya sekali tekan angka yang tampil bisa loncat turun lebih dari 1 (mis. stok 4: qty 1 → "Stok: 4", tekan → qty 2 → "Sisa 2"; turun 2 padahal nambah 1). Itu yang dirasakan user sebagai "stok 5 jadi 3".
+
+- **Fix** (app.js `renderCheckoutProductsList` ~2018-2028): badge sekarang SELALU menampilkan sisa stok yang konsisten — default `stockText = "Sisa ${availableStock} unit"` (`availableStock = max(0, p.stock - qtyDiKeranjang)`). Cabang: `p.stock <= 0` → "Stok Habis" (merah, tombol disabled); `availableStock === 0` → "Max (N di keranjang)" (oranye, disabled); `availableStock <= 2` → warna oranye (teks tetap "Sisa X unit"). previously teks "Sisa X" hanya di cabang ≤2; sekarang jadi default, jadi angka turun tepat 1 tiap tekan.
+- **Uji browser lokal** (evaluate_script, :8123, produk BOX PREMIUM ROBUSTA stok 4): qty 1 → "Sisa 3", tekan → qty 2 "Sisa 2", tekan → qty 3 "Sisa 1", tekan → qty 4 "Max (4 di keranjang)" + tombol "Habis"/disabled, tekan lagi tetap 4 (limit stok terjaga). Keranjang kosong → semua badge "Sisa {stok penuh}" (4/9/40/34/4), tombol aktif. Tanpa error console.
+- Bump cache `v=1.0.150` → `v=1.0.151` di 11 HTML (22 penggantian, CRLF terjaga; `npm run check:assets` OK).
+- Catatan: ini murni perbaikan tampilan badge; logika tambah/stok/penyimpanan sudah benar dari #68. Fitur akun (tambah/switch + hapus) masih DITUNDA.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

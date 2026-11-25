@@ -2016,7 +2016,7 @@ function renderCheckoutProductsList() {
         const isOutOfStock = p.stock <= 0 || availableStock <= 0;
         
         let stockBadgeColor = 'var(--text-muted)';
-        let stockText = `Stok: ${p.stock} unit`;
+        let stockText = `Sisa ${availableStock} unit`;
         if (p.stock <= 0) {
             stockBadgeColor = '#e74c3c';
             stockText = 'Stok Habis';
@@ -2025,7 +2025,6 @@ function renderCheckoutProductsList() {
             stockText = `Max (${p.stock} di keranjang)`;
         } else if (availableStock <= 2) {
             stockBadgeColor = '#e67e22';
-            stockText = `Sisa ${availableStock} unit`;
         }
         
         return `
