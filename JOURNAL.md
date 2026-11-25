@@ -893,6 +893,19 @@ Konteks: analisa ulang web menemukan `env.js` live masih mengirim 5 kunci ke sem
 - Commit `8504667` (push `6f68cd7..8504667`). Salinan `env.js` di folder backup ternyata 404 di live (tidak ikut ter-deploy). Sisa exposure yang masih ditunda: `/JOURNAL.md`, `/version_old/*`, `/backup-2026-10-19/*`, `.gitignore`, `vercel.json` publicly fetchable → satu `.vercelignore` (belum disentuh, masih ditunda user).
 
 
+### **66. Catatan 25 November 2026 (limitation form checkout: nomor WhatsApp, cascade provinsi→kota, alamat)**
+
+Konteks: user minta "limitation" di form checkout. Akar masalah: tombol "Lanjut ke Pembayaran" itu `type="button"` (onclick `handleProceedToPayment`), jadi pattern/minlength HTML tidak pernah dipicu — JS cuma cek field kosong. Plus provinsi & kota dua select independen yang defaultnya mismatch (Jawa Barat vs Jakarta).
+
+- **Cascade Provinsi → Kota/Kabupaten**: peta `SHIPPING_CITY_PROVINCE` / `SHIPPING_PROVINCE_CITIES` / `SHIPPING_CITY_LABELS` + helper `populateShippingCities(prov, preferred)` di app.js. Pilih provinsi → opsi kota diisi ulang hanya kota terlayani di provinsi itu (kota pertama auto-pilih); provinsi tanpa kota (Jawa Tengah) → select kota disabled "Belum ada kota terlayani". Pilih kota → provinsi ikut tersinkron. Urutan HTML address-grid diubah: Provinsi dulu, baru Kota/Kabupaten, lalu Kode Pos; default keduanya placeholder (fix mismatch lama). Semua call site disinkronkan: init checkout, `loadUserSpecificState`, `applyAddressToForm` (autofill), 2 blok geolocation — data lama mismatch diperbaiki otomatis (city menentukan province).
+- **Nomor WhatsApp**: `maxlength=13` + `inputmode=numeric` + filter input hanya digit (huruf/simbol dibuang live). Validasi JS 9-13 digit angka.
+- **Alamat**: `maxlength=300` + counter live "x/300", min 10 dipaksa di JS. Catatan pesanan `maxlength=200`. Kode pos `maxlength=5` + inputmode numeric.
+- **Validasi nyata di `handleProceedToPayment`**: cart tidak kosong, nama≥3, phone 9-13 digit, email format valid, provinsi & kota terisi, kode pos 5 digit, alamat≥10 — masing-masing alert spesifik (sebelumnya satu alert generic).
+- **Uji browser lokal** (evaluate_script): cascade Jabar→[Bekasi,Bandung]/Jakarta→Jakarta/Jateng→disabled; pilih Bandung→provinsi Jabar+ongkir 20.000; filter 'abc812def…'→'81234567890'; counter 24/300; proceed valid→pay muncul; 6 kasus invalid→alert spesifik+pay tetap hidden; autofill mismatch {city:jakarta,prov:jabar}→disinkronkan ke DKI Jakarta. Tanpa error console.
+- Bump cache `v=1.0.147` → `v=1.0.148` di 11 HTML.
+- Catatan: hanya form checkout yang diubah; form alamat account.html (acc-sel) masih provinsi/kota independen — bisa menyusul kalau diminta. Jawa Tengah tetap ada di daftar provinsi tapi tanpa kota terlayani (ongkir belum covering Jateng).
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

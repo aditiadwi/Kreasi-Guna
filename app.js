@@ -81,6 +81,13 @@ function loadUserSpecificState(session) {
         }
         
         // Trigger shipping update since fields changed
+        const provSelect = document.getElementById('customer-province');
+        const citySelect = document.getElementById('shipping-city');
+        if (provSelect && citySelect) {
+            const c = citySelect.value;
+            const p = (c && SHIPPING_CITY_PROVINCE[c]) ? SHIPPING_CITY_PROVINCE[c] : provSelect.value;
+            populateShippingCities(p, c);
+        }
         window.handleShippingUpdate();
         
         if (typeof window.checkAutofillProfile === 'function') {
@@ -515,6 +522,30 @@ const SHIPPING_FEES = {
     medan: { reg: 35000, sameday: 60000, instant: 90000 },
     bali: { reg: 30000, sameday: 55000, instant: 85000 }
 };
+
+// Cascade Provinsi -> Kota/Kabupaten. Hanya kota dengan ongkir yang terdaftar.
+const SHIPPING_CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
+const SHIPPING_CITY_PROVINCE = { jakarta: 'jakarta', bekasi: 'jawa-barat', bandung: 'jawa-barat', surabaya: 'jawa-timur', medan: 'sumut', bali: 'bali' };
+const SHIPPING_PROVINCE_CITIES = { 'jakarta': ['jakarta'], 'jawa-barat': ['bekasi', 'bandung'], 'jawa-tengah': [], 'jawa-timur': ['surabaya'], 'bali': ['bali'], 'sumut': ['medan'] };
+
+// Isi ulang opsi kota mengikuti provinsi terpilih. Kota pertama dipilih otomatis;
+// provinsi tanpa kota terlayani (mis. Jawa Tengah) menonaktifkan select kota.
+function populateShippingCities(province, preferredCity) {
+    const citySelect = document.getElementById('shipping-city');
+    if (!citySelect) return;
+    const cities = SHIPPING_PROVINCE_CITIES[province] || [];
+    if (!province || cities.length === 0) {
+        citySelect.innerHTML = `<option value="" selected disabled>${province ? 'Belum ada kota terlayani' : 'Pilih provinsi dulu'}</option>`;
+        citySelect.disabled = true;
+        citySelect.value = '';
+        return;
+    }
+    const keep = (preferredCity && cities.includes(preferredCity)) ? preferredCity : cities[0];
+    citySelect.innerHTML = '<option value="" disabled>Pilih kota</option>' +
+        cities.map(c => `<option value="${c}"${c === keep ? ' selected' : ''}>${SHIPPING_CITY_LABELS[c]}</option>`).join('');
+    citySelect.disabled = false;
+    citySelect.value = keep;
+}
 
 let currentShippingFee = 0;
 let directSelectedRating = 0;
@@ -2041,16 +2072,21 @@ window.setCheckoutStep = (n) => {
 window.handleProceedToPayment = () => {
     const name = document.getElementById('customer-name').value;
     const phoneRaw = document.getElementById('customer-phone').value;
-    const phone = phoneRaw.startsWith('0') ? '+62' + phoneRaw.slice(1) : '+62' + phoneRaw;
     const email = document.getElementById('customer-email').value;
     const city = document.getElementById('shipping-city').value;
     const province = document.getElementById('customer-province').value;
     const postalCode = document.getElementById('customer-postal-code').value;
     const address = document.getElementById('customer-address').value;
 
-    if (!name || !phone || !email || !city || !province || !postalCode || !address || Object.keys(cart).length === 0) {
-        return alert("Mohon lengkapi semua data wajib dan masukkan produk ke keranjang!");
-    }
+    const phoneDigits = phoneRaw.replace(/\D/g, '');
+    if (Object.keys(cart).length === 0) return alert('Keranjang masih kosong. Masukkan produk dulu.');
+    if (name.trim().length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
+    if (phoneDigits.length < 9 || phoneDigits.length > 13) return alert('Masukkan nomor WhatsApp yang valid (9-13 digit angka).');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return alert('Masukkan alamat email yang valid.');
+    if (!province) return alert('Pilih provinsi pengiriman.');
+    if (!city) return alert('Pilih kota/kabupaten pengiriman.');
+    if (!/^\d{5}$/.test(postalCode)) return alert('Kode pos harus 5 digit angka.');
+    if (address.trim().length < 10) return alert('Masukkan alamat lengkap (min. 10 karakter).');
 
     const payArea = document.getElementById('payment-area');
     if (payArea) {
@@ -3451,22 +3487,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cityLower = (city || addr.state || '').toLowerCase();
                     const matchedCity = matchShippingCity(cityLower, currentSelection);
                     
-                    if (citySelect) {
-                        if (matchedCity) {
-                            citySelect.value = matchedCity;
-                            citySelect.classList.add('touched');
-                        } else {
-                            alert("Lokasi Anda terdeteksi di luar area pengiriman utama kami (Jakarta, Bandung, Surabaya, Medan, Bali). Silakan pilih kota pengiriman terdekat secara manual.");
-                        }
-                        citySelect.dispatchEvent(new Event('change'));
-                    }
-                    
                     // Auto-fill provinsi & kode pos
                     const stateName = addr.state || addr.province || '';
                     const matchedProvince = matchProvince(stateName);
                     const provSelect = document.getElementById('customer-province');
-                    if (provSelect && matchedProvince) {
-                        provSelect.value = matchedProvince;
+                    if (citySelect) {
+                        if (matchedCity) {
+                            const prov = SHIPPING_CITY_PROVINCE[matchedCity] || matchedProvince;
+                            if (provSelect && prov) provSelect.value = prov;
+                            populateShippingCities(prov, matchedCity);
+                            citySelect.classList.add('touched');
+                        } else {
+                            if (provSelect && matchedProvince) { provSelect.value = matchedProvince; populateShippingCities(matchedProvince, ''); }
+                            alert("Lokasi Anda terdeteksi di luar area pengiriman utama kami (Jakarta, Bandung, Surabaya, Medan, Bali). Silakan pilih kota pengiriman terdekat secara manual.");
+                        }
+                        citySelect.dispatchEvent(new Event('change'));
                     }
                     const postalInput = document.getElementById('customer-postal-code');
                     if (postalInput && postcode) {
@@ -3643,22 +3678,21 @@ window.detectUserLocationDirect = () => {
                 const cityLower = (city || addr.state || '').toLowerCase();
                 const matchedCity = matchShippingCity(cityLower, currentSelection);
                 
-                if (citySelect) {
-                    if (matchedCity) {
-                        citySelect.value = matchedCity;
-                        citySelect.classList.add('touched');
-                    } else {
-                        alert("Lokasi Anda terdeteksi di luar area pengiriman utama kami (Jakarta, Bandung, Surabaya, Medan, Bali). Silakan pilih kota pengiriman terdekat secara manual.");
-                    }
-                    citySelect.dispatchEvent(new Event('change'));
-                }
-                
                 // Auto-fill provinsi & kode pos
                 const stateName = addr.state || addr.province || '';
                 const matchedProvince = matchProvince(stateName);
                 const provSelect = document.getElementById('customer-province');
-                if (provSelect && matchedProvince) {
-                    provSelect.value = matchedProvince;
+                if (citySelect) {
+                    if (matchedCity) {
+                        const prov = SHIPPING_CITY_PROVINCE[matchedCity] || matchedProvince;
+                        if (provSelect && prov) provSelect.value = prov;
+                        populateShippingCities(prov, matchedCity);
+                        citySelect.classList.add('touched');
+                    } else {
+                        if (provSelect && matchedProvince) { provSelect.value = matchedProvince; populateShippingCities(matchedProvince, ''); }
+                        alert("Lokasi Anda terdeteksi di luar area pengiriman utama kami (Jakarta, Bandung, Surabaya, Medan, Bali). Silakan pilih kota pengiriman terdekat secara manual.");
+                    }
+                    citySelect.dispatchEvent(new Event('change'));
                 }
                 const postalInput = document.getElementById('customer-postal-code');
                 if (postalInput && postcode) {
@@ -3941,7 +3975,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     else if (page === 'checkout') { 
         renderCheckoutProductsList();
         loadFormData();
+
+        const provSelect = document.getElementById('customer-province');
+        const citySelect = document.getElementById('shipping-city');
+        // Sinkronkan provinsi<->kota; data tersimpan versi lama bisa mismatch.
+        if (provSelect && citySelect) {
+            const savedCity = citySelect.value;
+            const prov = (savedCity && SHIPPING_CITY_PROVINCE[savedCity]) ? SHIPPING_CITY_PROVINCE[savedCity] : provSelect.value;
+            populateShippingCities(prov, savedCity);
+        }
         window.handleShippingUpdate();
+
         if (typeof window.checkAutofillProfile === 'function') {
             window.checkAutofillProfile();
         }
@@ -3956,15 +4000,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                 el.addEventListener('change', saveFormData);
             }
         });
-        
-        const citySelect = document.getElementById('shipping-city');
-        if (citySelect) {
-            citySelect.addEventListener('change', (e) => {
-                e.target.classList.add('touched');
+
+        if (provSelect) {
+            provSelect.addEventListener('change', () => {
+                provSelect.classList.add('touched');
+                populateShippingCities(provSelect.value, '');
                 window.handleShippingUpdate();
             });
         }
-        
+        if (citySelect) {
+            citySelect.addEventListener('change', (e) => {
+                e.target.classList.add('touched');
+                const prov = SHIPPING_CITY_PROVINCE[citySelect.value];
+                if (prov && provSelect) provSelect.value = prov;
+                window.handleShippingUpdate();
+            });
+        }
+
+        // Nomor WhatsApp: hanya digit, maks 13.
+        const phoneEl = document.getElementById('customer-phone');
+        if (phoneEl) {
+            phoneEl.addEventListener('input', () => {
+                const digits = phoneEl.value.replace(/\D/g, '').slice(0, 13);
+                if (phoneEl.value !== digits) phoneEl.value = digits;
+            });
+        }
+
+        // Alamat: counter batas atas.
+        const addrEl = document.getElementById('customer-address');
+        const addrCount = document.getElementById('address-count');
+        if (addrEl && addrCount) {
+            const updAddrCount = () => { addrCount.textContent = `${addrEl.value.length}/300`; };
+            addrEl.addEventListener('input', updAddrCount);
+            updAddrCount();
+        }
+
         const serviceSelect = document.getElementById('delivery-service');
         if (serviceSelect) {
             serviceSelect.addEventListener('change', (e) => {
@@ -4126,16 +4196,11 @@ function applyAddressToForm(p) {
     if (p.name && document.getElementById('customer-name')) document.getElementById('customer-name').value = p.name;
     if (p.phone && document.getElementById('customer-phone')) document.getElementById('customer-phone').value = p.phone;
     if (p.email && document.getElementById('customer-email')) document.getElementById('customer-email').value = p.email;
-    if (p.city) {
-        const citySelect = document.getElementById('shipping-city');
-        if (citySelect) {
-            citySelect.value = p.city;
-            citySelect.dispatchEvent(new Event('change'));
-        }
-    }
-    if (p.province) {
+    if (p.city || p.province) {
         const provSelect = document.getElementById('customer-province');
-        if (provSelect) provSelect.value = p.province;
+        const prov = (p.city && SHIPPING_CITY_PROVINCE[p.city]) ? SHIPPING_CITY_PROVINCE[p.city] : (p.province || '');
+        if (provSelect && prov) provSelect.value = prov;
+        populateShippingCities(prov, p.city);
     }
     if (p.postalCode && document.getElementById('customer-postal-code')) document.getElementById('customer-postal-code').value = p.postalCode;
     if (p.address && document.getElementById('customer-address')) {
