@@ -523,26 +523,57 @@ const SHIPPING_FEES = {
     bali: { reg: 30000, sameday: 55000, instant: 85000 }
 };
 
-// Cascade Provinsi -> Kota/Kabupaten. Hanya kota dengan ongkir yang terdaftar.
-const SHIPPING_CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
-const SHIPPING_CITY_PROVINCE = { jakarta: 'jakarta', bekasi: 'jawa-barat', bandung: 'jawa-barat', surabaya: 'jawa-timur', medan: 'sumut', bali: 'bali' };
-const SHIPPING_PROVINCE_CITIES = { 'jakarta': ['jakarta'], 'jawa-barat': ['bekasi', 'bandung'], 'jawa-tengah': [], 'jawa-timur': ['surabaya'], 'bali': ['bali'], 'sumut': ['medan'] };
+// Cascade Provinsi -> Kota/Kabupaten persis, khusus Jawa (area ongkir terlayani).
+// Kunci lama (jakarta/bekasi/bandung/surabaya/medan/bali) dipertahankan sebagai
+// legacy supaya pesanan & alamat lama tetap terbaca; tidak muncul di dropdown.
+const SHIPPING_CITY_LABELS = {
+    'jakarta-pusat': 'Jakarta Pusat', 'jakarta-selatan': 'Jakarta Selatan', 'jakarta-timur': 'Jakarta Timur',
+    'jakarta-barat': 'Jakarta Barat', 'jakarta-utara': 'Jakarta Utara',
+    'kota-bekasi': 'Kota Bekasi', 'kab-bekasi': 'Kabupaten Bekasi',
+    'kota-bandung': 'Kota Bandung', 'kab-bandung': 'Kabupaten Bandung',
+    'kota-surabaya': 'Kota Surabaya',
+    jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali'
+};
+const SHIPPING_CITY_PROVINCE = {
+    'jakarta-pusat': 'jakarta', 'jakarta-selatan': 'jakarta', 'jakarta-timur': 'jakarta', 'jakarta-barat': 'jakarta', 'jakarta-utara': 'jakarta',
+    'kota-bekasi': 'jawa-barat', 'kab-bekasi': 'jawa-barat', 'kota-bandung': 'jawa-barat', 'kab-bandung': 'jawa-barat',
+    'kota-surabaya': 'jawa-timur',
+    jakarta: 'jakarta', bekasi: 'jawa-barat', bandung: 'jawa-barat', surabaya: 'jawa-timur', medan: 'sumut', bali: 'bali'
+};
+// Hanya kota selectable per provinsi (Jawa). Legacy tidak dimasukkan ke dropdown.
+const SHIPPING_PROVINCE_CITIES = {
+    'jakarta': ['jakarta-pusat', 'jakarta-selatan', 'jakarta-timur', 'jakarta-barat', 'jakarta-utara'],
+    'jawa-barat': ['kota-bekasi', 'kab-bekasi', 'kota-bandung', 'kab-bandung'],
+    'jawa-timur': ['kota-surabaya']
+};
+// Kota persis -> area ongkir (SHIPPING_FEES). Tarif tidak berubah, hanya nama dipecah.
+const SHIPPING_CITY_FEE = {
+    'jakarta-pusat': 'jakarta', 'jakarta-selatan': 'jakarta', 'jakarta-timur': 'jakarta', 'jakarta-barat': 'jakarta', 'jakarta-utara': 'jakarta',
+    'kota-bekasi': 'bekasi', 'kab-bekasi': 'bekasi', 'kota-bandung': 'bandung', 'kab-bandung': 'bandung', 'kota-surabaya': 'surabaya'
+};
+function shippingCityLabel(city) { return SHIPPING_CITY_LABELS[city] || city || ''; }
+function shippingFeeTable(city) { const area = SHIPPING_CITY_FEE[city] || city; return (city && SHIPPING_FEES[area]) ? SHIPPING_FEES[area] : null; }
 
 // Isi ulang opsi kota mengikuti provinsi terpilih. Kota pertama dipilih otomatis;
-// provinsi tanpa kota terlayani (mis. Jawa Tengah) menonaktifkan select kota.
+// provinsi tanpa kota terlayani menonaktifkan select kota. Kota legacy (data lama)
+// ikut ditampilkan bila cocok provinsi, supaya autofill alamat lama tetap jalan.
 function populateShippingCities(province, preferredCity) {
     const citySelect = document.getElementById('shipping-city');
     if (!citySelect) return;
-    const cities = SHIPPING_PROVINCE_CITIES[province] || [];
-    if (!province || cities.length === 0) {
-        citySelect.innerHTML = `<option value="" selected disabled>${province ? 'Belum ada kota terlayani' : 'Pilih provinsi dulu'}</option>`;
+    const prov = province || SHIPPING_CITY_PROVINCE[preferredCity] || '';
+    const cities = (SHIPPING_PROVINCE_CITIES[prov] || []).slice();
+    if (preferredCity && SHIPPING_CITY_PROVINCE[preferredCity] === prov && !cities.includes(preferredCity)) {
+        cities.unshift(preferredCity);
+    }
+    if (!prov || cities.length === 0) {
+        citySelect.innerHTML = `<option value="" selected disabled>${prov ? 'Belum ada kota terlayani' : 'Pilih provinsi dulu'}</option>`;
         citySelect.disabled = true;
         citySelect.value = '';
         return;
     }
     const keep = (preferredCity && cities.includes(preferredCity)) ? preferredCity : cities[0];
-    citySelect.innerHTML = '<option value="" disabled>Pilih kota</option>' +
-        cities.map(c => `<option value="${c}"${c === keep ? ' selected' : ''}>${SHIPPING_CITY_LABELS[c]}</option>`).join('');
+    citySelect.innerHTML = '<option value="" disabled>Pilih kota/kabupaten</option>' +
+        cities.map(c => `<option value="${c}"${c === keep ? ' selected' : ''}>${shippingCityLabel(c)}</option>`).join('');
     citySelect.disabled = false;
     citySelect.value = keep;
 }
@@ -2026,7 +2057,7 @@ window.handleShippingUpdate = () => {
     const city = citySelect.value;
     let serv = serviceSelect.value;
 
-    const table = (city && SHIPPING_FEES[city]) ? SHIPPING_FEES[city] : null;
+    const table = shippingFeeTable(city);
     // Nilai layanan tersimpan bisa sisa versi lama (tidak ada di tabel); tanpa
     // fallback ini ongkir terhitung 0 sebelum select sempat memperbaiki dirinya.
     if (table && !Number.isFinite(table[serv])) {
@@ -2966,30 +2997,30 @@ let modalOpenTime = 0; // Menghindari ketukan ganda / click-through di mobile
 
 function matchShippingCity(detectedCityOrState, currentSelection) {
     const text = (detectedCityOrState || '').toLowerCase();
-    
-    // 1. Bekasi punya option sendiri (harga = Jakarta)
-    if (text.includes('bekasi')) {
-        return 'bekasi';
-    }
-    // 2. Jabodetabek lain (Jakarta, Bogor, Depok, Tangerang) → Jakarta
-    if (text.includes('jakarta') || 
-        text.includes('tangerang') || 
-        text.includes('depok') || 
+
+    // DKI Jakarta — kota administrasi persis
+    if (text.includes('jakarta pusat')) return 'jakarta-pusat';
+    if (text.includes('jakarta selatan')) return 'jakarta-selatan';
+    if (text.includes('jakarta timur')) return 'jakarta-timur';
+    if (text.includes('jakarta barat')) return 'jakarta-barat';
+    if (text.includes('jakarta utara')) return 'jakarta-utara';
+    // Bekasi & Bandung — default Kota, Kabupaten bila disebut eksplisit
+    if (text.includes('bekasi')) return text.includes('kabupaten') ? 'kab-bekasi' : 'kota-bekasi';
+    if (text.includes('bandung')) return text.includes('kabupaten') ? 'kab-bandung' : 'kota-bandung';
+    if (text.includes('surabaya')) return 'kota-surabaya';
+    // Jabodetabek lain (Jakarta generik, Bogor, Depok, Tangerang) -> Jakarta Pusat
+    if (text.includes('jakarta') ||
+        text.includes('tangerang') ||
+        text.includes('depok') ||
         text.includes('bogor')) {
-        return 'jakarta';
+        return 'jakarta-pusat';
     }
-    
-    // 2. Kota-kota utama lainnya
-    if (text.includes('bandung')) return 'bandung';
-    if (text.includes('surabaya')) return 'surabaya';
-    if (text.includes('medan')) return 'medan';
-    if (text.includes('bali') || text.includes('denpasar') || text.includes('badung')) return 'bali';
-    
-    // 3. Jika di luar kota utama tapi user sudah memilih kota secara manual yang valid, pertahankan pilihan tersebut!
-    if (currentSelection && ['jakarta', 'bekasi', 'bandung', 'surabaya', 'medan', 'bali'].includes(currentSelection)) {
+
+    // Pertahankan pilihan manual yang masih valid (kota selectable).
+    if (currentSelection && SHIPPING_CITY_FEE[currentSelection]) {
         return currentSelection;
     }
-    
+
     return '';
 }
 
@@ -3499,7 +3530,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             citySelect.classList.add('touched');
                         } else {
                             if (provSelect && matchedProvince) { provSelect.value = matchedProvince; populateShippingCities(matchedProvince, ''); }
-                            alert("Lokasi Anda terdeteksi di luar area pengiriman utama kami (Jakarta, Bandung, Surabaya, Medan, Bali). Silakan pilih kota pengiriman terdekat secara manual.");
+                            alert("Lokasi Anda terdeteksi di luar area pengiriman kami (Jakarta, Bekasi, Bandung, Surabaya — khusus Jawa). Silakan pilih kota pengiriman terdekat secara manual.");
                         }
                         citySelect.dispatchEvent(new Event('change'));
                     }
@@ -3690,7 +3721,7 @@ window.detectUserLocationDirect = () => {
                         citySelect.classList.add('touched');
                     } else {
                         if (provSelect && matchedProvince) { provSelect.value = matchedProvince; populateShippingCities(matchedProvince, ''); }
-                        alert("Lokasi Anda terdeteksi di luar area pengiriman utama kami (Jakarta, Bandung, Surabaya, Medan, Bali). Silakan pilih kota pengiriman terdekat secara manual.");
+                        alert("Lokasi Anda terdeteksi di luar area pengiriman kami (Jakarta, Bekasi, Bandung, Surabaya — khusus Jawa). Silakan pilih kota pengiriman terdekat secara manual.");
                     }
                     citySelect.dispatchEvent(new Event('change'));
                 }
@@ -4244,7 +4275,7 @@ window.renderAddressBook = () => {
     list.innerHTML = book.map((b, i) => `
         <div class="address-book-item">
             <button type="button" class="address-book-use" onclick="applyBookAddress(${i})">
-                <strong>${b.name}</strong><span>${b.city ? b.city + ' — ' : ''}${b.address}</span>
+                <strong>${b.name}</strong><span>${b.city ? shippingCityLabel(b.city) + ' — ' : ''}${b.address}</span>
             </button>
             <button type="button" class="address-book-del" onclick="deleteBookAddress(${i})" title="Hapus">×</button>
         </div>`).join('');

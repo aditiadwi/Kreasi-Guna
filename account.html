@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.148">
+    <link rel="stylesheet" href="style.css?v=1.0.149">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -147,12 +147,16 @@
                                         <svg class="acc-sel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                                     </button>
                                     <ul class="acc-sel-menu" role="listbox">
-                                        <li class="acc-sel-opt" role="option" data-val="jakarta" onclick="pickAccSel(this)">Jakarta <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="bekasi" onclick="pickAccSel(this)">Bekasi <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="bandung" onclick="pickAccSel(this)">Bandung <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="surabaya" onclick="pickAccSel(this)">Surabaya <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="medan" onclick="pickAccSel(this)">Medan <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="bali" onclick="pickAccSel(this)">Bali <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jakarta-pusat" data-prov="jakarta" onclick="pickAccSel(this)">Jakarta Pusat <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jakarta-selatan" data-prov="jakarta" onclick="pickAccSel(this)">Jakarta Selatan <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jakarta-timur" data-prov="jakarta" onclick="pickAccSel(this)">Jakarta Timur <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jakarta-barat" data-prov="jakarta" onclick="pickAccSel(this)">Jakarta Barat <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="jakarta-utara" data-prov="jakarta" onclick="pickAccSel(this)">Jakarta Utara <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="kota-bekasi" data-prov="jawa-barat" onclick="pickAccSel(this)">Kota Bekasi <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="kab-bekasi" data-prov="jawa-barat" onclick="pickAccSel(this)">Kabupaten Bekasi <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="kota-bandung" data-prov="jawa-barat" onclick="pickAccSel(this)">Kota Bandung <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="kab-bandung" data-prov="jawa-barat" onclick="pickAccSel(this)">Kabupaten Bandung <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
+                                        <li class="acc-sel-opt" role="option" data-val="kota-surabaya" data-prov="jawa-timur" onclick="pickAccSel(this)">Kota Surabaya <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
                                     </ul>
                                 </div>
                             </label>
@@ -167,10 +171,7 @@
                                     <ul class="acc-sel-menu" role="listbox">
                                         <li class="acc-sel-opt" role="option" data-val="jakarta" onclick="pickAccSel(this)">DKI Jakarta <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
                                         <li class="acc-sel-opt" role="option" data-val="jawa-barat" onclick="pickAccSel(this)">Jawa Barat <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="jawa-tengah" onclick="pickAccSel(this)">Jawa Tengah <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
                                         <li class="acc-sel-opt" role="option" data-val="jawa-timur" onclick="pickAccSel(this)">Jawa Timur <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="bali" onclick="pickAccSel(this)">Bali <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
-                                        <li class="acc-sel-opt" role="option" data-val="sumut" onclick="pickAccSel(this)">Sumatera Utara <svg class="acc-sel-check hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></li>
                                     </ul>
                                 </div>
                             </label>
@@ -299,9 +300,16 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.148"></script>
+    <script src="app.js?v=1.0.149"></script>
     <script>
-        const CITY_LABELS = { jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali' };
+        const CITY_LABELS = {
+            'jakarta-pusat': 'Jakarta Pusat', 'jakarta-selatan': 'Jakarta Selatan', 'jakarta-timur': 'Jakarta Timur',
+            'jakarta-barat': 'Jakarta Barat', 'jakarta-utara': 'Jakarta Utara',
+            'kota-bekasi': 'Kota Bekasi', 'kab-bekasi': 'Kabupaten Bekasi',
+            'kota-bandung': 'Kota Bandung', 'kab-bandung': 'Kabupaten Bandung',
+            'kota-surabaya': 'Kota Surabaya',
+            jakarta: 'Jakarta', bekasi: 'Bekasi', bandung: 'Bandung', surabaya: 'Surabaya', medan: 'Medan', bali: 'Bali'
+        };
         const PROVINCE_LABELS = { 'jakarta': 'DKI Jakarta', 'jawa-barat': 'Jawa Barat', 'jawa-tengah': 'Jawa Tengah', 'jawa-timur': 'Jawa Timur', 'bali': 'Bali', 'sumut': 'Sumatera Utara' };
         const STATUS_STYLES = {
             PENDING:    { bg: '#fff3cd', fg: '#856404', label: 'Menunggu' },
@@ -369,6 +377,7 @@
             });
             box.classList.remove('open');
             box.dataset.filled = '1';
+            if (box.id === 'acc-addr-province') filterAccCities(val);
         };
         function setAccSel(id, value) {
             const box = document.getElementById(id);
@@ -389,9 +398,25 @@
                 o.querySelector('.acc-sel-check').classList.toggle('hidden', !on);
             });
             box.classList.toggle('open', false);
+            if (id === 'acc-addr-province') filterAccCities(value || '');
         }
         function closeAllAccSel() {
             document.querySelectorAll('.acc-sel.open').forEach(b => b.classList.remove('open'));
+        }
+        // Cascade: provinsi menyaring opsi kota/kabupaten (data-prov). Kota yang
+        // tidak cocok provinsi disembunyikan; pilihan kota lama direset bila mismatch.
+        function filterAccCities(province) {
+            const box = document.getElementById('acc-addr-city');
+            if (!box) return;
+            const hiddenInput = box.querySelector('input[type="hidden"]');
+            const cur = hiddenInput ? hiddenInput.value : '';
+            let curVisible = false;
+            box.querySelectorAll('.acc-sel-opt').forEach(o => {
+                const show = !province || o.dataset.prov === province;
+                o.classList.toggle('hidden', !show);
+                if (show && o.dataset.val === cur) curVisible = true;
+            });
+            if (cur && !curVisible) setAccSel('acc-addr-city', '');
         }
         // Tutup saat klik di luar dropdown / tekan Escape
         document.addEventListener('click', (e) => {
