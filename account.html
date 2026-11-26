@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.151">
+    <link rel="stylesheet" href="style.css?v=1.0.153">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -120,11 +120,11 @@
                         <div class="acc-form-row">
                             <label class="acc-field">
                                 <span>Nama Penerima</span>
-                                <input type="text" id="acc-addr-name" placeholder="Nama lengkap" maxlength="80" required>
+                                <input type="text" id="acc-addr-name" placeholder="Nama lengkap" maxlength="30" required>
                             </label>
                             <label class="acc-field">
                                 <span>Nomor WhatsApp</span>
-                                <input type="tel" id="acc-addr-phone" placeholder="08xxxxxxxxxx" maxlength="20">
+                                <input type="tel" id="acc-addr-phone" placeholder="08xxxxxxxxxx" maxlength="13" inputmode="numeric" required>
                             </label>
                         </div>
                         <div class="acc-form-row">
@@ -178,7 +178,7 @@
                         </div>
                         <label class="acc-field">
                             <span>Kode Pos <span class="req">*</span></span>
-                            <input type="text" id="acc-addr-postal" placeholder="12345" maxlength="10" required>
+                            <input type="text" id="acc-addr-postal" placeholder="12345" maxlength="5" inputmode="numeric" required>
                         </label>
                         <label class="acc-field">
                             <span>Alamat Lengkap (Jalan &amp; Nomor Rumah) <span class="req">*</span></span>
@@ -300,7 +300,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.151"></script>
+    <script src="app.js?v=1.0.153"></script>
     <script>
         const CITY_LABELS = {
             'jakarta-pusat': 'Jakarta Pusat', 'jakarta-selatan': 'Jakarta Selatan', 'jakarta-timur': 'Jakarta Timur',
@@ -664,11 +664,11 @@
                 try { await fetchProducts(); } catch (e) {}
             }
             const p = findProductByName(it.name);
-            if (!p) return alert('Produk "' + it.name + '" sudah tidak ada di katalog.');
-            if (p.stock <= 0) return alert('Maaf, "' + p.name + '" sedang habis.');
+            if (!p) return showAlertModal('Produk "' + it.name + '" sudah tidak ada di katalog.');
+            if (p.stock <= 0) return showAlertModal('Maaf, "' + p.name + '" sedang habis.');
             const room = p.stock - (cart[p.id] || 0);
             const qty = Math.min(it.qty || 1, room);
-            if (qty <= 0) return alert('Stok tidak mencukupi (sudah penuh di keranjang).');
+            if (qty <= 0) return showAlertModal('Stok tidak mencukupi (sudah penuh di keranjang).');
             cart[p.id] = (cart[p.id] || 0) + qty;
             renderCart();
             if (typeof showToast === 'function') showToast(`"${p.name}" × ${qty} ditambahkan ke keranjang`);
@@ -863,7 +863,7 @@
         window.editReview = async function (idx) {
             const f = accReviews[idx];
             if (!f) return;
-            if ((+f.edit_count || 0) >= 2) return alert('Ulasan hanya bisa diubah maksimal 2 kali.');
+            if ((+f.edit_count || 0) >= 2) return showAlertModal('Ulasan hanya bisa diubah maksimal 2 kali.');
             _accEditIdx = idx;
             // Cari info produk untuk tampilan kartu
             if ((!DYNAMIC_PRODUCTS || !DYNAMIC_PRODUCTS.length) && typeof fetchProducts === 'function') {
@@ -912,7 +912,7 @@
             if (!f) return;
             const msg = document.getElementById('acc-edit-msg').value.trim();
             if (!msg) {
-                alert('Tulis komentar dulu sebelum menyimpan.');
+                showAlertModal('Tulis komentar dulu sebelum menyimpan.');
                 return;
             }
             const btn = document.getElementById('acc-edit-save-btn');
@@ -946,20 +946,27 @@
                 document.getElementById('acc-edit-view-form').style.display = '';
                 document.getElementById('acc-edit-view-loading').style.display = 'none';
                 btn.disabled = false;
-                alert('Gagal mengubah ulasan: ' + (e.message || 'coba lagi nanti.'));
+                showAlertModal('Gagal mengubah ulasan: ' + (e.message || 'coba lagi nanti.'), { tone: 'danger' });
             }
         };
 
         window.deleteReview = async function (idx) {
             const f = accReviews[idx];
             if (!f) return;
-            if (!confirm('Hapus ulasan ini?')) return;
+            const ok = await showConfirmModal({
+                icon: 'trash',
+                title: 'Hapus ulasan ini?',
+                message: 'Ulasan yang dihapus tidak bisa dikembalikan.',
+                noLabel: 'Batal',
+                yesLabel: 'Ya, Hapus'
+            });
+            if (!ok) return;
             try {
                 const { error } = await supabaseClient.from('feedback').delete().eq('id', f.id);
                 if (error) throw error;
                 loadReviews();
             } catch (e) {
-                alert('Gagal menghapus ulasan: ' + (e.message || 'coba lagi nanti.'));
+                showAlertModal('Gagal menghapus ulasan: ' + (e.message || 'coba lagi nanti.'), { tone: 'danger' });
             }
         };
 
@@ -1010,7 +1017,7 @@
             if (!b) return;
             document.getElementById('acc-addr-edit-index').value = String(i);
             document.getElementById('acc-addr-name').value = b.name || '';
-            document.getElementById('acc-addr-phone').value = b.phone || '';
+            document.getElementById('acc-addr-phone').value = (b.phone && typeof normalizePhoneLocal === 'function') ? normalizePhoneLocal(b.phone) : (b.phone || '');
             document.getElementById('acc-addr-kelurahan').value = b.kelurahan || '';
             document.getElementById('acc-addr-kecamatan').value = b.kecamatan || '';
             setAccSel('acc-addr-city', b.city || '');
@@ -1023,8 +1030,15 @@
             form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         };
 
-        window.deleteAddress = function (i) {
-            if (!confirm('Hapus alamat ini?')) return;
+        window.deleteAddress = async function (i) {
+            const ok = await showConfirmModal({
+                icon: 'trash',
+                title: 'Hapus alamat ini?',
+                message: 'Alamat ini akan dihapus dari daftar alamat tersimpan.',
+                noLabel: 'Batal',
+                yesLabel: 'Ya, Hapus'
+            });
+            if (!ok) return;
             const book = getAddressBook();
             book.splice(i, 1);
             localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
@@ -1044,13 +1058,19 @@
                 postalCode: document.getElementById('acc-addr-postal').value.trim(),
                 address: document.getElementById('acc-addr-address').value.trim()
             };
-            if (!entry.name || entry.name.length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
-            if (!entry.kelurahan || entry.kelurahan.length < 2) return alert('Masukkan nama kelurahan.');
-            if (!entry.kecamatan || entry.kecamatan.length < 2) return alert('Masukkan nama kecamatan.');
-            if (!entry.city) return alert('Pilih kota/kabupaten.');
-            if (!entry.province) return alert('Pilih provinsi.');
-            if (!/^\d{5}$/.test(entry.postalCode)) return alert('Kode pos harus 5 angka.');
-            if (!entry.address || entry.address.length < 10) return alert('Masukkan alamat lengkap (min. 10 karakter).');
+            if (!entry.name || entry.name.length < 3) return showAlertModal('Masukkan nama lengkap (min. 3 karakter).');
+            if (entry.name.length > 30) return showAlertModal('Nama maksimal 30 karakter.');
+            if (!entry.phone || typeof isValidPhoneLocal !== 'function' || !isValidPhoneLocal(entry.phone)) return showAlertModal('Masukkan nomor WhatsApp yang valid (9-13 digit, diawali 08 atau 8).');
+            if (typeof normalizePhoneLocal === 'function') entry.phone = normalizePhoneLocal(entry.phone);
+            if (!entry.kelurahan || entry.kelurahan.length < 2) return showAlertModal('Masukkan nama kelurahan.');
+            if (entry.kelurahan.length > 80) return showAlertModal('Kelurahan maksimal 80 karakter.');
+            if (!entry.kecamatan || entry.kecamatan.length < 2) return showAlertModal('Masukkan nama kecamatan.');
+            if (entry.kecamatan.length > 80) return showAlertModal('Kecamatan maksimal 80 karakter.');
+            if (!entry.city) return showAlertModal('Pilih kota/kabupaten.');
+            if (!entry.province) return showAlertModal('Pilih provinsi.');
+            if (!/^\d{5}$/.test(entry.postalCode)) return showAlertModal('Kode pos harus 5 angka.');
+            if (!entry.address || entry.address.length < 10) return showAlertModal('Masukkan alamat lengkap (min. 10 karakter).');
+            if (entry.address.length > 300) return showAlertModal('Alamat maksimal 300 karakter.');
 
             const editIdx = parseInt(document.getElementById('acc-addr-edit-index').value, 10);
             let book = getAddressBook();

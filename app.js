@@ -219,7 +219,7 @@ window.toggleUserDropdown = () => {
 };
 
 window.handleGoogleLogin = async () => {
-    if (!supabaseClient) return alert("Supabase client not loaded");
+    if (!supabaseClient) return showAlertModal("Layanan database belum siap. Muat ulang halaman lalu coba lagi.", { tone: "danger" });
     try {
         const { error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
@@ -229,7 +229,7 @@ window.handleGoogleLogin = async () => {
         });
         if (error) throw error;
     } catch (e) {
-        alert("Google Login failed: " + e.message);
+        showAlertModal("Login Google gagal: " + e.message, { tone: "danger" });
     }
 };
 
@@ -255,7 +255,7 @@ window.handleLogout = async () => {
         if (error) throw error;
         window.location.reload();
     } catch (e) {
-        alert("Logout failed: " + e.message);
+        showAlertModal("Logout gagal: " + e.message, { tone: "danger" });
     }
 };
 
@@ -358,7 +358,7 @@ if (typeof window !== 'undefined') {
             displayMessage = `Login gagal: ${decodeURIComponent(errorDesc.replace(/\+/g, ' '))}`;
         }
         
-        alert(displayMessage);
+        showAlertModal(displayMessage, { tone: "danger" });
         
         // Clean URL parameters without reloading
         const cleanUrl = window.location.origin + window.location.pathname;
@@ -405,7 +405,11 @@ function loadFormData() {
         const data = JSON.parse(saved);
         FORM_FIELDS.forEach(id => {
             const el = document.getElementById(id);
-            if (el && data[id]) el.value = data[id];
+            if (el && data[id]) {
+                el.value = (id === 'customer-phone' && typeof normalizePhoneLocal === 'function')
+                    ? normalizePhoneLocal(data[id])
+                    : data[id];
+            }
         });
     } catch (e) {
         console.warn("Gagal membaca checkout_form_data dari localStorage:", e);
@@ -670,7 +674,7 @@ return `
 window.addToCart = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
     if (!p) return;
-    if ((cart[id] || 0) >= p.stock) return alert("Out of stock!");
+    if ((cart[id] || 0) >= p.stock) return showAlertModal("Stok produk ini habis.");
     cart[id] = (cart[id] || 0) + 1;
     renderCart();
     updateCartBadge();
@@ -697,7 +701,7 @@ window.updateQty = (id, delta) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
     if (!p) return;
     const next = (cart[id] || 0) + delta;
-    if (next > p.stock) return alert("Stock limit!");
+    if (next > p.stock) return showAlertModal("Jumlah sudah mencapai batas stok.");
     if (next < 1) return;
     cart[id] = next;
     renderCart();
@@ -942,7 +946,11 @@ let _confirmModalAlertMode = false;
 const CONFIRM_ICONS = {
     logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
     trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
-    lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
+    lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    warning: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    success: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    danger: '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+    info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'
 };
 
 function ensureRemoveConfirmModal() {
@@ -990,6 +998,10 @@ function showConfirmModal(opts) {
         ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>`
         : '';
     iconBox.classList.toggle('hidden', !iconPath);
+    ['warning', 'success', 'danger', 'info'].forEach(t => {
+        iconBox.classList.toggle('tone-' + t, o.tone === t);
+        yes.classList.toggle('btn-tone-' + t, o.tone === t);
+    });
     document.getElementById('confirm-modal-backdrop').classList.remove('hidden');
     return new Promise((resolve) => {
         _removeConfirmResolver = resolve;
@@ -1013,6 +1025,22 @@ function closeRemoveConfirm(result) {
         _removeConfirmResolver(result);
         _removeConfirmResolver = null;
     }
+}
+
+/* Pengganti alert() native: popup kustom satu tombol, non-blocking.
+   tone: 'warning' (default) | 'success' | 'danger' | 'info' */
+function showAlertModal(message, opts) {
+    const o = opts || {};
+    const tone = o.tone || 'warning';
+    const titles = { warning: 'Perhatian', success: 'Berhasil', danger: 'Gagal', info: 'Info' };
+    return showConfirmModal({
+        alertMode: true,
+        icon: o.icon || tone,
+        tone: tone,
+        title: o.title || titles[tone] || 'Info',
+        message: message,
+        yesLabel: o.yesLabel || 'OK'
+    });
 }
 
 let _pendingOrderId = null;
@@ -1235,7 +1263,7 @@ function buildReceiptHTML(r) {
 function openReceiptWindow(html) {
     const w = window.open('', '_blank', 'width=700,height=800');
     if (!w) {
-        alert('Popup blocked! Please allow popups to download the receipt.');
+        showAlertModal('Popup diblokir browser. Izinkan popup untuk mengunduh struk.', { tone: 'danger' });
         return;
     }
     w.document.write(html);
@@ -1243,7 +1271,7 @@ function openReceiptWindow(html) {
 }
 
 window.downloadReceipt = () => {
-    if (!window._lastReceipt) return alert('Receipt data not available.');
+    if (!window._lastReceipt) return showAlertModal('Data struk tidak tersedia.', { tone: 'danger' });
     openReceiptWindow(buildReceiptHTML(window._lastReceipt));
 };
 
@@ -1494,7 +1522,7 @@ function saveBlob(blob, filename) {
 }
 
 window.downloadReceiptAs = (kind, btn) => {
-    if (!window._lastReceipt) return alert('Receipt data not available.');
+    if (!window._lastReceipt) return showAlertModal('Data struk tidak tersedia.', { tone: 'danger' });
     exportReceiptFile(kind, window._lastReceipt, btn);
 };
 
@@ -1527,7 +1555,7 @@ function exportReceiptFile(kind, data, btn) {
     } catch (e) {
         console.error(e);
         done();
-        alert('File export failed, please use Print instead.');
+        showAlertModal('Gagal mengekspor file. Gunakan tombol Print sebagai gantinya.', { tone: 'danger' });
     }
 }
 
@@ -1564,7 +1592,7 @@ window.printTrackReceipt = () => {
 };
 
 window.reorderItemsList = async (rawItems, btn) => {
-    if (!rawItems) return alert('Tidak ada item untuk dibeli ulang.');
+    if (!rawItems) return showAlertModal('Tidak ada item untuk dibeli ulang.');
     if (typeof initSupabase === 'function') initSupabase();
     if (btn && !btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
     if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') {
@@ -1587,7 +1615,7 @@ window.reorderItemsList = async (rawItems, btn) => {
         added += qty;
     });
     renderCart();
-    if (!added) return alert('None of these items are available right now (sold out or maxed in cart).');
+    if (!added) return showAlertModal('Tidak ada item yang tersedia saat ini (habis atau keranjang sudah penuh).');
     const msg = skipped.length
         ? `${added} item(s) added back • ${skipped.length} unavailable (${skipped.join(', ')})`
         : `${added} item(s) added back to your cart`;
@@ -1766,13 +1794,15 @@ window.rateRenderPhotos = function () {
 window.rateAddPhoto = function (input) {
     const files = Array.from(input.files || []);
     input.value = '';
+    const issues = [];
     for (const f of files) {
-        if (_ratePhotos.length >= 3) { alert('Maksimal 3 foto.'); break; }
-        if (!/^image\//.test(f.type)) { alert('File harus berupa gambar.'); continue; }
-        if (f.size > 5 * 1024 * 1024) { alert('Ukuran foto maksimal 5MB: ' + f.name); continue; }
+        if (_ratePhotos.length >= 3) { issues.push('Maksimal 3 foto.'); break; }
+        if (!/^image\//.test(f.type)) { issues.push('File harus berupa gambar: ' + f.name); continue; }
+        if (f.size > 5 * 1024 * 1024) { issues.push('Ukuran foto maksimal 5MB: ' + f.name); continue; }
         _ratePhotos.push({ file: f, url: URL.createObjectURL(f) });
     }
     rateRenderPhotos();
+    if (issues.length) showAlertModal(issues.join('\n'));
 };
 
 window.rateRemovePhoto = function (i) {
@@ -1808,12 +1838,12 @@ window.rateOrderProduct = async function (orderId, itemsRaw, itemName, btn) {
         if ((!DYNAMIC_PRODUCTS || DYNAMIC_PRODUCTS.length === 0) && typeof fetchProducts === 'function') await fetchProducts();
     } catch (e) {}
     const prod = findProductByName(itemName);
-    if (!prod) return alert('Produk "' + itemName + '" sudah tidak ada di katalog.');
+    if (!prod) return showAlertModal('Produk "' + itemName + '" sudah tidak ada di katalog.');
     try {
         const { data } = await supabaseClient.from('feedback').select('id,rating').eq('order_id', orderId).eq('product_id', prod.id).limit(1);
         if (data && data.length) {
             if (btn) { btn.disabled = true; btn.textContent = `★ ${data[0].rating || '?'} · Rated`; btn.style.opacity = '0.5'; }
-            return alert(`Kamu sudah kasih ${'★'.repeat(data[0].rating || 0)} (${data[0].rating || '?'}/5) untuk produk ini. Terima kasih!`);
+            return showAlertModal(`Kamu sudah kasih ${'★'.repeat(data[0].rating || 0)} (${data[0].rating || '?'}/5) untuk produk ini. Terima kasih!`, { tone: 'info' });
         }
     } catch (e) {}
 
@@ -1854,7 +1884,7 @@ window.rateTrackItem = function (itemIdx, btn) {
 
 window.submitRateModal = async function () {
     if (!_ratePending) return;
-    if (_rateValue < 1) return alert('Pilih dulu bintangnya (1-5).');
+    if (_rateValue < 1) return showAlertModal('Pilih dulu bintangnya (1-5).');
     const msg = (document.getElementById('rate-message').value || '').trim();
     const pending = _ratePending;
     const chosenValue = _rateValue;
@@ -1937,7 +1967,7 @@ window.submitRateModal = async function () {
     } catch (err) {
         rateShowView('form');
         if (sb) sb.disabled = false;
-        alert('Gagal menyimpan rating. Coba lagi.');
+        showAlertModal('Gagal menyimpan rating. Coba lagi.', { tone: 'danger' });
     }
 };
 
@@ -1990,7 +2020,7 @@ window.markRatedOrderButtons = async function (orderId, itemsRaw, container) {
 window.addToCartCheckout = (id) => {
     const p = DYNAMIC_PRODUCTS.find(prod => prod.id === id);
     if (!p) return;
-    if ((cart[id] || 0) >= p.stock) return alert("Stok produk habis!");
+    if ((cart[id] || 0) >= p.stock) return showAlertModal("Stok produk habis!");
     cart[id] = (cart[id] || 0) + 1;
     renderCart();
 };
@@ -2108,16 +2138,15 @@ window.handleProceedToPayment = () => {
     const postalCode = document.getElementById('customer-postal-code').value;
     const address = document.getElementById('customer-address').value;
 
-    const phoneDigits = phoneRaw.replace(/\D/g, '');
-    if (Object.keys(cart).length === 0) return alert('Keranjang masih kosong. Masukkan produk dulu.');
-    if (name.trim().length < 3) return alert('Masukkan nama lengkap (min. 3 karakter).');
-    if (!/^(08|8)/.test(phoneDigits)) return alert('Nomor WhatsApp harus diawali 08 atau 8 (contoh: 081234567890).');
-    if (phoneDigits.length < 9 || phoneDigits.length > 13) return alert('Masukkan nomor WhatsApp yang valid (9-13 digit angka).');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return alert('Masukkan alamat email yang valid.');
-    if (!province) return alert('Pilih provinsi pengiriman.');
-    if (!city) return alert('Pilih kota/kabupaten pengiriman.');
-    if (!/^\d{5}$/.test(postalCode)) return alert('Kode pos harus 5 digit angka.');
-    if (address.trim().length < 10) return alert('Masukkan alamat lengkap (min. 10 karakter).');
+    const phoneDigits = normalizePhoneLocal(phoneRaw);
+    if (Object.keys(cart).length === 0) return showAlertModal('Keranjang masih kosong. Masukkan produk dulu.');
+    if (name.trim().length < 3) return showAlertModal('Masukkan nama lengkap (min. 3 karakter).');
+    if (!isValidPhoneLocal(phoneDigits)) return showAlertModal('Nomor WhatsApp harus diawali 08 atau 8 (contoh: 081234567890), 9-13 digit.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return showAlertModal('Masukkan alamat email yang valid.');
+    if (!province) return showAlertModal('Pilih provinsi pengiriman.');
+    if (!city) return showAlertModal('Pilih kota/kabupaten pengiriman.');
+    if (!/^\d{5}$/.test(postalCode)) return showAlertModal('Kode pos harus 5 digit angka.');
+    if (address.trim().length < 10) return showAlertModal('Masukkan alamat lengkap (min. 10 karakter).');
 
     const payArea = document.getElementById('payment-area');
     if (payArea) {
@@ -2156,8 +2185,8 @@ window.updatePaymentDisplay = () => {
 window.handlePlaceOrder = async () => {
     const btn = document.getElementById('btn-place-order');
     const receiptFile = document.getElementById('payment-receipt').files[0];
-    if (!receiptFile) return alert("Upload proof first!");
-    if (!supabaseClient) return alert("Database service not available.");
+    if (!receiptFile) return showAlertModal("Unggah bukti pembayaran dulu.");
+    if (!supabaseClient) return showAlertModal("Layanan database tidak tersedia. Coba lagi sebentar.", { tone: "danger" });
 
     btn.disabled = true;
     btn.innerText = "Processing Order...";
@@ -2175,7 +2204,7 @@ window.handlePlaceOrder = async () => {
         const trackingToken = crypto.randomUUID();
         const customerName = document.getElementById('customer-name').value;
         const phoneRaw = document.getElementById('customer-phone').value;
-        const customerPhone = phoneRaw.startsWith('0') ? '+62' + phoneRaw.slice(1) : '+62' + phoneRaw;
+        const customerPhone = '+62' + normalizePhoneLocal(phoneRaw).slice(1);
         const customerEmail = document.getElementById('customer-email').value;
         const province = document.getElementById('customer-province').value;
         const postalCode = document.getElementById('customer-postal-code').value;
@@ -2364,7 +2393,7 @@ window.handlePlaceOrder = async () => {
 
     } catch (error) {
         console.error(error);
-        alert("Order submission failed: " + error.message);
+        showAlertModal("Pesanan gagal dikirim: " + error.message, { tone: "danger" });
     } finally {
         btn.disabled = false;
         btn.innerText = "Submit Payment & Order";
@@ -2386,8 +2415,8 @@ window.submitDirectReview = async () => {
     const nameInput = document.getElementById('direct-review-name');
     const textEl = document.getElementById('direct-review-text');
     const text = textEl ? textEl.value : '';
-    if (directSelectedRating === 0) return alert("Rating required!");
-    if (!supabaseClient) return alert("Database unavailable");
+    if (directSelectedRating === 0) return showAlertModal("Pilih rating bintang dulu.");
+    if (!supabaseClient) return showAlertModal("Layanan database tidak tersedia. Coba lagi sebentar.", { tone: "danger" });
 
     // Ambil identitas sesi login (kalau ada) untuk nama + foto profil
     let sessionName = '', sessionAvatar = '';
@@ -2419,10 +2448,10 @@ window.submitDirectReview = async () => {
         if (textEl) textEl.value = '';
         directSelectedRating = 0;
         document.querySelectorAll('.star-d').forEach(s => s.classList.remove('active'));
-        alert("Thanks! Your feedback is waiting for admin approval.");
+        showAlertModal("Terima kasih! Ulasanmu menunggu persetujuan admin.", { tone: "success" });
         renderTestimonials(); 
     } catch (err) {
-        alert("Submission failed");
+        showAlertModal("Gagal mengirim ulasan. Coba lagi.", { tone: "danger" });
     }
 };
 
@@ -2599,18 +2628,25 @@ function renderCustomStandItems() {
 window.saveStandToSchedule = () => {
     const loc = document.getElementById('stand-location').value;
     const date = document.getElementById('stand-date').value;
-    if (!loc || !date) return alert("Location/Date missing!");
+    if (!loc || !date) return showAlertModal("Lokasi dan tanggal wajib diisi.");
     const prs = []; document.getElementsByName('stand-prod').forEach(cb => { if (cb.checked) prs.push(cb.value); });
     const sch = JSON.parse(localStorage.getItem('coffee_stand_schedule') || '[]');
     sch.unshift({ id: 'ST-'+Date.now(), location: loc, date: date, status: document.getElementById('stand-status').value, products: prs, customItems: [...customStandItems] });
     localStorage.setItem('coffee_stand_schedule', JSON.stringify(sch));
-    customStandItems = []; renderCustomStandItems(); renderStandSchedule(); alert("Scheduled!");
+    customStandItems = []; renderCustomStandItems(); renderStandSchedule(); showAlertModal("Jadwal stand berhasil disimpan!", { tone: "success" });
 };
 
 window.activateStand = (id) => { localStorage.setItem('active_stand_id', id); renderStandSchedule(); renderStandAnnouncement(); };
 
-window.deletePlannedStand = (id) => {
-    if (confirm("Delete stand?")) {
+window.deletePlannedStand = async (id) => {
+    const ok = await showConfirmModal({
+        icon: 'trash',
+        title: 'Hapus jadwal stand?',
+        message: 'Jadwal stand ini akan dihapus permanen.',
+        noLabel: 'Batal',
+        yesLabel: 'Ya, Hapus'
+    });
+    if (ok) {
         const sch = JSON.parse(localStorage.getItem('coffee_stand_schedule') || '[]').filter(s => s.id !== id);
         localStorage.setItem('coffee_stand_schedule', JSON.stringify(sch));
         if (localStorage.getItem('active_stand_id') === id) localStorage.removeItem('active_stand_id');
@@ -3530,7 +3566,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             citySelect.classList.add('touched');
                         } else {
                             if (provSelect && matchedProvince) { provSelect.value = matchedProvince; populateShippingCities(matchedProvince, ''); }
-                            alert("Lokasi Anda terdeteksi di luar area pengiriman kami (Jakarta, Bekasi, Bandung, Surabaya — khusus Jawa). Silakan pilih kota pengiriman terdekat secara manual.");
+                            showAlertModal("Lokasi Anda terdeteksi di luar area pengiriman kami (Jakarta, Bekasi, Bandung, Surabaya — khusus Jawa). Silakan pilih kota pengiriman terdekat secara manual.", { tone: "info" });
                         }
                         citySelect.dispatchEvent(new Event('change'));
                     }
@@ -3539,11 +3575,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         postalInput.value = postcode;
                     }
                 } else {
-                    alert("Alamat tidak ditemukan untuk koordinat ini.");
+                    showAlertModal("Alamat tidak ditemukan untuk koordinat ini.", { tone: "danger" });
                 }
             } catch (error) {
                 console.error(error);
-                alert("Gagal melakukan pencarian alamat. Silakan ketik alamat Anda secara manual.");
+                showAlertModal("Gagal melakukan pencarian alamat. Silakan ketik alamat Anda secara manual.", { tone: "danger" });
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -3561,7 +3597,7 @@ window.detectUserLocationDirect = () => {
     const helperText = document.getElementById('address-helper-text');
     
     if (!navigator.geolocation) {
-        alert("Fitur Geolokasi tidak didukung oleh browser Anda.");
+        showAlertModal("Fitur Geolokasi tidak didukung oleh browser Anda.", { tone: "info" });
         return;
     }
     
@@ -3721,7 +3757,7 @@ window.detectUserLocationDirect = () => {
                         citySelect.classList.add('touched');
                     } else {
                         if (provSelect && matchedProvince) { provSelect.value = matchedProvince; populateShippingCities(matchedProvince, ''); }
-                        alert("Lokasi Anda terdeteksi di luar area pengiriman kami (Jakarta, Bekasi, Bandung, Surabaya — khusus Jawa). Silakan pilih kota pengiriman terdekat secara manual.");
+                        showAlertModal("Lokasi Anda terdeteksi di luar area pengiriman kami (Jakarta, Bekasi, Bandung, Surabaya — khusus Jawa). Silakan pilih kota pengiriman terdekat secara manual.", { tone: "info" });
                     }
                     citySelect.dispatchEvent(new Event('change'));
                 }
@@ -3730,11 +3766,11 @@ window.detectUserLocationDirect = () => {
                     postalInput.value = postcode;
                 }
             } else {
-                alert("Alamat tidak ditemukan untuk koordinat ini.");
+                showAlertModal("Alamat tidak ditemukan untuk koordinat ini.", { tone: "danger" });
             }
         } catch (error) {
             console.error(error);
-            alert("Gagal mengambil alamat otomatis. Silakan ketik alamat Anda secara manual.");
+            showAlertModal("Gagal mengambil alamat otomatis. Silakan ketik alamat Anda secara manual.", { tone: "danger" });
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalText;
@@ -3747,7 +3783,7 @@ window.detectUserLocationDirect = () => {
         if (error.code === error.PERMISSION_DENIED) {
             msg = "Akses lokasi ditolak oleh browser/pengguna. Silakan isi alamat secara manual.";
         }
-        alert(msg);
+        showAlertModal(msg, { tone: "danger" });
     }, {
         enableHighAccuracy: true,
         timeout: 10000,
@@ -3760,7 +3796,7 @@ window.detectUserLocationMap = () => {
     const btn = document.getElementById('btn-open-map');
     
     if (!navigator.geolocation) {
-        alert("Fitur Geolokasi tidak didukung oleh browser Anda.");
+        showAlertModal("Fitur Geolokasi tidak didukung oleh browser Anda.", { tone: "info" });
         return;
     }
     
@@ -3793,7 +3829,7 @@ window.detectUserLocationMap = () => {
         btn.disabled = false;
         btn.innerHTML = originalText;
         
-        alert("Gagal mendeteksi lokasi otomatis. Peta akan dibuka di koordinat default (Jakarta), silakan geser pin ke lokasi Anda.");
+         showAlertModal("Gagal mendeteksi lokasi otomatis. Peta akan dibuka di koordinat default (Jakarta), silakan geser pin ke lokasi Anda.", { tone: "danger" });
         
         // Buka modal peta dengan pusat default Jakarta
         const modal = document.getElementById('map-modal');
@@ -4046,11 +4082,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Nomor WhatsApp: hanya digit, maks 13.
+        // Nomor WhatsApp: hanya digit, maks 13, buang awalan 62 agar tidak jadi +62 ganda.
         const phoneEl = document.getElementById('customer-phone');
         if (phoneEl) {
             phoneEl.addEventListener('input', () => {
-                const digits = phoneEl.value.replace(/\D/g, '').slice(0, 13);
+                let digits = phoneEl.value.replace(/\D/g, '').slice(0, 13);
+                if (digits.startsWith('62') && digits.length > 2) digits = '0' + digits.slice(2);
                 if (phoneEl.value !== digits) phoneEl.value = digits;
             });
         }
@@ -4119,14 +4156,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     if (typeof emailjs !== 'undefined') {
                         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_ADMIN_TEMPLATE_ID, templateParams);
-                        alert("Pesan Anda berhasil dikirim ke email kami! Terima kasih.");
+                        showAlertModal("Pesan Anda berhasil dikirim ke email kami! Terima kasih.", { tone: "success" });
                         cf.reset();
                     } else {
                         throw new Error("Sistem email sedang tidak aktif.");
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("Gagal mengirim pesan: " + err.message);
+                    showAlertModal("Gagal mengirim pesan: " + err.message, { tone: "danger" });
                 } finally {
                     btnSubmit.disabled = false;
                     btnSubmit.innerHTML = originalText;
@@ -4159,7 +4196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.handleEmailClick = () => {
     const email = "kreasiguna2026@gmail.com";
     navigator.clipboard.writeText(email).then(() => {
-        alert("Alamat email kreasiguna2026@gmail.com berhasil disalin ke clipboard!\nMembuka Gmail...");
+        showAlertModal("Alamat email kreasiguna2026@gmail.com berhasil disalin ke clipboard!\nMembuka Gmail...", { tone: "success" });
         window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}`, '_blank');
     }).catch(() => {
         window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}`, '_blank');
@@ -4187,6 +4224,19 @@ window.autofillShippingProfile = () => {
     }
 };
 
+/* Nomor telepon lokal: '08..' | '+62..' | '62..' | '8..' -> selalu '08..' */
+function normalizePhoneLocal(raw) {
+    let d = String(raw || '').replace(/\D/g, '');
+    if (d.startsWith('62')) d = '0' + d.slice(2);
+    else if (d.startsWith('8')) d = '0' + d;
+    return d;
+}
+
+/* Valid bila hasil normalisasi 9-13 digit diawali 08 */
+function isValidPhoneLocal(raw) {
+    return /^08\d{7,11}$/.test(normalizePhoneLocal(raw));
+}
+
 function getAddressBookKey() {
     return currentUserId ? `address_book_${currentUserId}` : 'address_book';
 }
@@ -4201,7 +4251,7 @@ function getAddressBook() {
 
 function saveAddressToBook(entry, silent) {
     if (!entry || !entry.name || !entry.address) {
-        if (!silent) alert('Please fill name and address first.');
+        if (!silent) showAlertModal('Isi nama dan alamat dulu.');
         return false;
     }
     let book = getAddressBook();
@@ -4223,7 +4273,7 @@ function saveAddressToBook(entry, silent) {
 function applyAddressToForm(p) {
     if (!p) return;
     if (p.name && document.getElementById('customer-name')) document.getElementById('customer-name').value = p.name;
-    if (p.phone && document.getElementById('customer-phone')) document.getElementById('customer-phone').value = p.phone;
+    if (p.phone && document.getElementById('customer-phone')) document.getElementById('customer-phone').value = normalizePhoneLocal(p.phone);
     if (p.email && document.getElementById('customer-email')) document.getElementById('customer-email').value = p.email;
     if (p.city || p.province) {
         const provSelect = document.getElementById('customer-province');
@@ -4289,8 +4339,12 @@ window.saveCurrentFormAddress = () => {
         postalCode: document.getElementById('customer-postal-code')?.value.trim(),
         address: document.getElementById('customer-address')?.value.trim()
     };
-    if (!entry.name || (entry.name || '').length < 3) { alert('Masukkan nama lengkap (min. 3 karakter).'); return false; }
-    if (!entry.address || entry.address.length < 10) { alert('Masukkan alamat lengkap (min. 10 karakter).'); return false; }
+    if (!entry.name || entry.name.length < 3) { showAlertModal('Masukkan nama lengkap (min. 3 karakter).'); return false; }
+    if (entry.name.length > 30) { showAlertModal('Nama maksimal 30 karakter.'); return false; }
+    if (!entry.phone || !isValidPhoneLocal(entry.phone)) { showAlertModal('Masukkan nomor WhatsApp yang valid (9-13 digit, diawali 08 atau 8).'); return false; }
+    entry.phone = normalizePhoneLocal(entry.phone);
+    if (!entry.address || entry.address.length < 10) { showAlertModal('Masukkan alamat lengkap (min. 10 karakter).'); return false; }
+    if (entry.address.length > 300) { showAlertModal('Alamat maksimal 300 karakter.'); return false; }
     return saveAddressToBook(entry);
 };
 
