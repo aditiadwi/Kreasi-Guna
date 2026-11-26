@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css?v=1.0.153">
+    <link rel="stylesheet" href="style.css?v=1.0.154">
     <script type="text/javascript" src="https://unpkg.com/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
@@ -50,6 +50,7 @@
         <section id="checkout" class="checkout-section container">
             <div class="checkout-container">
                 <div class="cart-details">
+                    <a href="cart.html" class="checkout-back-cart">&larr; Kembali ke Keranjang</a>
                     <h2 class="section-header">Complete Your Order</h2>
                     <div class="checkout-steps" id="checkout-steps">
                         <div class="step-item done" data-step="1"><span class="step-circle">✓</span><span>Cart</span></div>
@@ -86,15 +87,15 @@
                                 </div>
                                 <div style="flex: 1; position: relative;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.4;"><path fill="#25D366" d="M12.004 2c-5.517 0-9.993 4.476-9.993 9.993 0 1.763.459 3.486 1.332 5.006L2 22l5.136-1.313c1.472.803 3.125 1.226 4.864 1.226 5.517 0 9.993-4.476 9.993-9.993C21.997 6.476 17.521 2 12.004 2z"/></svg>
-                                    <input type="tel" id="customer-phone" placeholder="081234567890" required pattern="(08|8)[0-9]{7,11}" maxlength="13" inputmode="numeric" autocomplete="tel-national" style="padding-left: 38px;">
+                                    <input type="tel" id="customer-phone" placeholder="081234567890" required pattern="(08|8)[0-9]{7,10}" maxlength="12" inputmode="numeric" autocomplete="tel-national" style="padding-left: 38px;">
                                 </div>
                             </div>
-                            <div class="error-message">Nomor WhatsApp harus diawali 08 atau 8 (9-13 digit), contoh: 081234567890.</div>
+                            <div class="error-message">Nomor WhatsApp harus diawali 08 atau 8 (maks 12 digit), contoh: 081234567890.</div>
                         </div>
                         <div class="form-group">
                             <label>Email *</label>
-                            <input type="email" id="customer-email" placeholder="contoh@email.com" required>
-                            <div class="error-message">Masukkan alamat email yang valid.</div>
+<input type="email" id="customer-email" placeholder="contoh@gmail.com" required maxlength="100" autocomplete="email">
+<div class="error-message">Masukkan email yang valid (harus berakhiran @gmail.com).</div>
                         </div>
 
                         <h3 style="margin: 28px 0 16px;">Alamat Pengiriman</h3>
@@ -316,7 +317,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="app.js?v=1.0.153"></script>
+    <script src="app.js?v=1.0.154"></script>
 </body>
 </html>
 

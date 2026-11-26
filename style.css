@@ -1514,6 +1514,16 @@ body.menu-open {
     line-height: 1.1;
     margin-top: 0;
 }
+.checkout-back-cart {
+    display: inline-block;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.checkout-back-cart:hover { color: var(--gold-premium); }
 .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #f5f5f5; }
 .cart-item-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .cart-item-thumb {

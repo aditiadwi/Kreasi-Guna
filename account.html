@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.153">
+    <link rel="stylesheet" href="style.css?v=1.0.154">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -124,7 +124,7 @@
                             </label>
                             <label class="acc-field">
                                 <span>Nomor WhatsApp</span>
-                                <input type="tel" id="acc-addr-phone" placeholder="08xxxxxxxxxx" maxlength="13" inputmode="numeric" required>
+                                <input type="tel" id="acc-addr-phone" placeholder="08xxxxxxxxxx" maxlength="12" inputmode="numeric" required>
                             </label>
                         </div>
                         <div class="acc-form-row">
@@ -300,7 +300,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.153"></script>
+    <script src="app.js?v=1.0.154"></script>
     <script>
         const CITY_LABELS = {
             'jakarta-pusat': 'Jakarta Pusat', 'jakarta-selatan': 'Jakarta Selatan', 'jakarta-timur': 'Jakarta Timur',
@@ -1060,7 +1060,7 @@
             };
             if (!entry.name || entry.name.length < 3) return showAlertModal('Masukkan nama lengkap (min. 3 karakter).');
             if (entry.name.length > 30) return showAlertModal('Nama maksimal 30 karakter.');
-            if (!entry.phone || typeof isValidPhoneLocal !== 'function' || !isValidPhoneLocal(entry.phone)) return showAlertModal('Masukkan nomor WhatsApp yang valid (9-13 digit, diawali 08 atau 8).');
+            if (!entry.phone || typeof isValidPhoneLocal !== 'function' || !isValidPhoneLocal(entry.phone)) return showAlertModal('Masukkan nomor WhatsApp yang valid (9-12 digit, diawali 08 atau 8).');
             if (typeof normalizePhoneLocal === 'function') entry.phone = normalizePhoneLocal(entry.phone);
             if (!entry.kelurahan || entry.kelurahan.length < 2) return showAlertModal('Masukkan nama kelurahan.');
             if (entry.kelurahan.length > 80) return showAlertModal('Kelurahan maksimal 80 karakter.');

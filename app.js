@@ -2141,8 +2141,8 @@ window.handleProceedToPayment = () => {
     const phoneDigits = normalizePhoneLocal(phoneRaw);
     if (Object.keys(cart).length === 0) return showAlertModal('Keranjang masih kosong. Masukkan produk dulu.');
     if (name.trim().length < 3) return showAlertModal('Masukkan nama lengkap (min. 3 karakter).');
-    if (!isValidPhoneLocal(phoneDigits)) return showAlertModal('Nomor WhatsApp harus diawali 08 atau 8 (contoh: 081234567890), 9-13 digit.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return showAlertModal('Masukkan alamat email yang valid.');
+    if (!isValidPhoneLocal(phoneDigits)) return showAlertModal('Nomor WhatsApp harus diawali 08 atau 8 (contoh: 081234567890), maks 12 digit.');
+    if (!isValidEmailStrict(email)) return showAlertModal('Masukkan email yang valid (harus berakhiran @gmail.com).');
     if (!province) return showAlertModal('Pilih provinsi pengiriman.');
     if (!city) return showAlertModal('Pilih kota/kabupaten pengiriman.');
     if (!/^\d{5}$/.test(postalCode)) return showAlertModal('Kode pos harus 5 digit angka.');
@@ -4082,11 +4082,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // Nomor WhatsApp: hanya digit, maks 13, buang awalan 62 agar tidak jadi +62 ganda.
+        // Nomor WhatsApp: hanya digit, maks 12, buang awalan 62 agar tidak jadi +62 ganda.
         const phoneEl = document.getElementById('customer-phone');
         if (phoneEl) {
             phoneEl.addEventListener('input', () => {
-                let digits = phoneEl.value.replace(/\D/g, '').slice(0, 13);
+                let digits = phoneEl.value.replace(/\D/g, '').slice(0, 12);
                 if (digits.startsWith('62') && digits.length > 2) digits = '0' + digits.slice(2);
                 if (phoneEl.value !== digits) phoneEl.value = digits;
             });
@@ -4232,9 +4232,15 @@ function normalizePhoneLocal(raw) {
     return d;
 }
 
-/* Valid bila hasil normalisasi 9-13 digit diawali 08 */
+/* Valid bila hasil normalisasi 9-12 digit diawali 08 */
 function isValidPhoneLocal(raw) {
-    return /^08\d{7,11}$/.test(normalizePhoneLocal(raw));
+    return /^08\d{7,10}$/.test(normalizePhoneLocal(raw));
+}
+
+/* Email ketat: hanya @gmail.com (tolak suffix aneh seperti .comwdfsf) */
+function isValidEmailStrict(raw) {
+    const e = String(raw || '').trim().toLowerCase();
+    return /^[^\s@]+@gmail\.com$/.test(e);
 }
 
 function getAddressBookKey() {
@@ -4341,7 +4347,7 @@ window.saveCurrentFormAddress = () => {
     };
     if (!entry.name || entry.name.length < 3) { showAlertModal('Masukkan nama lengkap (min. 3 karakter).'); return false; }
     if (entry.name.length > 30) { showAlertModal('Nama maksimal 30 karakter.'); return false; }
-    if (!entry.phone || !isValidPhoneLocal(entry.phone)) { showAlertModal('Masukkan nomor WhatsApp yang valid (9-13 digit, diawali 08 atau 8).'); return false; }
+    if (!entry.phone || !isValidPhoneLocal(entry.phone)) { showAlertModal('Masukkan nomor WhatsApp yang valid (9-12 digit, diawali 08 atau 8).'); return false; }
     entry.phone = normalizePhoneLocal(entry.phone);
     if (!entry.address || entry.address.length < 10) { showAlertModal('Masukkan alamat lengkap (min. 10 karakter).'); return false; }
     if (entry.address.length > 300) { showAlertModal('Alamat maksimal 300 karakter.'); return false; }
