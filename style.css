@@ -1864,6 +1864,47 @@ select.touched:invalid + .error-message {
     display: block;
 }
 
+/* Validasi inline JS: merah hanya setelah blur/submit (.has-error) */
+.form-group.has-error .error-message,
+.acc-field.has-error .error-message {
+    display: block;
+}
+.form-group.has-error input:not([type="hidden"]),
+.form-group.has-error select,
+.form-group.has-error textarea,
+.acc-field.has-error input:not([type="hidden"]),
+.acc-field.has-error textarea,
+.acc-field.has-error .acc-sel-btn,
+.form-group.has-error .acc-sel-btn {
+    border-color: #e74c3c !important;
+    background-color: #fff6f6 !important;
+}
+
+/* Dropdown checkout: kotak bundar seperti acc-sel */
+.form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-radius: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239c8f7d' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+}
+.form-group select:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    background-color: #f7f7f7;
+}
+
+/* Alamat tersimpan terpilih */
+.address-book-item.selected .address-book-use {
+    border-color: var(--gold-premium);
+    background: #fffbf2;
+    box-shadow: 0 0 0 1px var(--gold-premium);
+}
+
 /* FOOTER */
 footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 calc(30px + env(safe-area-inset-bottom, 0px)); background: var(--coffee-dark); color: var(--bg-cream); }
 .ft-leaf { position: absolute; top: -30px; width: 260px; height: 260px; opacity: 0.07; stroke: var(--gold-premium); fill: none; stroke-width: 3; stroke-linecap: round; pointer-events: none; }

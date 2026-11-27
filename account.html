@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Akun Saya | KG Smart Drip Coffee</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.154">
+    <link rel="stylesheet" href="style.css?v=1.0.155">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -115,7 +115,7 @@
 
                     <button type="button" class="acc-btn-ghost" id="btn-toggle-addr-form" onclick="toggleAddrForm()">+ Tambah Alamat Baru</button>
 
-                    <form id="acc-addr-form" class="acc-addr-form hidden" onsubmit="return accSaveAddress(event)">
+                    <form id="acc-addr-form" class="acc-addr-form hidden" novalidate onsubmit="return accSaveAddress(event)">
                         <input type="hidden" id="acc-addr-edit-index" value="-1">
                         <div class="acc-form-row">
                             <label class="acc-field">
@@ -300,7 +300,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.0.154"></script>
+    <script src="app.js?v=1.0.155"></script>
     <script>
         const CITY_LABELS = {
             'jakarta-pusat': 'Jakarta Pusat', 'jakarta-selatan': 'Jakarta Selatan', 'jakarta-timur': 'Jakarta Timur',
@@ -378,6 +378,8 @@
             box.classList.remove('open');
             box.dataset.filled = '1';
             if (box.id === 'acc-addr-province') filterAccCities(val);
+            const hidden = box.querySelector('input[type="hidden"]');
+            if (hidden && typeof setFieldError === 'function') setFieldError(hidden, '');
         };
         function setAccSel(id, value) {
             const box = document.getElementById(id);
@@ -1047,30 +1049,37 @@
 
         window.accSaveAddress = function (e) {
             e.preventDefault();
+            const nameEl = document.getElementById('acc-addr-name');
+            const phoneEl = document.getElementById('acc-addr-phone');
+            const kelEl = document.getElementById('acc-addr-kelurahan');
+            const kecEl = document.getElementById('acc-addr-kecamatan');
+            const cityEl = document.getElementById('acc-addr-city-val');
+            const provEl = document.getElementById('acc-addr-province-val');
+            const postalEl = document.getElementById('acc-addr-postal');
+            const addrEl = document.getElementById('acc-addr-address');
+            const ok = validateFormFields([
+                { el: nameEl, validator: FORM_VALIDATORS.name },
+                { el: phoneEl, validator: FORM_VALIDATORS.phone },
+                { el: kelEl, validator: FORM_VALIDATORS.kelurahan },
+                { el: kecEl, validator: FORM_VALIDATORS.kecamatan },
+                { el: cityEl, validator: FORM_VALIDATORS.city },
+                { el: provEl, validator: FORM_VALIDATORS.province },
+                { el: postalEl, validator: FORM_VALIDATORS.postal },
+                { el: addrEl, validator: FORM_VALIDATORS.address }
+            ]);
+            if (!ok) return false;
+
             const entry = {
-                name: document.getElementById('acc-addr-name').value.trim(),
-                phone: document.getElementById('acc-addr-phone').value.trim(),
+                name: nameEl.value.trim(),
+                phone: typeof normalizePhoneLocal === 'function' ? normalizePhoneLocal(phoneEl.value.trim()) : phoneEl.value.trim(),
                 email: (accSession && accSession.user.email) || '',
-                kelurahan: document.getElementById('acc-addr-kelurahan').value.trim(),
-                kecamatan: document.getElementById('acc-addr-kecamatan').value.trim(),
-                city: document.getElementById('acc-addr-city-val').value,
-                province: document.getElementById('acc-addr-province-val').value,
-                postalCode: document.getElementById('acc-addr-postal').value.trim(),
-                address: document.getElementById('acc-addr-address').value.trim()
+                kelurahan: kelEl.value.trim(),
+                kecamatan: kecEl.value.trim(),
+                city: cityEl.value,
+                province: provEl.value,
+                postalCode: postalEl.value.trim(),
+                address: addrEl.value.trim()
             };
-            if (!entry.name || entry.name.length < 3) return showAlertModal('Masukkan nama lengkap (min. 3 karakter).');
-            if (entry.name.length > 30) return showAlertModal('Nama maksimal 30 karakter.');
-            if (!entry.phone || typeof isValidPhoneLocal !== 'function' || !isValidPhoneLocal(entry.phone)) return showAlertModal('Masukkan nomor WhatsApp yang valid (9-12 digit, diawali 08 atau 8).');
-            if (typeof normalizePhoneLocal === 'function') entry.phone = normalizePhoneLocal(entry.phone);
-            if (!entry.kelurahan || entry.kelurahan.length < 2) return showAlertModal('Masukkan nama kelurahan.');
-            if (entry.kelurahan.length > 80) return showAlertModal('Kelurahan maksimal 80 karakter.');
-            if (!entry.kecamatan || entry.kecamatan.length < 2) return showAlertModal('Masukkan nama kecamatan.');
-            if (entry.kecamatan.length > 80) return showAlertModal('Kecamatan maksimal 80 karakter.');
-            if (!entry.city) return showAlertModal('Pilih kota/kabupaten.');
-            if (!entry.province) return showAlertModal('Pilih provinsi.');
-            if (!/^\d{5}$/.test(entry.postalCode)) return showAlertModal('Kode pos harus 5 angka.');
-            if (!entry.address || entry.address.length < 10) return showAlertModal('Masukkan alamat lengkap (min. 10 karakter).');
-            if (entry.address.length > 300) return showAlertModal('Alamat maksimal 300 karakter.');
 
             const editIdx = parseInt(document.getElementById('acc-addr-edit-index').value, 10);
             let book = getAddressBook();
@@ -1086,6 +1095,23 @@
             renderAccAddresses();
             return false;
         };
+
+        // Validasi inline form alamat: merah muncul setelah blur.
+        (function initAccAddrInlineValidation() {
+            const pairs = [
+                ['acc-addr-name', FORM_VALIDATORS.name],
+                ['acc-addr-phone', FORM_VALIDATORS.phone],
+                ['acc-addr-kelurahan', FORM_VALIDATORS.kelurahan],
+                ['acc-addr-kecamatan', FORM_VALIDATORS.kecamatan],
+                ['acc-addr-postal', FORM_VALIDATORS.postal],
+                ['acc-addr-address', FORM_VALIDATORS.address]
+            ];
+            pairs.forEach(([id, v]) => {
+                if (typeof initInlineValidation === 'function') {
+                    initInlineValidation(document.getElementById(id), v);
+                }
+            });
+        })();
 
         /* ================= INIT ================= */
         document.addEventListener('DOMContentLoaded', async () => {

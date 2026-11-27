@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.154">
+    <link rel="stylesheet" href="style.css?v=1.0.155">
     <script type="text/javascript" src="https://unpkg.com/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
@@ -86,21 +86,21 @@
                 <!-- NEW CONTACT FORM FROM WEBSITE -->
                 <div class="contact-form-container" style="max-width: 800px; margin: 80px auto 0; background: var(--white); padding: 50px; border-radius: 20px; box-shadow: var(--shadow-soft);">
                     <h2 class="section-header" style="font-size: 2.5rem; margin-bottom: 40px;">Kirim Pesan</h2>
-                    <form id="contact-form" class="form-grid">
+                    <form id="contact-form" class="form-grid" novalidate>
                         <div class="form-group">
                             <label>Nama Lengkap</label>
-                            <input type="text" id="contact-name" placeholder="Nama Anda" required minlength="3">
-                            <div class="error-message">Please enter at least 3 characters.</div>
+                            <input type="text" id="contact-name" placeholder="Nama Anda" required minlength="3" maxlength="30">
+                            <div class="error-message">Nama wajib diisi (min. 3 karakter, harus huruf).</div>
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" id="contact-email" placeholder="email@contoh.com" required>
-                            <div class="error-message">Please enter a valid email address.</div>
+                            <input type="email" id="contact-email" placeholder="email@contoh.com" required maxlength="100">
+                            <div class="error-message">Masukkan alamat email yang valid.</div>
                         </div>
                         <div class="form-group">
                             <label>No. WhatsApp</label>
-                            <input type="tel" id="contact-whatsapp" placeholder="0812..." required pattern="[0-9]{10,15}">
-                            <div class="error-message">Please enter a valid phone number (10-15 digits).</div>
+                            <input type="tel" id="contact-whatsapp" placeholder="0812..." required maxlength="12" inputmode="numeric">
+                            <div class="error-message">Nomor WhatsApp harus diawali 08 atau 8 (maks 12 digit).</div>
                         </div>
                         <div class="form-group">
                             <label>Keperluan</label>
@@ -111,7 +111,8 @@
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
                             <label>Pesan</label>
-                            <textarea id="contact-message" rows="5" placeholder="Tulis pesan Anda di sini..." required></textarea>
+                            <textarea id="contact-message" rows="5" placeholder="Tulis pesan Anda di sini..." required maxlength="500"></textarea>
+                            <div class="error-message">Pesan wajib diisi (min. 10 karakter).</div>
                         </div>
                         <div style="grid-column: span 2; display: flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; width: 100%;">
                             <button type="submit" id="btn-submit-contact" class="btn-primary" style="flex: 1; min-width: 200px; padding: 15px; font-weight: 700; cursor: pointer; border-radius: 8px;">
@@ -239,7 +240,7 @@
         </svg>
     </a>
 
-    <script src="app.js?v=1.0.154"></script>
+    <script src="app.js?v=1.0.155"></script>
 </body>
 </html>
 

@@ -967,6 +967,19 @@ Konteks: user minta (1) validasi email ketat — di belakang harus `@gmail.com`,
 - Catatan: kalau nanti mau longgarkan email (domain lain selain Gmail), tinggal ubah `isValidEmailStrict` — satu titik saja.
 
 
+### **72. Catatan 26 November 2026 (validasi inline semua form — merah di bawah field, bukan popup)**
+
+Konteks: user minta validasi merah muncul **di bawah field** setelah blur (klik area kosong) atau submit — bukan popup `showAlertModal` per-field. Diterapkan ke checkout, account (alamat), dan contact. Commit berikutnya (v=1.0.155).
+
+- **Helper inline di app.js** (sebelum `getAddressBookKey`): `FORM_VALIDATORS` (name/phone/emailGmail/emailLoose/address/postal/province/city/kelurahan/kecamatan/message; name pakai `/\p{L}/u` — tolak `123456`), `setFieldError(el,msg)` (toggle `.has-error` + inject/tampilkan `.error-message`), `validateFieldNow` (set `data-touched`), `initInlineValidation(el,validator)` (blur → tampilkan; input/change → live update hanya jika sudah `data-touched`), `validateFormFields(entries)` (validasi semua, return bool, focus + scroll smooth ke field pertama yang gagal), `checkoutValidationEntries()`.
+- **CSS `style.css`**: blok `/* Validasi inline JS */` — `.form-group.has-error .error-message` / `.acc-field.has-error .error-message` display block + border merah input/select/textarea/`.acc-sel-btn`. Dropdown checkout `.form-group select` → `appearance:none`, `border-radius:12px`, chevron SVG data-URI (seperti `.acc-sel`). `.address-book-item.selected .address-book-use` → border gold + bg `#fffbf2`.
+- **Checkout**: `handleProceedToPayment` — hanya "Keranjang kosong" → `showAlertModal`; field error → `validateFormFields(checkoutValidationEntries())` inline. Init: `checkoutValidationEntries().forEach(initInlineValidation)`. `saveCurrentFormAddress` pakai `validateFormFields` (nama/phone/alamat). `applyBookAddress` set `window._selectedBookIdx` + class `.selected`; `renderAddressBook` render highlight; `deleteBookAddress` menyesuaikan index; `window._selectedBookIdx = -1` di global.
+- **Account**: `<form id="acc-addr-form" novalidate>`; `accSaveAddress` pakai `validateFormFields` (8 field termasuk hidden city/province via `FORM_VALIDATORS.city/province`) alih-alih `showAlertModal`; IIFE `initAccAddrInlineValidation` bind blur ke 6 field visible; `pickAccSel` clear `setFieldError(hidden,'')` saat opsi dipilih.
+- **Contact**: `#contact-form novalidate`; `validateContactForm` (name/emailLoose/phone/message) dipakai di submit EmailJS **dan** tombol WhatsApp (ganti `cf.checkValidity()`); input listener contact-WA strip non-digit + `slice(0,12)` + konversi `62…`→`0…`. Error-message div diperbarui (ID/EN → pesan Indonesia + `maxlength`).
+- **Bump cache** `v=1.0.154` → `v=1.0.155` di 11 HTML (22 penggantian). Verifikasi: `node --check app.js` OK, `npm run check:assets` OK (11 halaman lolos), scan sisa `showAlertModal` per-field validasi = 0 (hanya rating bintang yang tetap modal — bukan field form).
+- Catatan: popup `showAlertModal` tetap untuk non-field (keranjang kosong, sukses kirim, dsb). Kalau mau longgarkan email domain lain, ubah `emailLoose`/`emailGmail` di `FORM_VALIDATORS` — satu titik.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

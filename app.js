@@ -17,6 +17,7 @@ let cart = {};
 const FORM_FIELDS = ['customer-name', 'customer-phone', 'customer-email', 'shipping-city', 'customer-province', 'customer-postal-code', 'delivery-service', 'customer-address'];
 
 let currentUserId = null;
+window._selectedBookIdx = -1;
 let isFirstAuthCheck = true;
 
 function getCartStorageKey() {
@@ -2130,23 +2131,8 @@ window.setCheckoutStep = (n) => {
 };
 
 window.handleProceedToPayment = () => {
-    const name = document.getElementById('customer-name').value;
-    const phoneRaw = document.getElementById('customer-phone').value;
-    const email = document.getElementById('customer-email').value;
-    const city = document.getElementById('shipping-city').value;
-    const province = document.getElementById('customer-province').value;
-    const postalCode = document.getElementById('customer-postal-code').value;
-    const address = document.getElementById('customer-address').value;
-
-    const phoneDigits = normalizePhoneLocal(phoneRaw);
     if (Object.keys(cart).length === 0) return showAlertModal('Keranjang masih kosong. Masukkan produk dulu.');
-    if (name.trim().length < 3) return showAlertModal('Masukkan nama lengkap (min. 3 karakter).');
-    if (!isValidPhoneLocal(phoneDigits)) return showAlertModal('Nomor WhatsApp harus diawali 08 atau 8 (contoh: 081234567890), maks 12 digit.');
-    if (!isValidEmailStrict(email)) return showAlertModal('Masukkan email yang valid (harus berakhiran @gmail.com).');
-    if (!province) return showAlertModal('Pilih provinsi pengiriman.');
-    if (!city) return showAlertModal('Pilih kota/kabupaten pengiriman.');
-    if (!/^\d{5}$/.test(postalCode)) return showAlertModal('Kode pos harus 5 digit angka.');
-    if (address.trim().length < 10) return showAlertModal('Masukkan alamat lengkap (min. 10 karakter).');
+    if (!validateFormFields(checkoutValidationEntries())) return;
 
     const payArea = document.getElementById('payment-area');
     if (payArea) {
@@ -4066,6 +4052,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
+        // Validasi inline: merah muncul setelah blur / submit (bukan sambil ketik).
+        checkoutValidationEntries().forEach(({ el, validator }) => initInlineValidation(el, validator));
+
         if (provSelect) {
             provSelect.addEventListener('change', () => {
                 provSelect.classList.add('touched');
@@ -4125,10 +4114,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btnSubmit = document.getElementById('btn-submit-contact');
         const btnWhatsapp = document.getElementById('btn-whatsapp-contact');
 
+        const validateContactForm = () => validateFormFields([
+            { el: document.getElementById('contact-name'), validator: FORM_VALIDATORS.name },
+            { el: document.getElementById('contact-email'), validator: FORM_VALIDATORS.emailLoose },
+            { el: document.getElementById('contact-whatsapp'), validator: FORM_VALIDATORS.phone },
+            { el: document.getElementById('contact-message'), validator: FORM_VALIDATORS.message }
+        ]);
+
         if (cf) {
+            // Validasi inline: merah muncul setelah blur / submit.
+            [
+                ['contact-name', FORM_VALIDATORS.name],
+                ['contact-email', FORM_VALIDATORS.emailLoose],
+                ['contact-whatsapp', FORM_VALIDATORS.phone],
+                ['contact-message', FORM_VALIDATORS.message]
+            ].forEach(([id, v]) => initInlineValidation(document.getElementById(id), v));
+
+            const contactPhone = document.getElementById('contact-whatsapp');
+            if (contactPhone) {
+                contactPhone.addEventListener('input', () => {
+                    let digits = contactPhone.value.replace(/\D/g, '').slice(0, 12);
+                    if (digits.startsWith('62') && digits.length > 2) digits = '0' + digits.slice(2);
+                    if (contactPhone.value !== digits) contactPhone.value = digits;
+                });
+            }
+
             cf.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+                if (!validateContactForm()) return;
                 if (!btnSubmit) return;
                 const originalText = btnSubmit.innerHTML;
                 btnSubmit.disabled = true;
@@ -4173,11 +4186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (btnWhatsapp && cf) {
             btnWhatsapp.addEventListener('click', () => {
-                // Jalankan validasi HTML5 form
-                if (!cf.checkValidity()) {
-                    cf.reportValidity();
-                    return;
-                }
+                if (!validateContactForm()) return;
 
                 const name = document.getElementById('contact-name').value;
                 const email = document.getElementById('contact-email').value;
@@ -4241,6 +4250,152 @@ function isValidPhoneLocal(raw) {
 function isValidEmailStrict(raw) {
     const e = String(raw || '').trim().toLowerCase();
     return /^[^\s@]+@gmail\.com$/.test(e);
+}
+
+/* ===== Validasi form inline (merah di bawah field, tampil setelah blur/submit) ===== */
+function isValidEmailLoose(raw) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(raw || '').trim());
+}
+
+const FORM_VALIDATORS = {
+    name(v) {
+        const t = String(v || '').trim();
+        if (!t) return 'Nama wajib diisi.';
+        if (t.length < 3) return 'Nama minimal 3 karakter.';
+        if (t.length > 30) return 'Nama maksimal 30 karakter.';
+        if (!/\p{L}/u.test(t)) return 'Nama harus mengandung huruf.';
+        return '';
+    },
+    phone(v) {
+        const t = String(v || '').trim();
+        if (!t) return 'Nomor WhatsApp wajib diisi.';
+        if (!isValidPhoneLocal(t)) return 'Nomor WhatsApp harus diawali 08 atau 8 (maks 12 digit).';
+        return '';
+    },
+    emailGmail(v) {
+        const t = String(v || '').trim();
+        if (!t) return 'Email wajib diisi.';
+        if (!isValidEmailStrict(t)) return 'Email harus berakhiran @gmail.com.';
+        return '';
+    },
+    emailLoose(v) {
+        const t = String(v || '').trim();
+        if (!t) return 'Email wajib diisi.';
+        if (!isValidEmailLoose(t)) return 'Masukkan alamat email yang valid.';
+        return '';
+    },
+    address(v) {
+        const t = String(v || '').trim();
+        if (t.length < 10) return 'Alamat minimal 10 karakter.';
+        if (t.length > 300) return 'Alamat maksimal 300 karakter.';
+        return '';
+    },
+    postal(v) {
+        return /^\d{5}$/.test(String(v || '').trim()) ? '' : 'Kode pos 5 digit angka.';
+    },
+    province(v) {
+        return v ? '' : 'Pilih provinsi.';
+    },
+    city(v) {
+        return v ? '' : 'Pilih kota/kabupaten.';
+    },
+    kelurahan(v) {
+        const t = String(v || '').trim();
+        if (!t) return 'Kelurahan wajib diisi.';
+        if (t.length < 2) return 'Kelurahan minimal 2 karakter.';
+        if (t.length > 80) return 'Kelurahan maksimal 80 karakter.';
+        return '';
+    },
+    kecamatan(v) {
+        const t = String(v || '').trim();
+        if (!t) return 'Kecamatan wajib diisi.';
+        if (t.length < 2) return 'Kecamatan minimal 2 karakter.';
+        if (t.length > 80) return 'Kecamatan maksimal 80 karakter.';
+        return '';
+    },
+    message(v) {
+        const t = String(v || '').trim();
+        if (!t) return 'Pesan wajib diisi.';
+        if (t.length < 10) return 'Pesan minimal 10 karakter.';
+        return '';
+    }
+};
+
+function setFieldError(el, msg) {
+    if (!el) return;
+    const group = el.closest('.form-group') || el.closest('.acc-field');
+    if (!group) return;
+    let err = group.querySelector('.error-message');
+    if (msg) {
+        group.classList.add('has-error');
+        if (!err) {
+            err = document.createElement('div');
+            err.className = 'error-message';
+            const anchor = group.querySelector('.acc-sel, select, textarea, input:not([type="hidden"])') || el;
+            if (anchor && anchor.parentElement) anchor.parentElement.insertBefore(err, anchor.nextSibling);
+            else group.appendChild(err);
+        }
+        err.textContent = msg;
+        err.style.display = 'block';
+    } else {
+        group.classList.remove('has-error');
+        if (err) {
+            err.textContent = '';
+            err.style.display = 'none';
+        }
+    }
+}
+
+function validateFieldNow(el, validator) {
+    if (!el || typeof validator !== 'function') return true;
+    const msg = validator(el.value);
+    setFieldError(el, msg);
+    el.dataset.touched = '1';
+    return !msg;
+}
+
+function initInlineValidation(el, validator) {
+    if (!el || el._inlineVal || typeof validator !== 'function') return;
+    el._inlineVal = true;
+    el.addEventListener('blur', () => {
+        el.dataset.touched = '1';
+        setFieldError(el, validator(el.value));
+    });
+    el.addEventListener('input', () => {
+        if (el.dataset.touched) setFieldError(el, validator(el.value));
+    });
+    el.addEventListener('change', () => {
+        if (el.dataset.touched) setFieldError(el, validator(el.value));
+    });
+}
+
+/* Validate semua field; tampilkan error pertama + scroll. true = lolos. */
+function validateFormFields(entries) {
+    let firstBad = null;
+    (entries || []).forEach(({ el, validator }) => {
+        if (!el) return;
+        const ok = validateFieldNow(el, validator);
+        if (!ok && !firstBad) firstBad = el;
+    });
+    if (firstBad) {
+        try {
+            firstBad.focus({ preventScroll: true });
+            firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (e) { /* ignore */ }
+    }
+    return !firstBad;
+}
+
+function checkoutValidationEntries() {
+    return [
+        { el: document.getElementById('customer-name'), validator: FORM_VALIDATORS.name },
+        { el: document.getElementById('customer-phone'), validator: FORM_VALIDATORS.phone },
+        { el: document.getElementById('customer-email'), validator: FORM_VALIDATORS.emailGmail },
+        { el: document.getElementById('customer-province'), validator: FORM_VALIDATORS.province },
+        { el: document.getElementById('shipping-city'), validator: FORM_VALIDATORS.city },
+        { el: document.getElementById('customer-postal-code'), validator: FORM_VALIDATORS.postal },
+        { el: document.getElementById('customer-address'), validator: FORM_VALIDATORS.address }
+    ];
 }
 
 function getAddressBookKey() {
@@ -4327,7 +4482,7 @@ window.renderAddressBook = () => {
         return;
     }
     list.innerHTML = book.map((b, i) => `
-        <div class="address-book-item">
+        <div class="address-book-item${window._selectedBookIdx === i ? ' selected' : ''}" data-idx="${i}">
             <button type="button" class="address-book-use" onclick="applyBookAddress(${i})">
                 <strong>${b.name}</strong><span>${b.city ? shippingCityLabel(b.city) + ' — ' : ''}${b.address}</span>
             </button>
@@ -4345,12 +4500,13 @@ window.saveCurrentFormAddress = () => {
         postalCode: document.getElementById('customer-postal-code')?.value.trim(),
         address: document.getElementById('customer-address')?.value.trim()
     };
-    if (!entry.name || entry.name.length < 3) { showAlertModal('Masukkan nama lengkap (min. 3 karakter).'); return false; }
-    if (entry.name.length > 30) { showAlertModal('Nama maksimal 30 karakter.'); return false; }
-    if (!entry.phone || !isValidPhoneLocal(entry.phone)) { showAlertModal('Masukkan nomor WhatsApp yang valid (9-12 digit, diawali 08 atau 8).'); return false; }
+    const ok = validateFormFields([
+        { el: document.getElementById('customer-name'), validator: FORM_VALIDATORS.name },
+        { el: document.getElementById('customer-phone'), validator: FORM_VALIDATORS.phone },
+        { el: document.getElementById('customer-address'), validator: FORM_VALIDATORS.address }
+    ]);
+    if (!ok) return false;
     entry.phone = normalizePhoneLocal(entry.phone);
-    if (!entry.address || entry.address.length < 10) { showAlertModal('Masukkan alamat lengkap (min. 10 karakter).'); return false; }
-    if (entry.address.length > 300) { showAlertModal('Alamat maksimal 300 karakter.'); return false; }
     return saveAddressToBook(entry);
 };
 
@@ -4372,12 +4528,18 @@ window.checkoutSaveAddress = (btn) => {
 window.applyBookAddress = (i) => {
     const book = getAddressBook();
     if (!book[i]) return;
+    window._selectedBookIdx = i;
     applyAddressToForm(book[i]);
+    document.querySelectorAll('#address-book-list .address-book-item').forEach((el, idx) => {
+        el.classList.toggle('selected', idx === i);
+    });
 };
 
 window.deleteBookAddress = (i) => {
     const book = getAddressBook();
     book.splice(i, 1);
+    if (window._selectedBookIdx === i) window._selectedBookIdx = -1;
+    else if (window._selectedBookIdx > i) window._selectedBookIdx--;
     localStorage.setItem(getAddressBookKey(), JSON.stringify(book));
     window.renderAddressBook();
 };
