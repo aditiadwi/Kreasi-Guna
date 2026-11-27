@@ -990,6 +990,17 @@ Konteks: user minta (1) dropdown checkout jadi kotak bundar kustom (`.acc-sel` s
 - **Bump cache** `v=1.0.155` → `v=1.0.156` di 11 HTML (22 penggantian). Verifikasi: `node --check app.js` OK, `npm run check:assets` OK.
 
 
+### **74. Catatan 27 November 2026 (dropdown checkout saling tutup, auto-Kapital nama, kode pos proporsional, sisa kuota foto ulasan)**
+
+Konteks: 4 permintaan user: (1) buka dropdown checkout satunya → yang lain otomatis tutup; (2) nama otomatis Kapital per kata saat tekan tempat luar (`adi suherman` → `Adi Suherman`); (3) field kode pos terlalu besar tidak sebanding dengan form di sebelahnya; (4) ulasan tampilkan sisa kuota foto (misal sudah 1 → "sisa 2 foto yang dapat dikirim").
+
+- **Dropdown saling tutup** (app.js `toggle`): state `open` diganti pakai `wrap.classList.contains('open')` (closure `let open` dihapus — supaya penutupan programatis dari dropdown lain tetap sinkron). Saat membuka, semua `.checkout-sel.open` lain di-close dulu (class + `aria-expanded`).
+- **Auto-Kapital nama** (app.js baru): `titleCaseName(s)` — trim, rapikan spasi, lowercase, lalu Kapital huruf pertama tiap kata (regex `(^|[\s./-])(\p{L})/gu`). `initNameAutoCapitalize(el)` pasang listener `blur` + `change`; saat nilai berubah dispatch `input` (bubble) supaya `saveFormData`/validasi ikut jalan. Dipasang di: checkout `customer-name`, contact `contact-name`, account `acc-addr-name` (account.html), plus `applyAddressToForm` (alamat tersimpan juga di-Kapital saat diterapkan).
+- **Kode pos proporsional** (style.css): `.address-grid` `1fr 1fr 1fr` → `1fr 1fr 0.6fr` (kolom ketiga/ kode pos jadi ~60% lebar kolom lain — pas untuk 5 digit). Mobile tetap 1 kolom (media query lama).
+- **Sisa kuota foto ulasan** (app.js): label `Tambah foto (opsional, maksimal 3)` dikasih `id="rate-photo-label"`; `rateRenderPhotos` update teks dinamis: 0 foto → teks awal; 1–2 foto → `Sisa N foto yang dapat dikirim`; 3 foto → `Foto sudah penuh (maksimal 3)`. Ikut berubah saat foto ditambah/dihapus.
+- **Bump cache** `v=1.0.156` → `v=1.0.157` di 11 HTML. Verifikasi: `node --check app.js` OK, `npm run check:assets` OK (11 halaman lolos).
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?

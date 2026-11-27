@@ -1657,7 +1657,7 @@ body.menu-open {
 }
 
 /* Checkout address grid (Kota / Provinsi / Kode Pos) */
-.address-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.address-grid { display: grid; grid-template-columns: 1fr 1fr 0.6fr; gap: 12px; }
 .address-grid .form-group { margin-bottom: 0; }
 
 /* STAR RATING */

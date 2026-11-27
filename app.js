@@ -1668,7 +1668,7 @@ function injectRateModal() {
                     <span id="rate-charcount" class="rm-charcount">0/500</span>
                 </div>
 
-                <p class="rm-q">Tambah foto (opsional, maksimal 3)</p>
+                <p class="rm-q" id="rate-photo-label">Tambah foto (opsional, maksimal 3)</p>
                 <div id="rate-photos" class="rm-photos"></div>
                 <input type="file" id="rate-photo-input" accept="image/*" multiple style="display:none" onchange="rateAddPhoto(this)">
 
@@ -1790,6 +1790,12 @@ window.rateRenderPhotos = function () {
             <span class="rm-cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span>Tambah Foto</span></button>`;
     }
     wrap.innerHTML = html;
+    const lbl = document.getElementById('rate-photo-label');
+    if (lbl) {
+        if (_ratePhotos.length === 0) lbl.textContent = 'Tambah foto (opsional, maksimal 3)';
+        else if (_ratePhotos.length < 3) lbl.textContent = `Sisa ${3 - _ratePhotos.length} foto yang dapat dikirim`;
+        else lbl.textContent = 'Foto sudah penuh (maksimal 3)';
+    }
 };
 
 window.rateAddPhoto = function (input) {
@@ -4090,6 +4096,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             updAddrCount();
         }
 
+        initNameAutoCapitalize(document.getElementById('customer-name'));
+
         const serviceSelect = document.getElementById('delivery-service');
         if (serviceSelect) {
             serviceSelect.addEventListener('change', (e) => {
@@ -4172,16 +4180,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 wrap.appendChild(btn);
                 wrap.appendChild(menu);
 
-                let open = false;
-                const closeAll = () => { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); open = false; };
+                const close = () => { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); };
                 const toggle = () => {
                     if (select.disabled) return;
-                    open ? closeAll() : (wrap.classList.add('open'), buildMenu(wrap, select), syncSel(wrap), btn.setAttribute('aria-expanded', 'true'), btn.focus(), open = true);
+                    if (wrap.classList.contains('open')) { close(); return; }
+                    // Buka dropdown lain → tutup semua dropdown checkout yang sedang terbuka.
+                    document.querySelectorAll('.checkout-sel.open').forEach(w => {
+                        w.classList.remove('open');
+                        const b = w.querySelector('.acc-sel-btn');
+                        if (b) b.setAttribute('aria-expanded', 'false');
+                    });
+                    wrap.classList.add('open');
+                    buildMenu(wrap, select);
+                    syncSel(wrap);
+                    btn.setAttribute('aria-expanded', 'true');
+                    btn.focus();
                 };
                 btn.addEventListener('click', toggle);
                 btn.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-                    if (e.key === 'Escape') closeAll();
+                    if (e.key === 'Escape') close();
                 });
                 select.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;opacity:0';
                 wrap.classList.add('enhanced');
@@ -4252,6 +4270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ['contact-whatsapp', FORM_VALIDATORS.phone],
                 ['contact-message', FORM_VALIDATORS.message]
             ].forEach(([id, v]) => initInlineValidation(document.getElementById(id), v));
+            initNameAutoCapitalize(document.getElementById('contact-name'));
 
             const contactPhone = document.getElementById('contact-whatsapp');
             if (contactPhone) {
@@ -4444,6 +4463,26 @@ const FORM_VALIDATORS = {
     }
 };
 
+/* Kapitalisasi nama per kata saat blur: "adi suherman" → "Adi Suherman". */
+function titleCaseName(s) {
+    return String(s || '').trim().replace(/\s+/g, ' ').toLowerCase()
+        .replace(/(^|[\s./-])(\p{L})/gu, (m, sep, ch) => sep + ch.toUpperCase());
+}
+
+function initNameAutoCapitalize(el) {
+    if (!el || el._nameCap) return;
+    el._nameCap = true;
+    const fix = () => {
+        const t = titleCaseName(el.value);
+        if (t && t !== el.value) {
+            el.value = t;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    };
+    el.addEventListener('blur', fix);
+    el.addEventListener('change', fix);
+}
+
 function setFieldError(el, msg) {
     if (!el) return;
     const group = el.closest('.form-group') || el.closest('.acc-field');
@@ -4559,7 +4598,7 @@ function saveAddressToBook(entry, silent) {
 
 function applyAddressToForm(p) {
     if (!p) return;
-    if (p.name && document.getElementById('customer-name')) document.getElementById('customer-name').value = p.name;
+    if (p.name && document.getElementById('customer-name')) document.getElementById('customer-name').value = titleCaseName(p.name);
     if (p.phone && document.getElementById('customer-phone')) document.getElementById('customer-phone').value = normalizePhoneLocal(p.phone);
     if (p.email && document.getElementById('customer-email')) document.getElementById('customer-email').value = p.email;
     if (p.city || p.province) {
