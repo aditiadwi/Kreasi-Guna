@@ -4099,6 +4099,129 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         document.getElementById('payment-method')?.addEventListener('change', window.updatePaymentDisplay);
+
+        /* Dropdown kustom untuk checkout: native <select> dijaga sebagai sumber nilai
+           (tersembunyi), UI .acc-sel dibangun di atasnya agar tampak bundar/kustom
+           bukan dropdown bawaan browser. */
+        (function initCheckoutCustomSelects() {
+            const IDs = ['customer-province', 'shipping-city', 'delivery-service', 'payment-method'];
+
+            function syncSel(wrap) {
+                const select = wrap.querySelector('select');
+                if (!select) return;
+                const btn = wrap.querySelector('.acc-sel-btn');
+                if (btn) btn.disabled = select.disabled;
+                const btnVal = wrap.querySelector('.acc-sel-val');
+                const selOpt = select.options[select.selectedIndex] || null;
+                if (!select.value || select.selectedIndex < 0 || !selOpt || selOpt.disabled || selOpt.value === '') {
+                    btnVal.textContent = selOpt ? selOpt.text : (wrap.dataset.placeholder || 'Pilih...');
+                    btnVal.classList.add('placeholder');
+                } else {
+                    btnVal.textContent = selOpt.text;
+                    btnVal.classList.remove('placeholder');
+                }
+                wrap.querySelectorAll('.acc-sel-opt').forEach(li => {
+                    const o = select.options[+li.dataset.idx];
+                    if (!o) return;
+                    const on = o.value === select.value && !o.disabled;
+                    li.classList.toggle('active', on);
+                    li.querySelector('.acc-sel-check').classList.toggle('hidden', !on);
+                });
+            }
+
+            function buildMenu(wrap, select) {
+                const menu = wrap.querySelector('.acc-sel-menu');
+                menu.innerHTML = '';
+                Array.from(select.options).forEach((o, idx) => {
+                    const on = o.value === select.value && !o.disabled;
+                    const li = document.createElement('li');
+                    li.className = 'acc-sel-opt' + (on ? ' active' : '');
+                    li.dataset.idx = idx;
+                    li.role = 'option';
+                    if (o.disabled) li.setAttribute('aria-disabled', 'true');
+                    li.innerHTML = `<span>${o.text}</span>
+                        <svg class="acc-sel-check${on ? '' : ' hidden'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+                    li.addEventListener('click', () => {
+                        if (o.disabled) return;
+                        const prev = select.value;
+                        select.value = o.value;
+                        if (select.value !== prev) select.dispatchEvent(new Event('change', { bubbles: true }));
+                        wrap.querySelector('.acc-sel-btn').focus();
+                    });
+                    menu.appendChild(li);
+                });
+                syncSel(wrap);
+            }
+
+            IDs.forEach(id => {
+                const select = document.getElementById(id);
+                if (!select || select.closest('.acc-sel')) return;
+                const wrap = document.createElement('div');
+                wrap.className = 'acc-sel checkout-sel';
+                select.parentNode.insertBefore(wrap, select);
+                wrap.appendChild(select);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'acc-sel-btn';
+                btn.setAttribute('aria-haspopup', 'listbox');
+                btn.innerHTML = `<span class="acc-sel-val placeholder"></span>
+                    <svg class="acc-sel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+                const menu = document.createElement('ul');
+                menu.className = 'acc-sel-menu';
+                menu.setAttribute('role', 'listbox');
+                wrap.appendChild(btn);
+                wrap.appendChild(menu);
+
+                let open = false;
+                const closeAll = () => { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); open = false; };
+                const toggle = () => {
+                    if (select.disabled) return;
+                    open ? closeAll() : (wrap.classList.add('open'), buildMenu(wrap, select), syncSel(wrap), btn.setAttribute('aria-expanded', 'true'), btn.focus(), open = true);
+                };
+                btn.addEventListener('click', toggle);
+                btn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+                    if (e.key === 'Escape') closeAll();
+                });
+                select.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;opacity:0';
+                wrap.classList.add('enhanced');
+                syncSel(wrap);
+
+                const protoDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+                Object.defineProperty(select, 'value', {
+                    configurable: true,
+                    get() { return protoDesc.get.call(this); },
+                    set(v) { protoDesc.set.call(this, v); syncSel(wrap); }
+                });
+
+                const mo = new MutationObserver(() => { buildMenu(wrap, select); syncSel(wrap); });
+                mo.observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.checkout-sel')) {
+                    document.querySelectorAll('.checkout-sel.open').forEach(w => {
+                        w.classList.remove('open');
+                        const btn = w.querySelector('.acc-sel-btn');
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                    });
+                }
+            });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.checkout-sel.open').forEach(w => w.classList.remove('open')); });
+        })();
+
+        /* Hapus highlight alamat tersimpan saat user mengedit form checkout secara manual. */
+        (function initClearBookSelectionOnEdit() {
+            const form = document.getElementById('checkout-form');
+            if (!form) return;
+            const clear = () => {
+                if (window._selectedBookIdx === -1) return;
+                window._selectedBookIdx = -1;
+                document.querySelectorAll('#address-book-list .address-book-item.selected').forEach(el => el.classList.remove('selected'));
+            };
+            form.addEventListener('input', clear);
+            form.addEventListener('change', clear);
+        })();
     }
     else if (page === 'about') { renderTestimonials(); }
     else if (page === 'brew') { getCoffeeNews(); initStars(); }
@@ -4379,7 +4502,10 @@ function validateFormFields(entries) {
     });
     if (firstBad) {
         try {
-            firstBad.focus({ preventScroll: true });
+            const focusTarget = (firstBad.tagName === 'SELECT' && firstBad.closest('.acc-sel'))
+                ? firstBad.closest('.acc-sel').querySelector('.acc-sel-btn')
+                : firstBad;
+            focusTarget.focus({ preventScroll: true });
             firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } catch (e) { /* ignore */ }
     }

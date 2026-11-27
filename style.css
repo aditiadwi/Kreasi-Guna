@@ -4055,6 +4055,7 @@ a:active {
     transition: border-color 0.2s ease;
 }
 .acc-sel-btn:hover { border-color: #cfc4b2; }
+.acc-sel-btn:disabled { opacity: 0.65; cursor: not-allowed; background: #f7f7f7; }
 .acc-sel-btn:focus-visible, .acc-sel.open .acc-sel-btn { outline: none; border-color: var(--gold-premium); }
 .acc-sel-arrow { width: 14px; height: 14px; flex-shrink: 0; color: #9c8f7d; transition: transform 0.2s ease; }
 .acc-sel.open .acc-sel-arrow { transform: rotate(180deg); }

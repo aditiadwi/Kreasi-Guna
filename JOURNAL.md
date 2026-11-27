@@ -980,6 +980,16 @@ Konteks: user minta validasi merah muncul **di bawah field** setelah blur (klik 
 - Catatan: popup `showAlertModal` tetap untuk non-field (keranjang kosong, sukses kirim, dsb). Kalau mau longgarkan email domain lain, ubah `emailLoose`/`emailGmail` di `FORM_VALIDATORS` — satu titik.
 
 
+### **73. Catatan 26 November 2026 (dropdown custom checkout + auto-clear highlight alamat)**
+
+Konteks: user minta (1) dropdown checkout jadi kotak bundar kustom (`.acc-sel` style) bukan native `<select>`, (2) highlight alamat tersimpan terpilih (`window._selectedBookIdx` / class `.selected`) otomatis dihapus saat form diedit manual.
+
+- **Dropdown kustom checkout** (app.js `initCheckoutCustomSelects`): native `<select>` dijaga sebagai sumber nilai (diposisikan 1px/opacity 0, tak terlihat), UI `.acc-sel` (btn + menu) dibangun di atasnya via JS. Value hook `Object.defineProperty(select,'value',{...})` tangkap semua penyeset `.value` programatis (termasuk `populateShippingCities`/`applyAddressToForm`) agar tampilan selalu sinkron; MutationObserver (`childList`+`attributes disabled`) rebuild menu saat opsi berubah. Klik opsi → `select.value = …` + dispatch `change` (bubbles) agar listener asli (`change` provinsi→isi kota, delivery-service→ongkir, payment-method→tampilan pembayaran) tetap jalan. Menu ditutup klik di luar / Esc. CSS `.acc-sel-btn:disabled` ditambahkan.
+- **Auto-clear highlight** (checkout init): `input`/`change` pada `#checkout-form` reset `window._selectedBookIdx = -1` + hapus class `.selected` di item alamat tersimpan, saat user mengetik/mengubah field secara manual (tidak terpicu saat nilai di-set secara programatis).
+- **`validateFormFields`**: fokus dialihkan ke `.acc-sel-btn` bila field gagal adalah select yang sudah di-custom (agar scroll/focus tidak menyentuh input 1px tersembunyi).
+- **Bump cache** `v=1.0.155` → `v=1.0.156` di 11 HTML (22 penggantian). Verifikasi: `node --check app.js` OK, `npm run check:assets` OK.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
