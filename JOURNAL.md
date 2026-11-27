@@ -967,7 +967,7 @@ Konteks: user minta (1) validasi email ketat — di belakang harus `@gmail.com`,
 - Catatan: kalau nanti mau longgarkan email (domain lain selain Gmail), tinggal ubah `isValidEmailStrict` — satu titik saja.
 
 
-### **72. Catatan 26 November 2026 (validasi inline semua form — merah di bawah field, bukan popup)**
+### **72. Catatan 27 November 2026 (validasi inline semua form — merah di bawah field, bukan popup)**
 
 Konteks: user minta validasi merah muncul **di bawah field** setelah blur (klik area kosong) atau submit — bukan popup `showAlertModal` per-field. Diterapkan ke checkout, account (alamat), dan contact. Commit berikutnya (v=1.0.155).
 
@@ -980,7 +980,7 @@ Konteks: user minta validasi merah muncul **di bawah field** setelah blur (klik 
 - Catatan: popup `showAlertModal` tetap untuk non-field (keranjang kosong, sukses kirim, dsb). Kalau mau longgarkan email domain lain, ubah `emailLoose`/`emailGmail` di `FORM_VALIDATORS` — satu titik.
 
 
-### **73. Catatan 26 November 2026 (dropdown custom checkout + auto-clear highlight alamat)**
+### **73. Catatan 27 November 2026 (dropdown custom checkout + auto-clear highlight alamat)**
 
 Konteks: user minta (1) dropdown checkout jadi kotak bundar kustom (`.acc-sel` style) bukan native `<select>`, (2) highlight alamat tersimpan terpilih (`window._selectedBookIdx` / class `.selected`) otomatis dihapus saat form diedit manual.
 
@@ -999,6 +999,15 @@ Konteks: 4 permintaan user: (1) buka dropdown checkout satunya → yang lain oto
 - **Kode pos proporsional** (style.css): `.address-grid` `1fr 1fr 1fr` → `1fr 1fr 0.6fr` (kolom ketiga/ kode pos jadi ~60% lebar kolom lain — pas untuk 5 digit). Mobile tetap 1 kolom (media query lama).
 - **Sisa kuota foto ulasan** (app.js): label `Tambah foto (opsional, maksimal 3)` dikasih `id="rate-photo-label"`; `rateRenderPhotos` update teks dinamis: 0 foto → teks awal; 1–2 foto → `Sisa N foto yang dapat dikirim`; 3 foto → `Foto sudah penuh (maksimal 3)`. Ikut berubah saat foto ditambah/dihapus.
 - **Bump cache** `v=1.0.156` → `v=1.0.157` di 11 HTML. Verifikasi: `node --check app.js` OK, `npm run check:assets` OK (11 halaman lolos).
+
+
+### **75. Catatan 27 November 2026 (fix tanggal journal #72/#73 + tinggi kode pos disamakan dropdown)**
+
+Konteks: user (1) menemukan entri journal #72 & #73 bertanggal "26 November 2026" padahal dikerjakan 27 November (commit `691d641` & `4637ebd` keduanya 27 Nov — diverifikasi via `git log --date`); (2) field kode pos checkout **ketinggian** (lebih tinggi) dari dropdown Provinsi/Kota di sebelahnya — lihat gambar `Images/Contoh Tampilan Halaman Checkout Ukuran Kode Pos yang Harus Diperbaiki.png`.
+
+- **Tanggal journal**: heading #72 dan #73 diubah `26 November 2026` → `27 November 2026`. #70/#71 tetap 26 November (commit konten `179e52c`/`d2572d7` memang 26 Nov; hanya jurnalnya di-commit pagi 27 Nov via `b6d2282`).
+- **Tinggi kode pos** (style.css): akar masalah — input `.form-group input` padding `16px` + font `1rem` → tinggi ~53px, sedangkan dropdown kustom `.acc-sel-btn` padding `11px 13px` + font `0.9rem` → ~41px. Fix: `.address-grid .form-group input { height: 42px; padding: 0 13px; font-size: 0.9rem; border-radius: 12px; }` + `.address-grid .acc-sel-btn { height: 42px; padding-top/bottom: 0 }` → ketiga field di baris itu seragam 42px, font & radius (12px) ikut match. Mobile tetap 1 kolom.
+- **Bump cache** `v=1.0.157` → `v=1.0.158` di 11 HTML. Verifikasi: `node --check app.js` OK, `npm run check:assets` OK.
 
 
 ### **Catatan buat besok (lanjut)**

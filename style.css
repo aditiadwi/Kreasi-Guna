@@ -1659,6 +1659,9 @@ body.menu-open {
 /* Checkout address grid (Kota / Provinsi / Kode Pos) */
 .address-grid { display: grid; grid-template-columns: 1fr 1fr 0.6fr; gap: 12px; }
 .address-grid .form-group { margin-bottom: 0; }
+/* Samakan tinggi kode pos dengan dropdown di sebelahnya (acc-sel-btn) */
+.address-grid .form-group input { height: 42px; padding: 0 13px; font-size: 0.9rem; border-radius: 12px; }
+.address-grid .acc-sel-btn { height: 42px; padding-top: 0; padding-bottom: 0; }
 
 /* STAR RATING */
 .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; margin-bottom: 20px; }
