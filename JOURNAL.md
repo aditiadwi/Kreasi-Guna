@@ -944,6 +944,29 @@ Konteks: lanjutan saran Rio "logic tambahkan produk lain dibenerin". User kasih 
 - Catatan: ini murni perbaikan tampilan badge; logika tambah/stok/penyimpanan sudah benar dari #68. Fitur akun (tambah/switch + hapus) masih DITUNDA.
 
 
+### **70. Catatan 26 November 2026 (ganti alert() native + validasi form alamat checkout/akun)**
+
+Konteks: sisa `alert()` native di file aktif sudah 0 (audit menyeluruh; backup lama di `backup-2026-10-19/` dkk. berisi alert lama tapi bukan file aktif). Fokus: (1) tutup sisa alert native + pasang tone kustom per kategori, (2) fix bug `+62+62` di phone checkout, (3) validasi limitasi form alamat (nama max 30, phone wajib, alamat max 300, dll). Commit `179e52c`.
+
+- **Tone `showAlertModal` otomatis per kategori** (keputusan user): error/gagal → `danger`, sukses → `success`, informatif → `info`, validasi input/stok → default `warning`. Helper tone dipasang manual di kasus kunci: popup diblokir, data struk hilang, alamat tidak ditemukan, geolokasi gagal/didukung, luar area pengiriman (`info`).
+- **Fix bug `+62+62`**: root cause — `applyAddressToForm` menyalin phone mentah (`+62812…`) ke input checkout yang punya prefix statis `+62`, lalu `handlePlaceOrder` lama: `phoneRaw.startsWith('0') ? '+62'+slice(1) : '+62'+phoneRaw` (salah jika sudah `+62…`). Helper baru `normalizePhoneLocal(raw)` (konversi `+62..`/`62..`/`8..` → `08..`) + `isValidPhoneLocal(raw)` (`/^08\d{7,11}$/`). Dipakai di: `applyAddressToForm`, `handlePlaceOrder` (`'+62' + normalizePhoneLocal(phoneRaw).slice(1)`), `handleProceedToPayment`, `saveCurrentFormAddress`, `loadFormData`, input listener checkout (buang awalan `62` live), `editAddress` account.
+- **`<form id="checkout-form" novalidate>`** + kedua button "Lanjut ke Pembayaran" (desktop & mobile-paybar) `type="button"` — menghilangkan validation bubble HTML5 native yang muncul di atas tombol (kemungkinan besar penyebab "alert native" yang masih terlihat user; selain cache versi lama `v=1.0.151`).
+- **Validasi limitasi form alamat** (app.js `saveCurrentFormAddress` + account.html `accSaveAddress`): nama 3–30 karakter; phone wajib + `isValidPhoneLocal` + normalisasi; kelurahan/kecamatan 2–80; alamat 10–300; kode pos 5 digit. Input HTML: nama `maxlength=30`, phone `maxlength=13 inputmode=numeric required`, postal `maxlength=5 inputmode=numeric`.
+- **account.html**: sisa `alert()` di Buy Again / edit ulasan diganti `showAlertModal`.
+- **Bump cache** `v=1.0.152` → `v=1.0.153` di 11 HTML. Verifikasi: `node --check app.js` OK, `npm run check:assets` OK, scan 0 `alert()` native. Push `179e52c`.
+
+
+### **71. Catatan 26 November 2026 (email ketat @gmail.com, telepon maks 12 digit, tombol kembali ke keranjang)**
+
+Konteks: user minta (1) validasi email ketat — di belakang harus `@gmail.com`, tolak iseng seperti `blabla@gmail.comwdfsf`; (2) nomor telepon kelebihan 1 karakter, maks 12 saja; (3) checkout belum ada tombol kembali ke keranjang (panah). Commit `d2572d7`.
+
+- **Email ketat** (app.js): helper baru `isValidEmailStrict(raw)` → regex `/^[^\s@]+@gmail\.com$/i`. Dipakai di `handleProceedToPayment` (ganti regex longgar lama). `blabla@gmail.comwdfsf` ❌ ditolak, `nama@gmail.com` ✅ diterima. Pesan error: *"Masukkan email yang valid (harus berakhiran @gmail.com)."* Input checkout: placeholder `contoh@gmail.com`, `maxlength=100`, `autocomplete=email`, teks error diperbarui. Catatan: hanya form checkout; field email akun (Supabase auth) tidak disentuh.
+- **Telepon maks 12 digit** (sebelumnya 13): `isValidPhoneLocal` → `/^08\d{7,10}$/` (9–12 digit); input listener `slice(0, 12)`; `maxlength="12"` di checkout (`customer-phone`, pattern `(08|8)[0-9]{7,10}`) & account (`acc-addr-phone`); semua pesan error 9-13 → 9-12 / maks 12 digit.
+- **Tombol kembali ke keranjang** (checkout.html): link `← Kembali ke Keranjang` (`href=cart.html`, class `.checkout-back-cart`) di atas judul "Complete Your Order". CSS baru di style.css: inline-block, margin-bottom 12px, font 0.85rem muted, hover gold (meniru pola `.acc-gate-back`).
+- **Bump cache** `v=1.0.153` → `v=1.0.154` di 11 HTML. Verifikasi: `node --check app.js` OK, `npm run check:assets` OK. Push `d2572d7`.
+- Catatan: kalau nanti mau longgarkan email (domain lain selain Gmail), tinggal ubah `isValidEmailStrict` — satu titik saja.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
