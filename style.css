@@ -1657,11 +1657,15 @@ body.menu-open {
 }
 
 /* Checkout address grid (Kota / Provinsi / Kode Pos) */
-.address-grid { display: grid; grid-template-columns: 1fr 1fr 0.6fr; gap: 12px; }
+.address-grid { display: grid; grid-template-columns: 1fr 1fr 0.6fr; gap: 12px; margin-bottom: 30px; }
 .address-grid .form-group { margin-bottom: 0; }
 /* Samakan tinggi kode pos dengan dropdown di sebelahnya (acc-sel-btn) */
 .address-grid .form-group input { height: 42px; padding: 0 13px; font-size: 0.9rem; border-radius: 12px; }
 .address-grid .acc-sel-btn { height: 42px; padding-top: 0; padding-bottom: 0; }
+/* Catatan alamat + counter jumlah karakter: sejajar satu baris */
+.address-helper-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.address-helper-row #address-helper-note { margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; flex: 1; min-width: 0; }
+.address-helper-row #address-count { flex-shrink: 0; font-size: 0.72rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
 /* STAR RATING */
 .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; margin-bottom: 20px; }
@@ -2041,6 +2045,7 @@ footer { position: relative; overflow: hidden; margin-top: auto; padding: 0 0 ca
     /* Checkout address grid: stack ke 1 kolom di HP */
     .address-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
     .address-grid .form-group { margin-bottom: 20px; }
+    .address-grid .form-group:last-child { margin-bottom: 0; } /* jangan nambah jarak dobel sebelum grid (margin-bottom 30px) */
 
     /* Quick-add header: wrap rapi di HP */
     .quick-add-header { flex-wrap: wrap; gap: 8px !important; }

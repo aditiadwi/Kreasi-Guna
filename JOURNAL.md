@@ -1010,6 +1010,16 @@ Konteks: user (1) menemukan entri journal #72 & #73 bertanggal "26 November 2026
 - **Bump cache** `v=1.0.157` → `v=1.0.158` di 11 HTML. Verifikasi: `node --check app.js` OK, `npm run check:assets` OK.
 
 
+### **76. Catatan 27 November 2026 (catatan alamat sejajar counter + jarak form checkout dirapikan)**
+
+Konteks: user (1) minta tulisan "Catatan: …" disejajarkan dengan angka batasan `118/300` (gambar `Images/Contoh Tampilan Halaman Checkout Untuk Tulisan Catatan tolong disejajarkan dengan angka batasan, biar rapih.png`) — sebelumnya counter di baris kanan sendiri lalu catatan di baris kiri berikutnya (zigzag, tidak rapi); (2) jarak antar-form di checkout tidak konsisten dan "hampir berhimpitan".
+
+- **Catatan + counter satu baris** (checkout.html): div counter lama + `<p id="address-helper-note">` digabung jadi `<div class="address-helper-row">` (catatan `flex: 1` di kiri, `#address-count` `flex-shrink: 0` di kanan). Inline style dipindah ke CSS baru `.address-helper-row` (margin-top 6px dari textarea). ID `address-helper-text`/`address-count` dipertahankan — JS (`clearFormData`, deteksi lokasi, `updAddrCount`) hanya ubah `textContent`, jadi aman.
+- **Jarak grid alamat → Layanan Pengiriman = 0px** (akar "hampir berhimpitan"): `.address-grid` tidak punya `margin-bottom` sementara `.address-grid .form-group { margin-bottom: 0 }` (desktop) — jadi jaraknya cuma sisa line-height label. Fix: `.address-grid` dikasih `margin-bottom: 30px` (sama dengan `.form-group` default) → semua jarak antar-form checkout seragam 30px (NAMA→WA→EMAIL→h3→ALAMAT→grid→LAYANAN→CATATAN→tombol).
+- **Mobile**: `.address-grid .form-group:last-child { margin-bottom: 0 }` ditambah di media query — mencegah margin 20px item terakhir di dalam grid menumpuk dengan margin 30px grid (jadi 50px). Hasil HP: jarak dalam grid 20px, keluar grid 30px = sama dengan form lain di HP.
+- **Bump cache** `v=1.0.158` → `v=1.0.159` di 11 HTML. Verifikasi: `node --check app.js` OK, `npm run check:assets` OK.
+
+
 ### **Catatan buat besok (lanjut)**
 
 - **Cek burger menu di HP setelah deploy**: buka halaman mana pun → tap hamburger → pastikan drawer tampil (item full-width rata kiri, section Jelajahi/Pesanan & Akun, ikon, badge keranjang). Test close via X dan via klik item. ~~bg biji kopi~~ sudah diputuskan hapus permanen (#60). Label drawer sekarang Bahasa Indonesia (sesuai contoh) tapi desktop nav masih Inggris (Home/About/...) — mau diseragamkan?
